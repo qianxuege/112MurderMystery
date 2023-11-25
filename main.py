@@ -8,8 +8,14 @@ class Board:
         self.rows = rows #7
         self.cols = cols #7
         self.cellBorderWidth = 1
+        self.cellSize = self.width/self.cols
         self.boardLeft = 100
         self.boardTop = 100
+        #inner box properties
+        self.innerLeft = self.boardLeft + self.cellSize
+        self.innerTop = self.boardTop + self.cellSize
+        self.innerSize = self.width - (2*self.cellSize)
+        #instances of cell class
         self.cellList = []
         self.cellDict = dict()
         self.isFirstIteration = True
@@ -30,7 +36,8 @@ class Board:
         if self.isFirstIteration==True:
             self.updateCellList()
             # initiates player1 after the cellDict is updated
-            self.player1 = Player('player1', self.cellDict, -10) # -10 is the diff in x position
+            self.player1 = Player('player1', self.cellDict, -10, (self.innerLeft, self.innerTop, self.innerSize),
+                                  (self.boardLeft, self.boardTop, self.width)) # -10 is the diff in x position
             self.isFirstIteration = False
         else:
             # draw Player1
@@ -62,7 +69,7 @@ class Board:
             cellName = Cell(cellId, 'Go', cellLeft, cellTop, cellSize)
             self.cellList.append(cellName)
         else:
-            cellName = Cell(cellId, 'secret', cellLeft, cellTop, cellSize)
+            cellName = Secret(cellId, 'secret', cellLeft, cellTop, cellSize)
             self.cellList.append(cellName)
         cellName.drawCell()
         cellName.drawCellType()
@@ -104,6 +111,12 @@ class Board:
         cellSize = self.width/self.cols
         return cellSize
         
+    def drawInnerBoard(self):
+        #draw a huge rectangle in the middle of the screen
+        drawRect(self.innerLeft, self.innerTop, self.innerSize, self.innerSize,
+                 fill='light green')    
+        
+        
 class Cell:
     cellList = []
     def __init__(self, cellId, secretType, cellLeft, cellTop, cellSize):
@@ -126,20 +139,27 @@ class Cell:
     
     def drawCell(self):
         if self.secretType=='oops':
-            color = 'red'
+            color = rgb(227, 141, 138) # red
         elif self.secretType == 'weapon':
-            color= 'green'
+            color= rgb(205, 230, 193) # green
         elif self.secretType == 'Go':
-            color = 'pink'
+            color = rgb(255, 240, 251) # pink
         else:
-            color = 'blue'
+            color = rgb(235, 240, 252) # blue
         drawRect(self.cellLeft, self.cellTop, self.cellSize, self.cellSize, 
                  fill=color, border='black', 
                  borderWidth=1)
     
     def drawCellType(self):
-        drawLabel(f'{self.cellId}. {self.secretType}', self.cellLeft + .5*self.cellSize, self.cellTop + .5*self.cellSize)
-    ## print the labels (secretType)on the cell
+        # print the labels (secretType) on the cell
+        drawLabel(f'{self.secretType}', self.cellLeft + .5*self.cellSize, self.cellTop + .5*self.cellSize)
+    
+    
+
+# buy and pay rent on Secret cells
+class Secret(Cell):
+    def __init__(self, cellId, secretType, cellLeft, cellTop, cellSize):
+        super().__init__(cellId, secretType, cellLeft, cellTop, cellSize)
 
 class Rooms:
     def __init__(self, name, character, characterSecret, isRoom): # isRoom is a boolean value
@@ -173,7 +193,7 @@ class Rooms:
             return None
     
 class Player:
-    def __init__(self, name, cellDict, xPos):
+    def __init__(self, name, cellDict, xPos, innerBoard, outerBoard):
         self.name = name
         self.cellDict = cellDict
         self.currCellNum = 0
@@ -181,6 +201,14 @@ class Player:
         self.dX = xPos
         self.cx = self.currCell.cx + self.dX
         self.cy = self.currCell.cy
+        self.innerLeft = innerBoard[0]
+        self.innerTop = innerBoard[1]
+        self.innerSize = innerBoard[2]
+        self.boardLeft = outerBoard[0]
+        self.boardTop = outerBoard[1]
+        self.boardSize = outerBoard[2]
+        self.lives = 3
+        self.money = 1500
         
     def __repr__(self):
         return f'Player({self.name}, {self.currCell})'
@@ -200,9 +228,27 @@ class Player:
         self.currCellNum  = (self.currCellNum + steps) % 24 
         self.currCell = self.cellDict[self.currCellNum]
     
+    def drawInnerBoard(self):
+        color = rgb(247, 246, 228) #sand
+        drawRect(self.innerLeft, self.innerTop, self.innerSize, self.innerSize,
+                 fill=color, borderWidth=3)
+    
+    #lives, money
+    def drawUpperLabel(self):
+        drawLabel(f'Lives: {self.lives}', self.boardLeft + 35, self.boardTop - 50, size=20)
+        drawLabel(f'Money: ${self.money}', self.boardLeft + self.boardSize - 70, self.boardTop - 50, size=20)
+        
+    def checkOnCell(self):
+        if isinstance(self.currCell, Secret):
+            print('Secret')
+    
     def drawPlayer(self):
         self.updatePlayerCoordinates()
+        self.drawUpperLabel()
+        #draw innerboard, get cell info
         drawCircle(self.cx, self.cy, 10, fill='yellow')
+        self.checkOnCell()
+        self.drawInnerBoard()
 
         
     
