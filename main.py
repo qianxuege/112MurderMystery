@@ -29,7 +29,8 @@ class Board:
         # creates a dictionary of the cells in the correct order after board is drawn
         if self.isFirstIteration==True:
             self.updateCellList()
-            self.player1 = Player('player1', self.cellDict)
+            # initiates player1 after the cellDict is updated
+            self.player1 = Player('player1', self.cellDict, -10) # -10 is the diff in x position
             self.isFirstIteration = False
         else:
             # draw Player1
@@ -172,11 +173,13 @@ class Rooms:
             return None
     
 class Player:
-    def __init__(self, name, cellDict):
+    def __init__(self, name, cellDict, xPos):
         self.name = name
         self.cellDict = cellDict
-        self.currCell = cellDict[0]
-        self.cx = self.currCell.cx - 10
+        self.currCellNum = 0
+        self.currCell = cellDict[self.currCellNum]
+        self.dX = xPos
+        self.cx = self.currCell.cx + self.dX
         self.cy = self.currCell.cy
         
     def __repr__(self):
@@ -189,13 +192,16 @@ class Player:
         return isinstance(other, Player) and self.name==other.name
     
     def updatePlayerCoordinates(self):
-        self.cx = self.currCell.cx - 10
+        self.cx = self.currCell.cx + self.dX
         self.cy = self.currCell.cy
     
-    def updatePlayerCell(self, steps):
-        pass
+    def updatePlayerCell(self, steps): # this should be called when rolled a dice
+        # mod by 24 to return to 0 after reached cell 23
+        self.currCellNum  = (self.currCellNum + steps) % 24 
+        self.currCell = self.cellDict[self.currCellNum]
     
     def drawPlayer(self):
+        self.updatePlayerCoordinates()
         drawCircle(self.cx, self.cy, 10, fill='yellow')
 
         
@@ -216,17 +222,17 @@ def redrawAll(app):
 
     app.gameBoard.drawBoard()
 
-
-    
-
 def onMousePress(app, mouseX, mouseY):
     pass
 
 def onKeyPress(app, key):
-    if key == 'b':
+    if key == 'c':
         print('running camera')
         # runCamera()
         print('finished running camera')
+    if key.isdigit():
+        print(key)
+        app.gameBoard.player1.updatePlayerCell(int(key))
         
 def onStep(app):
     app.paused = not app.paused
