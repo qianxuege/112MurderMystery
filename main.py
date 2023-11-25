@@ -9,7 +9,7 @@ class Board:
         self.cols = cols #7
         self.cellBorderWidth = 1
         self.cellSize = self.width/self.cols
-        self.boardLeft = 100
+        self.boardLeft = 150
         self.boardTop = 100
         #inner box properties
         self.innerLeft = self.boardLeft + self.cellSize
@@ -20,6 +20,8 @@ class Board:
         self.cellDict = dict()
         self.isFirstIteration = True
         self.player1 = None
+        
+
     
     def drawBoard(self):
         cellId = 0
@@ -36,12 +38,17 @@ class Board:
         if self.isFirstIteration==True:
             self.updateCellList()
             # initiates player1 after the cellDict is updated
-            self.player1 = Player('player1', self.cellDict, -10, (self.innerLeft, self.innerTop, self.innerSize),
-                                  (self.boardLeft, self.boardTop, self.width)) # -10 is the diff in x position
+            # -10 is the diff in x position
             self.isFirstIteration = False
+            self.player1 = Player('player1', self.cellDict, -10, (self.innerLeft, self.innerTop, self.innerSize),
+                                  (self.boardLeft, self.boardTop, self.width), 'yellow') 
+            self.AI = Player('AI', self.cellDict, 20, (self.innerLeft, self.innerTop, self.innerSize),
+                                  (self.boardLeft, self.boardTop, self.width), 'purple') 
         else:
             # draw Player1
             self.player1.drawPlayer()
+            # draw AI
+            self.AI.drawPlayer()
         
         
     
@@ -69,7 +76,8 @@ class Board:
             cellName = Cell(cellId, 'Go', cellLeft, cellTop, cellSize)
             self.cellList.append(cellName)
         else:
-            cellName = Secret(cellId, 'secret', cellLeft, cellTop, cellSize)
+            # price for each secret is 100
+            cellName = Secret(cellId, 'secret', cellLeft, cellTop, cellSize, 100)
             self.cellList.append(cellName)
         cellName.drawCell()
         cellName.drawCellType()
@@ -158,8 +166,22 @@ class Cell:
 
 # buy and pay rent on Secret cells
 class Secret(Cell):
-    def __init__(self, cellId, secretType, cellLeft, cellTop, cellSize):
+    def __init__(self, cellId, secretType, cellLeft, cellTop, cellSize, price):
         super().__init__(cellId, secretType, cellLeft, cellTop, cellSize)
+        # add a property to Secret. checks if can buy secret or need to pay rent
+        self.price = price
+        self.secretOwned = False
+        self.secretOwner = None
+        self.yesBuy = False
+        self.yesRent = False
+    
+    def drawCellType(self):
+        # print the labels (secretType) on the cell
+        drawLabel(f'${self.price} {self.secretType}', self.cellLeft + .5*self.cellSize, self.cellTop + .5*self.cellSize)
+    
+    
+    
+
 
 class Rooms:
     def __init__(self, name, character, characterSecret, isRoom): # isRoom is a boolean value
@@ -193,7 +215,7 @@ class Rooms:
             return None
     
 class Player:
-    def __init__(self, name, cellDict, xPos, innerBoard, outerBoard):
+    def __init__(self, name, cellDict, xPos, innerBoard, outerBoard, playerColor):
         self.name = name
         self.cellDict = cellDict
         self.currCellNum = 0
@@ -207,6 +229,7 @@ class Player:
         self.boardLeft = outerBoard[0]
         self.boardTop = outerBoard[1]
         self.boardSize = outerBoard[2]
+        self.playerColor = playerColor
         self.lives = 3
         self.money = 1500
         
@@ -228,27 +251,40 @@ class Player:
         self.currCellNum  = (self.currCellNum + steps) % 24 
         self.currCell = self.cellDict[self.currCellNum]
     
+    #lives, money
+    def drawUpperLabel(self):
+        if self.name=='player1':
+            drawLabel(f'{self.name} lives: {self.lives}', self.boardLeft + 35, self.boardTop - 70, size=20)
+            drawLabel(f'{self.name} money: ${self.money}', self.boardLeft + 35, self.boardTop - 40, size=20)
+        elif self.name=='AI':
+            drawLabel(f'{self.name} lives: ${self.lives}', self.boardLeft + self.boardSize - 35, self.boardTop - 70, size=20)
+            drawLabel(f'{self.name} money: ${self.money}', self.boardLeft + self.boardSize - 35, self.boardTop - 40, size=20)
+        
     def drawInnerBoard(self):
         color = rgb(247, 246, 228) #sand
         drawRect(self.innerLeft, self.innerTop, self.innerSize, self.innerSize,
                  fill=color, borderWidth=3)
     
-    #lives, money
-    def drawUpperLabel(self):
-        drawLabel(f'Lives: {self.lives}', self.boardLeft + 35, self.boardTop - 50, size=20)
-        drawLabel(f'Money: ${self.money}', self.boardLeft + self.boardSize - 70, self.boardTop - 50, size=20)
-        
+    def buySecret(self):
+        drawLabel('Would you like to buy the secret?', self.innerLeft + (self.innerSize/2), self.innerTop + (self.innerSize/2)-100)
+        drawLabel(f'Yes (Pay ${self.currCell.price})', self.innerLeft + (self.innerSize/2)-100, self.innerTop + (self.innerSize/2)+50)
+        drawLabel(f'No (free of charge)', self.innerLeft + (self.innerSize/2)+100, self.innerTop + (self.innerSize/2)+50)
+    
     def checkOnCell(self):
         if isinstance(self.currCell, Secret):
-            print('Secret')
+            self.drawInnerBoard()
+            if self.currCell.secretOwned==False:
+                self.buySecret()
+            # print('Secret')
+            
     
     def drawPlayer(self):
         self.updatePlayerCoordinates()
         self.drawUpperLabel()
         #draw innerboard, get cell info
-        drawCircle(self.cx, self.cy, 10, fill='yellow')
+        drawCircle(self.cx, self.cy, 10, fill=self.playerColor, border='black', borderWidth = 1)
         self.checkOnCell()
-        self.drawInnerBoard()
+        
 
         
     
