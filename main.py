@@ -13,10 +13,9 @@ class Board:
         self.cellList = []
         self.cellDict = dict()
         self.isFirstIteration = True
+        self.player1 = None
     
     def drawBoard(self):
-        # width, height = self.width, self.height
-        # rows, cols = self.rows, self.cols
         cellId = 0
         for row in range(self.rows):
             for col in range(self.cols):
@@ -26,11 +25,16 @@ class Board:
                 self.drawCell(row, col, cellId) # pass in an id
                 cellId += 1
         self.drawBoardBorder()
+        
         # creates a dictionary of the cells in the correct order after board is drawn
         if self.isFirstIteration==True:
             self.updateCellList()
+            self.player1 = Player('player1', self.cellDict)
             self.isFirstIteration = False
-
+        else:
+            # draw Player1
+            self.player1.drawPlayer()
+        
         
     
     def drawBoardBorder(self):
@@ -45,7 +49,6 @@ class Board:
     def drawCell(self, row, col, cellId):
         cellLeft, cellTop = self.getCellLeftTop(row, col)
         cellSize = self.getCellSize()
-        cellName = f'cell{cellId}' #this is the cellName
         # these are the weapon's clue cells
         if cellId in {13, 7, 3, 10, 16, 20}:
             cellName = Cell(cellId, 'weapon', cellLeft, cellTop, cellSize)
@@ -90,11 +93,6 @@ class Board:
         self.cellDict = cellDict
         print(self.cellDict)
             
-        
-
-        
-        
-    
     def getCellLeftTop(self, row, col):
         cellSize = self.getCellSize()
         cellLeft = col*cellSize + self.boardLeft
@@ -113,6 +111,8 @@ class Cell:
         self.cellLeft = cellLeft
         self.cellTop = cellTop
         self.cellSize = cellSize
+        self.cx = cellLeft + cellSize/2
+        self.cy = cellTop + cellSize/2
     def __repr__(self):
         return f'{self.cellId}. {self.secretType}'      
         
@@ -139,10 +139,6 @@ class Cell:
     def drawCellType(self):
         drawLabel(f'{self.cellId}. {self.secretType}', self.cellLeft + .5*self.cellSize, self.cellTop + .5*self.cellSize)
     ## print the labels (secretType)on the cell
-
-class Secret(Cell):
-    def __init__(self):
-        self.secrets = []
 
 class Rooms:
     def __init__(self, name, character, characterSecret, isRoom): # isRoom is a boolean value
@@ -175,7 +171,32 @@ class Rooms:
         else:
             return None
     
-
+class Player:
+    def __init__(self, name, cellDict):
+        self.name = name
+        self.cellDict = cellDict
+        self.currCell = cellDict[0]
+        self.cx = self.currCell.cx - 10
+        self.cy = self.currCell.cy
+        
+    def __repr__(self):
+        return f'Player({self.name}, {self.currCell})'
+    
+    def __hash__(self):
+        return hash(str(self))
+    
+    def __eq__(self, other):
+        return isinstance(other, Player) and self.name==other.name
+    
+    def updatePlayerCoordinates(self):
+        self.cx = self.currCell.cx - 10
+        self.cy = self.currCell.cy
+    
+    def updatePlayerCell(self, steps):
+        pass
+    
+    def drawPlayer(self):
+        drawCircle(self.cx, self.cy, 10, fill='yellow')
 
         
     
