@@ -10,16 +10,28 @@ class Board:
         self.cellBorderWidth = 1
         self.boardLeft = 100
         self.boardTop = 100
+        self.cellList = []
+        self.cellDict = dict()
+        self.isFirstIteration = True
     
     def drawBoard(self):
         # width, height = self.width, self.height
         # rows, cols = self.rows, self.cols
+        cellId = 0
         for row in range(self.rows):
             for col in range(self.cols):
+                # leave the middle of the board blank
                 if 0 < row < (self.rows-1)  and 0 < col < (self.cols-1):
                     continue
-                self.drawCell(row, col)
+                self.drawCell(row, col, cellId) # pass in an id
+                cellId += 1
         self.drawBoardBorder()
+        # creates a dictionary of the cells in the correct order after board is drawn
+        if self.isFirstIteration==True:
+            self.updateCellList()
+            self.isFirstIteration = False
+
+        
     
     def drawBoardBorder(self):
         drawRect(self.boardLeft, self.boardTop, self.width, self.height, 
@@ -30,12 +42,58 @@ class Board:
                  fill=None, border = 'black',
                  borderWidth = self.cellBorderWidth)
     
-    def drawCell(self, row, col):
+    def drawCell(self, row, col, cellId):
         cellLeft, cellTop = self.getCellLeftTop(row, col)
-        cellWidth = cellHeight = self.getCellSize()
-        drawRect(cellLeft, cellTop, cellWidth, cellHeight, 
-                 fill=None, border='black', 
-                 borderWidth=self.cellBorderWidth)
+        cellSize = self.getCellSize()
+        cellName = f'cell{cellId}' #this is the cellName
+        # these are the weapon's clue cells
+        if cellId in {13, 7, 3, 10, 16, 20}:
+            cellName = Cell(cellId, 'weapon', cellLeft, cellTop, cellSize)
+            self.cellList.append(cellName)
+        # these are the cells that would set back the investigation
+        elif cellId in {15, 0, 4, 12, 22}:
+            cellName = Cell(cellId, 'oops', cellLeft, cellTop, cellSize)
+            self.cellList.append(cellName)
+        elif cellId == 17:
+            cellName = Cell(cellId, 'Go', cellLeft, cellTop, cellSize)
+            self.cellList.append(cellName)
+        else:
+            cellName = Cell(cellId, 'secret', cellLeft, cellTop, cellSize)
+            self.cellList.append(cellName)
+        cellName.drawCell()
+        cellName.drawCellType()
+    
+    def updateCellList(self): 
+        # rearrange cells in the order that the players will proceed in
+        cellDict = dict()
+        
+        # left column cells (0-5)); range(0, 6). orinal cellID: 17-7
+        for i in range(0, self.rows-1):
+            bottomLeftID = self.cols + (self.rows-2)*2
+            cellDict[i] = self.cellList[bottomLeftID-(2*i)]
+        
+        # top row cells (6-11); range(6, 12). orinal cellID: 0-5
+        for i in range(self.rows-1, (self.rows-1)*2):
+            iterations = i - (self.rows-1)
+            cellDict[i] = self.cellList[0+iterations]
+        
+        # right column cells (12-17); range(12, 18). orinal cellID: 6-16
+        for i in range((self.rows-1)*2, (self.rows-1)*3):
+            iterations = i - (self.rows-1)*2
+            cellDict[i] = self.cellList[(self.rows-1)+iterations*2]
+            
+        # bottom row cells (18-23); range(18, 24). orinal cellID: 23-18
+        for i in range((self.rows-1)*3, (self.rows-1)*4):
+            iterations = i - (self.rows-1)*3
+            cellDict[i] = self.cellList[(self.rows-1)*4-1-iterations]
+        
+        self.cellDict = cellDict
+        print(self.cellDict)
+            
+        
+
+        
+        
     
     def getCellLeftTop(self, row, col):
         cellSize = self.getCellSize()
@@ -48,13 +106,15 @@ class Board:
         return cellSize
         
 class Cell:
-    def __init__(self, secretType, cellLeft, cellTop, cellSize):
-        self.secretType = secretType
+    cellList = []
+    def __init__(self, cellId, secretType, cellLeft, cellTop, cellSize):
+        self.secretType = secretType # secret, oops, weapon
+        self.cellId = cellId
         self.cellLeft = cellLeft
         self.cellTop = cellTop
         self.cellSize = cellSize
     def __repr__(self):
-        return f'{self.secretType}'       
+        return f'{self.cellId}. {self.secretType}'      
         
     def __eq__(self, other):
         return (isinstance(other, Cell) and (self.secretType==other.secretType)
@@ -63,8 +123,21 @@ class Cell:
     def __hash__(self):
         return hash(str(self))
     
+    def drawCell(self):
+        if self.secretType=='oops':
+            color = 'red'
+        elif self.secretType == 'weapon':
+            color= 'green'
+        elif self.secretType == 'Go':
+            color = 'pink'
+        else:
+            color = 'blue'
+        drawRect(self.cellLeft, self.cellTop, self.cellSize, self.cellSize, 
+                 fill=color, border='black', 
+                 borderWidth=1)
+    
     def drawCellType(self):
-        drawLabel(self.secretType, self.cellLeft + .5*self.cellSize, self.cellTop + .5*self.cellSize)
+        drawLabel(f'{self.cellId}. {self.secretType}', self.cellLeft + .5*self.cellSize, self.cellTop + .5*self.cellSize)
     ## print the labels (secretType)on the cell
 
 class Secret(Cell):
@@ -106,22 +179,30 @@ class Rooms:
 
         
     
+#### APP
 
 def onAppStart(app):
     app.height = 700
     app.width = 800
     app.paused = True
-    app.stepsPerSecond = 5
+    app.stepsPerSecond = 1
+    app.gameBoard = Board(500, 500, 7, 7)
     
 
 def redrawAll(app):
     # drawLabel('112 Murder Mystery', 200, 200)
     # drawLabel(app.paused, 200, 250)
-    gameBoard = Board(500, 500, 7, 7)
-    gameBoard.drawBoard()
+
+    app.gameBoard.drawBoard()
+
+
+    
+
+def onMousePress(app, mouseX, mouseY):
+    pass
 
 def onKeyPress(app, key):
-    if key == 's':
+    if key == 'b':
         print('running camera')
         # runCamera()
         print('finished running camera')
