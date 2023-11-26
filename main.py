@@ -89,21 +89,26 @@ class Board:
         # left column cells (0-5)); range(0, 6). orinal cellID: 17-7
         for i in range(0, self.rows-1):
             bottomLeftID = self.cols + (self.rows-2)*2
+            self.cellList[bottomLeftID-(2*i)].cellId = i
             cellDict[i] = self.cellList[bottomLeftID-(2*i)]
         
         # top row cells (6-11); range(6, 12). orinal cellID: 0-5
+        # while mobing them into a dict, also changing their cellID
         for i in range(self.rows-1, (self.rows-1)*2):
             iterations = i - (self.rows-1)
+            self.cellList[0+iterations].cellId = i
             cellDict[i] = self.cellList[0+iterations]
         
         # right column cells (12-17); range(12, 18). orinal cellID: 6-16
         for i in range((self.rows-1)*2, (self.rows-1)*3):
             iterations = i - (self.rows-1)*2
+            self.cellList[(self.rows-1)+iterations*2].cellId = i
             cellDict[i] = self.cellList[(self.rows-1)+iterations*2]
             
         # bottom row cells (18-23); range(18, 24). orinal cellID: 23-18
         for i in range((self.rows-1)*3, (self.rows-1)*4):
             iterations = i - (self.rows-1)*3
+            self.cellList[(self.rows-1)*4-1-iterations].cellId = i
             cellDict[i] = self.cellList[(self.rows-1)*4-1-iterations]
         
         self.cellDict = cellDict
@@ -175,6 +180,9 @@ class Secret(Cell):
         self.yesBuy = False
         self.yesRent = False
     
+    def __repr__(self):
+        return f'{self.cellId}. {self.secretType}, owner is {self.secretOwner}' 
+    
     def drawCellType(self):
         # print the labels (secretType) on the cell
         drawLabel(f'${self.price} {self.secretType}', self.cellLeft + .5*self.cellSize, self.cellTop + .5*self.cellSize)
@@ -230,8 +238,19 @@ class Player:
         self.boardTop = outerBoard[1]
         self.boardSize = outerBoard[2]
         self.playerColor = playerColor
+        # upper labels
         self.lives = 3
         self.money = 1500
+        # states
+        self.buyingSecret = False
+        self.removeInnerBoard = False
+        # buttons on board
+        self.yesBtnLeft = None
+        self.yesBtnTop = None
+        self.noBtnLeft = None
+        self.noBtnTop = None
+        self.btnW = 120
+        self.btnH = 40
         
     def __repr__(self):
         return f'Player({self.name}, {self.currCell})'
@@ -250,6 +269,8 @@ class Player:
         # mod by 24 to return to 0 after reached cell 23
         self.currCellNum  = (self.currCellNum + steps) % 24 
         self.currCell = self.cellDict[self.currCellNum]
+        # would reset the state of not drawing inner board (bc player clicked no on the previous cell)
+        self.removeInnerBoard = False
     
     #lives, money
     def drawUpperLabel(self):
@@ -265,16 +286,49 @@ class Player:
         drawRect(self.innerLeft, self.innerTop, self.innerSize, self.innerSize,
                  fill=color, borderWidth=3)
     
-    def buySecret(self):
+    # def removeInnerBoard(self):
+    #     color = 'white'
+    #     drawRect(self.innerLeft, self.innerTop, self.innerSize, self.innerSize,
+    #              fill=color, borderWidth=3)
+        
+    def buySecretPopup(self):
+        yesCX = self.innerLeft + (self.innerSize/2)-100
+        yesCY = self.innerTop + (self.innerSize/2)+50
+        noCX = self.innerLeft + (self.innerSize/2)+100
+        noCY = self.innerTop + (self.innerSize/2)+50
+        # update btn dimension
+        self.yesBtnLeft = yesCX-60
+        self.yesBtnTop = yesCY-20
+        self.noBtnLeft = noCX-60
+        self.noBtnTop = noCY-20
         drawLabel('Would you like to buy the secret?', self.innerLeft + (self.innerSize/2), self.innerTop + (self.innerSize/2)-100)
-        drawLabel(f'Yes (Pay ${self.currCell.price})', self.innerLeft + (self.innerSize/2)-100, self.innerTop + (self.innerSize/2)+50)
-        drawLabel(f'No (free of charge)', self.innerLeft + (self.innerSize/2)+100, self.innerTop + (self.innerSize/2)+50)
+        # yes label
+        drawRect(self.yesBtnLeft, self.yesBtnTop, self.btnW, self.btnH, fill='yellow')
+        drawLabel(f'Yes (Pay ${self.currCell.price})', yesCX, yesCY)
+        # no label
+        drawRect(self.noBtnLeft, self.noBtnTop, self.btnW, self.btnH, fill='yellow')
+        drawLabel(f'No (free of charge)', noCX, noCY)
+    
+    def yesBuySecret(self):
+        priceOfSecret = self.currCell.price
+        self.editMoney(-priceOfSecret)
+        self.updateOwnership()
+        # drawRoomSelection()
+        
+    def editMoney(self, money):
+        self.money += money
+    
+    def updateOwnership(self):
+        self.currCell.secretOwned = True
+        self.currCell.secretOwner = self.name
     
     def checkOnCell(self):
         if isinstance(self.currCell, Secret):
-            self.drawInnerBoard()
-            if self.currCell.secretOwned==False:
-                self.buySecret()
+            if self.currCell.secretOwned==False and self.removeInnerBoard == False:
+                # change state
+                self.buyingSecret = True
+                self.drawInnerBoard()
+                self.buySecretPopup()
             # print('Secret')
             
     
@@ -305,8 +359,19 @@ def redrawAll(app):
     app.gameBoard.drawBoard()
 
 def onMousePress(app, mouseX, mouseY):
-    pass
-
+    # check if clicked on yes or no buttons
+    if app.gameBoard.player1.buyingSecret == True:
+        #check if mouseX and mouseY is within bounds of Yes or No box
+        if (app.gameBoard.player1.yesBtnLeft <= mouseX <= (app.gameBoard.player1.yesBtnLeft + app.gameBoard.player1.btnW)
+            and app.gameBoard.player1.yesBtnTop <= mouseY <= (app.gameBoard.player1.yesBtnTop + app.gameBoard.player1.btnH) ):
+            print('yes')
+            app.gameBoard.player1.yesBuySecret()
+            print(app.gameBoard.cellDict[app.gameBoard.player1.currCell.cellId])
+        elif (app.gameBoard.player1.noBtnLeft <= mouseX <= (app.gameBoard.player1.noBtnLeft + app.gameBoard.player1.btnW)
+            and app.gameBoard.player1.noBtnTop <= mouseY <= (app.gameBoard.player1.noBtnTop + app.gameBoard.player1.btnH) ):
+            print('no')
+            app.gameBoard.player1.buyingSecret = False
+            app.gameBoard.player1.removeInnerBoard = True
 def onKeyPress(app, key):
     if key == 'c':
         print('running camera')
