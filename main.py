@@ -1,4 +1,5 @@
 from cmu_graphics import *
+import copy
 from handDetection import runCamera
 
 
@@ -22,7 +23,6 @@ class Board:
         self.innerTop = self.boardTop + self.cellSize
         self.innerSize = self.width - (2 * self.cellSize)
         # instances of cell class
-        self.cellList = []
         self.cellDict = dict()
         self.isFirstIteration = True
         self.player1 = None
@@ -31,27 +31,32 @@ class Board:
         self.roomsDict = dict()
 
     def drawBoard(self):
-        cellListId = 0
-        for row in range(self.rows):
-            for col in range(self.cols):
-                # leave the middle of the board blank
-                if 0 < row < (self.rows - 1) and 0 < col < (self.cols - 1):
-                    continue
-                self.drawCell(row, col, cellListId)  # pass in an id
-                cellListId += 1
+        originalCellId = 0
+        #only passes in originalCellId when app is first created
+        if self.isFirstIteration == True:
+            for row in range(self.rows):
+                for col in range(self.cols):
+                    # leave the middle of the board blank
+                    if 0 < row < (self.rows - 1) and 0 < col < (self.cols - 1):
+                        continue
+                    self.drawCell(row, col, originalCellId)  # pass in an id
+                    originalCellId += 1
+                
         self.drawBoardBorder()
 
         # initiating players
         if self.isFirstIteration == True:
             # creates a dictionary of the cells in the correct order after board is drawn
-            self.updateCellList()
+            self.updateCellDict()
+            print(self.cellDict)
+            for cellNum in self.cellDict:
+                self.cellDict[cellNum].drawCell()
             self.createRooms()
             # initiates players only after the cellDict is updated
             # -10 is the diff in x position
             self.isFirstIteration = False
             self.player1 = Player(
                 "player1",
-                self.cellList,
                 self.cellDict,
                 self.roomsDict,
                 -10,
@@ -61,7 +66,6 @@ class Board:
             )
             self.AI = Player(
                 "AI",
-                self.cellList,
                 self.cellDict,
                 self.roomsDict,
                 20,
@@ -70,6 +74,10 @@ class Board:
                 "purple",
             )
         else:
+            # draw cell using the new cellDict
+            for cellNum in self.cellDict:
+                self.cellDict[cellNum].drawCell()
+                self.cellDict[cellNum].drawCellType()
             # draw Player1
             self.player1.drawPlayer()
             # draw AI
@@ -169,56 +177,64 @@ class Board:
             borderWidth=self.cellBorderWidth,
         )
 
-    def drawCell(self, row, col, cellListId):
+    def drawCell(self, row, col, originalCellId):
         cellLeft, cellTop = self.getCellLeftTop(row, col)
         cellSize = self.getCellSize()
         # these are the weapon's clue cells
-        if cellListId in {13, 7, 3, 10, 16, 20}:
-            cellName = Cell(cellListId, "weapon", cellLeft, cellTop, cellSize)
-            
-            self.cellList.append(cellName)
+        if originalCellId in {13, 7, 3, 10, 16, 20}:
+            cellName = Cell(originalCellId, "weapon", cellLeft, cellTop, cellSize)
+            self.cellDict[originalCellId] = cellName
+            # self.originalCellId.append(cellName)
         # these are the cells that would set back the investigation
-        elif cellListId in {15, 0, 4, 12, 22}:
-            cellName = Cell(cellListId, "oops", cellLeft, cellTop, cellSize)
-            self.cellList.append(cellName)
-        elif cellListId == 17:
-            cellName = Cell(cellListId, "Go", cellLeft, cellTop, cellSize)
-            self.cellList.append(cellName)
+        elif originalCellId in {15, 0, 4, 12, 22}:
+            cellName = Cell(originalCellId, "oops", cellLeft, cellTop, cellSize)
+            self.cellDict[originalCellId] = cellName
+            # self.originalCellId.append(cellName)
+        elif originalCellId == 17:
+            cellName = Cell(originalCellId, "Go", cellLeft, cellTop, cellSize)
+            self.cellDict[originalCellId] = cellName
+            # self.originalCellId.append(cellName)
         else:
             # price for each secret is 100
-            cellName = Secret(cellListId, "secret", cellLeft, cellTop, cellSize, 100)
-            self.cellList.append(cellName)
+            cellName = Secret(originalCellId, "secret", cellLeft, cellTop, cellSize, 100)
+            self.cellDict[originalCellId] = cellName
+            # self.originalCellId.append(cellName)
         cellName.drawCell()
         cellName.drawCellType()
 
-    def updateCellList(self):
+    def updateCellDict(self):
         # rearrange cells in the order that the players will proceed in
         cellDict = dict()
+        originalDict = copy.deepcopy(self.cellDict)
 
-        # left column cells (0-5)); range(0, 6). orinal cellListId: 17-7
+        # left column cells (0-5)); range(0, 6). originalCellId: 17-7
         for i in range(0, self.rows - 1):
             bottomLeftID = self.cols + (self.rows - 2) * 2
-            self.cellList[bottomLeftID - (2 * i)].cellDictId = i
-            cellDict[i] = self.cellList[bottomLeftID - (2 * i)]
+            # self.cellDict[bottomLeftID - (2 * i)].cellDictId = i
+            cellDict[i] = originalDict[bottomLeftID - (2 * i)]
+            cellDict[i].cellDictId = i
 
-        # top row cells (6-11); range(6, 12). orinal cellListId: 0-5
+        # top row cells (6-11); range(6, 12). originalCellId: 0-5
         # while mobing them into a dict, also changing their cellDictId
         for i in range(self.rows - 1, (self.rows - 1) * 2):
             iterations = i - (self.rows - 1)
-            self.cellList[0 + iterations].cellDictId = i
-            cellDict[i] = self.cellList[0 + iterations]
+            # self.cellDict[0 + iterations].cellDictId = i
+            cellDict[i] = originalDict[0 + iterations]
+            cellDict[i].cellDictId = i
 
-        # right column cells (12-17); range(12, 18). orinal cellListId: 6-16
+        # right column cells (12-17); range(12, 18). originalCellId: 6-16
         for i in range((self.rows - 1) * 2, (self.rows - 1) * 3):
             iterations = i - (self.rows - 1) * 2
-            self.cellList[(self.rows - 1) + iterations * 2].cellDictId = i
-            cellDict[i] = self.cellList[(self.rows - 1) + iterations * 2]
+            # self.cellDict[(self.rows - 1) + iterations * 2].cellDictId = i
+            cellDict[i] = originalDict[(self.rows - 1) + iterations * 2]
+            cellDict[i].cellDictId = i
 
-        # bottom row cells (18-23); range(18, 24). orinal cellListId: 23-18
+        # bottom row cells (18-23); range(18, 24). originalCellId: 23-18
         for i in range((self.rows - 1) * 3, (self.rows - 1) * 4):
             iterations = i - (self.rows - 1) * 3
-            self.cellList[(self.rows - 1) * 4 - 1 - iterations].cellDictId = i
-            cellDict[i] = self.cellList[(self.rows - 1) * 4 - 1 - iterations]
+            # self.cellDict[(self.rows - 1) * 4 - 1 - iterations].cellDictId = i
+            cellDict[i] = originalDict[(self.rows - 1) * 4 - 1 - iterations]
+            cellDict[i].cellDictId = i
 
         self.cellDict = cellDict
         # print(self.cellDict)
@@ -246,11 +262,11 @@ class Board:
 
 
 class Cell:
-    cellList = []
+    cellDict = dict()
 
-    def __init__(self, cellListId, secretType, cellLeft, cellTop, cellSize):
+    def __init__(self, originalCellId, secretType, cellLeft, cellTop, cellSize):
         self.secretType = secretType  # secret, oops, weapon
-        self.cellListId = cellListId
+        self.originalCellId = originalCellId
         self.cellDictId = None        # will be changed when updating cellDict
         self.cellLeft = cellLeft
         self.cellTop = cellTop
@@ -281,12 +297,12 @@ class Cell:
             color = rgb(255, 240, 251)  # pink
         elif self.secretType == "secret" and self.secretOwned == False:
             color = rgb(235, 240, 252)  # blue
-            if self.cellDictId == 3 or self.cellListId == 11:
+            if self.cellDictId == 3 or self.originalCellId == 11:
                 print(self)
         elif self.secretType == "secret" and self.secretOwner != None:
-            if self.cellDictId == 3 or self.cellListId == 11:
+            if self.cellDictId == 3 or self.originalCellId == 11:
                 print(self)
-            color = rgb(178, 188, 212)  # darkerBlue
+            color = rgb(104, 119, 156)  # darkerBlue
         drawRect(
             self.cellLeft,
             self.cellTop,
@@ -308,8 +324,8 @@ class Cell:
 
 # buy and pay rent on Secret cells
 class Secret(Cell):
-    def __init__(self, cellListId, secretType, cellLeft, cellTop, cellSize, price):
-        super().__init__(cellListId, secretType, cellLeft, cellTop, cellSize)
+    def __init__(self, originalCellId, secretType, cellLeft, cellTop, cellSize, price):
+        super().__init__(originalCellId, secretType, cellLeft, cellTop, cellSize)
         # add a property to Secret. checks if can buy secret or need to pay rent
         self.price = price
         self.secretOwned = False
@@ -368,10 +384,9 @@ class Rooms:
 
 class Player:
     def __init__(
-        self, name, cellList, cellDict, roomsDict, xPos, innerBoard, outerBoard, playerColor
+        self, name, cellDict, roomsDict, xPos, innerBoard, outerBoard, playerColor
     ):
         self.name = name
-        self.cellList = cellList # only used for color change & ownership, cuz drawBoard uses this
         self.cellDict = cellDict
         self.roomsDict = roomsDict
         self.currCellNum = 0
@@ -602,9 +617,6 @@ class Player:
     def updateCellOwnership(self):
         self.currCell.secretOwned = True
         self.currCell.secretOwner = self.name
-        cellListId = self.currCell.cellListId
-        self.cellList[cellListId].secretOwned = True
-        self.cellList[cellListId].secretOwner = self.name
         # change the selectedRoom secret ownership when user closes the popup
 
     def checkOnCell(self):
