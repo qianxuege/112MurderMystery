@@ -6,6 +6,7 @@ from handDetection import runCamera
 class Colors:
     def __init__(self):
         self.dustyBlue = rgb(116, 136, 168)
+        self.mossGreen = rgb(89, 125, 92)
 
 class Board:
     def __init__(self, width, height, rows, cols):
@@ -27,8 +28,12 @@ class Board:
         self.isFirstIteration = True
         self.player1 = None
         self.AI = None
+        # player
+        self.playerDict = dict()
         # rooms
         self.roomsDict = dict()
+        # Alternate turns
+        self.currTurn = None
 
     def drawBoard(self):
         originalCellId = 0
@@ -73,6 +78,9 @@ class Board:
                 (self.boardLeft, self.boardTop, self.width),
                 "purple",
             )
+            self.playerDict["player1"] = app.gameBoard.player1
+            self.playerDict["AI"] = app.gameBoard.AI
+            self.currTurn = self.player1
         else:
             # draw cell using the new cellDict
             for cellNum in self.cellDict:
@@ -82,6 +90,7 @@ class Board:
             self.player1.drawPlayer()
             # draw AI
             self.AI.drawPlayer()
+            self.drawLowerBtns()
 
     def createRooms(self):
         # need to change all char secret descriptions according to the linebreaks
@@ -210,7 +219,6 @@ class Board:
         # left column cells (0-5)); range(0, 6). originalCellId: 17-7
         for i in range(0, self.rows - 1):
             bottomLeftID = self.cols + (self.rows - 2) * 2
-            # self.cellDict[bottomLeftID - (2 * i)].cellDictId = i
             cellDict[i] = originalDict[bottomLeftID - (2 * i)]
             cellDict[i].cellDictId = i
 
@@ -218,21 +226,18 @@ class Board:
         # while mobing them into a dict, also changing their cellDictId
         for i in range(self.rows - 1, (self.rows - 1) * 2):
             iterations = i - (self.rows - 1)
-            # self.cellDict[0 + iterations].cellDictId = i
             cellDict[i] = originalDict[0 + iterations]
             cellDict[i].cellDictId = i
 
         # right column cells (12-17); range(12, 18). originalCellId: 6-16
         for i in range((self.rows - 1) * 2, (self.rows - 1) * 3):
             iterations = i - (self.rows - 1) * 2
-            # self.cellDict[(self.rows - 1) + iterations * 2].cellDictId = i
             cellDict[i] = originalDict[(self.rows - 1) + iterations * 2]
             cellDict[i].cellDictId = i
 
         # bottom row cells (18-23); range(18, 24). originalCellId: 23-18
         for i in range((self.rows - 1) * 3, (self.rows - 1) * 4):
             iterations = i - (self.rows - 1) * 3
-            # self.cellDict[(self.rows - 1) * 4 - 1 - iterations].cellDictId = i
             cellDict[i] = originalDict[(self.rows - 1) * 4 - 1 - iterations]
             cellDict[i].cellDictId = i
 
@@ -260,6 +265,17 @@ class Board:
             fill="light green",
         )
 
+    def drawLowerBtns(self):
+        # make a guess
+        drawRect(self.boardLeft-15, self.boardTop + self.height + 20, 150, 40, fill=self.colors.dustyBlue, border='black')
+        drawLabel("Make a guess", self.boardLeft + 60, self.boardTop + self.height + 40, size = 20)
+
+        # switch turns
+        drawLabel(f"It is {self.currTurn.name}'s turn.", self.boardLeft + 60+ 180, self.boardTop + self.height + 40, size = 16)
+        drawRect(self.boardLeft + 60+ 400 - 100, self.boardTop + self.height + 20, 200, 40, fill=self.colors.dustyBlue, border='black')
+        drawLabel('click here to switch turns', self.boardLeft + 60+ 400, self.boardTop + self.height + 40, size = 16)
+
+        # self.boardLeft + self.width - 60, self.boardTop + self.height + 40
 
 class Cell:
     cellDict = dict()
@@ -297,11 +313,7 @@ class Cell:
             color = rgb(255, 240, 251)  # pink
         elif self.secretType == "secret" and self.secretOwned == False:
             color = rgb(235, 240, 252)  # blue
-            if self.cellDictId == 3 or self.originalCellId == 11:
-                print(self)
         elif self.secretType == "secret" and self.secretOwner != None:
-            if self.cellDictId == 3 or self.originalCellId == 11:
-                print(self)
             color = rgb(104, 119, 156)  # darkerBlue
         drawRect(
             self.cellLeft,
@@ -476,6 +488,8 @@ class Player:
                 self.boardTop - 40,
                 size=20,
             )
+    
+    
 
     def drawInnerBoard(self):
         color = rgb(247, 246, 228)  # sand
@@ -640,7 +654,9 @@ class Player:
                     if self.selectedRoom.characterSecretOwner == None or self.selectedRoom.roomSecretOwner == None:
                         self.drawSelectedRoom()
                     else:
-                        self.drawRoomNotAvailable()
+                        if self.roomsDrawn == False:
+                            self.drawRoomNotAvailable()
+                            # if click on OK, self.showRooms = True
                         # use mouse press to check if ok is clicked. if clicked, return to drawselectedroom
 
 
@@ -676,6 +692,23 @@ def redrawAll(app):
 
 def onMousePress(app, mouseX, mouseY):
     # change the player name based on whose turn it is --> create a variable
+    changePlayerRectLeft = app.gameBoard.boardLeft + 60+ 400 - 100
+    changePlayerRectTop = app.gameBoard.boardTop + app.gameBoard.height + 20
+    changePlayerRectW = 200
+    changePlayerRectH = 40
+    if (changePlayerRectLeft <= mouseX <= changePlayerRectLeft + changePlayerRectW and 
+        changePlayerRectTop <= mouseY <= changePlayerRectTop + changePlayerRectH):
+        if app.gameBoard.currTurn == app.gameBoard.player1:
+            app.gameBoard.currTurn = app.gameBoard.AI
+        else:
+            app.gameBoard.currTurn = app.gameBoard.player1
+    if app.gameBoard.currTurn == None:
+        currPlayer = app.gameBoard.player1
+    else:
+        currPlayer = app.gameBoard.currTurn.name
+    # currPlayerInstance = f"app.gameBoard.{currPlayer}"
+    
+    print(app.gameBoard.playerDict['player1'])
 
     # check if clicked on yes or no buttons
     if (app.gameBoard.player1.buyingSecret == True) and (app.gameBoard.player1.showRooms == False):
@@ -732,7 +765,17 @@ def onMousePress(app, mouseX, mouseY):
         if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
             app.gameBoard.player1.buyingSecret = False
             app.gameBoard.player1.secretOKRect = None
-
+    
+    # checks if the OK btn is clicked on the roomsNotAvailable screen
+    if app.gameBoard.player1.roomsDrawn == False:
+        rectLeft = app.gameBoard.player1.innerLeft + (app.gameBoard.player1.innerSize/2) - 50
+        rectTop = app.gameBoard.player1.innerTop + 150
+        rectW = 100
+        rectH = 40
+        if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
+            print('return to showRooms screen')
+            app.gameBoard.player1.showRooms = True
+            app.gameBoard.player1.selectedRoom = None
 
 def onKeyPress(app, key):
     if key == "c":
