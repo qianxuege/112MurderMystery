@@ -379,7 +379,10 @@ class Player:
         self.showRooms = False
         self.roomsDrawn = False
         # rooms and secrets
+        self.charSecretOwned = []
+        self.roomSecretOwned = []
         self.selectedRoom = None
+        self.secretOKRect = None
         # buttons on board
         self.yesBtnLeft = None
         self.yesBtnTop = None
@@ -525,10 +528,25 @@ class Player:
             size = 20
         )
         if self.selectedRoom.characterSecretOwner == None:
+            secretDisplayed = 'characterSecret'
             self.drawSecret('character secret', self.selectedRoom.characterSecret)
-
+            
+        # shows the room secret if the character secret is already owned
         elif self.selectedRoom.roomSecretOwner == None:
-            pass
+            secretDisplayed = 'roomSecret'
+            self.drawSecret('room secret', self.selectedRoom.roomSecret)
+        # draws the OK button in the drawSecret method
+        
+        # updates ownership if the OK button is clicked
+        if self.buyingSecret == False:
+            if secretDisplayed == 'characterSecret':
+                self.charSecretOwned.append(self.selectedRoom.characterSecret) # updates list of player secrets
+                self.selectedRoom.characterSecretOwner = self.name
+            elif secretDisplayed == 'roomSecret':
+                self.roomSecretOwned.append(self.selectedRoom.roomSecret)
+                self.selectedRoom.roomSecretOwner = self.name
+            self.yesBuySecret()
+
     
     def drawSecret(self, secretType, secretString):
         centerX = self.innerLeft + (self.innerSize / 2)
@@ -537,17 +555,25 @@ class Player:
         for line in secretString.splitlines():
             currY += 20
             drawLabel(line, centerX, currY)
+        
+        # OK button
+        dustyBlue = rgb(116, 136, 168)
+        drawRect(centerX-50, currY + 50, 100, 40, fill=dustyBlue)
+        drawLabel("OK", centerX, currY + 70)
+        self.secretOKRect = (centerX-50, currY + 50, 100, 40)
+    
 
     # this should be called at the end of displaying the secret
     def yesBuySecret(self):
         priceOfSecret = self.currCell.price
         self.editMoney(-priceOfSecret)
-        self.updateOwnership()
+        self.updateCellOwnership()
+        self.selectedRoom = None
 
     def editMoney(self, money):
         self.money += money
     
-    def updateOwnership(self):
+    def updateCellOwnership(self):
         self.currCell.secretOwned = True
         self.currCell.secretOwner = self.name
         # change the selectedRoom secret ownership when user closes the popup
@@ -555,11 +581,12 @@ class Player:
     def checkOnCell(self):
         if isinstance(self.currCell, Secret):
             # checks the secretOwned status of the cell, not the room
-            if self.currCell.secretOwned == False and self.removeInnerBoard == False:
-                # change state
-                self.buyingSecret = True  # state
-                self.drawInnerBoard()
-                self.buySecretPopup()
+            if self.currCell.secretOwned == False:
+                if self.removeInnerBoard == False:
+                    # change state
+                    self.buyingSecret = True  # state
+                    self.drawInnerBoard()
+                    self.buySecretPopup()
                 # draws the room options if clicked on 'yes'
                 if self.showRooms == True:
                     print("show rooms")
@@ -570,12 +597,8 @@ class Player:
                     self.roomsDrawn = False  # state
                     self.drawSelectedRoom()
 
-                # change the cell and room secret ownership state at the end:
-                # self.currCell.secretOwned = True  
-                # self.currCell.secretOwner = self.name
-                # self.selectedRoom.characterSecretOwner = self.name  
-                
-            # need to check how to break lines for room secret
+
+                # reset through the yesBuySecret method, called in drawSelectedRoom
 
     def drawPlayer(self):
         self.updatePlayerCoordinates()
@@ -616,9 +639,9 @@ def onMousePress(app, mouseX, mouseY):
         ):
             print("yes")
 
-            app.gameBoard.player1.showRooms = (
-                True  # change this state would trigger draw options for rooms
-            )
+            app.gameBoard.player1.showRooms = True  # change this state would trigger draw options for rooms
+            app.gameBoard.player1.removeInnerBoard = True # this gets rid of the yes and no btns
+            
             # app.gameBoard.player1.yesBuySecret() do this after the player gets the secret
             # print(app.gameBoard.cellDict[app.gameBoard.player1.currCell.cellId])
         elif app.gameBoard.player1.noBtnLeft <= mouseX <= (
@@ -653,6 +676,16 @@ def onMousePress(app, mouseX, mouseY):
                     app.gameBoard.player1.selectedRoom = (
                         app.gameBoard.player1.roomsDict[i + 3]
                     )
+
+    # checks if the OK btn is clicked at the buy secret screen. If so, resets.
+    if app.gameBoard.player1.secretOKRect != None:
+        rectLeft = app.gameBoard.player1.secretOKRect[0]
+        rectTop = app.gameBoard.player1.secretOKRect[1]
+        rectW = app.gameBoard.player1.secretOKRect[2]
+        rectH = app.gameBoard.player1.secretOKRect[3]
+        if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
+            app.gameBoard.player1.buyingSecret = False
+            app.gameBoard.player1.secretOKRect = None
 
 
 def onKeyPress(app, key):
