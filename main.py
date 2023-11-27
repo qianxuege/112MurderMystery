@@ -11,15 +11,18 @@ class Board:
         self.cellSize = self.width/self.cols
         self.boardLeft = 150
         self.boardTop = 100
-        #inner box properties
+        # inner box properties
         self.innerLeft = self.boardLeft + self.cellSize
         self.innerTop = self.boardTop + self.cellSize
         self.innerSize = self.width - (2*self.cellSize)
-        #instances of cell class
+        # instances of cell class
         self.cellList = []
         self.cellDict = dict()
         self.isFirstIteration = True
         self.player1 = None
+        self.AI = None
+        # rooms
+        self.roomsDict = dict()
         
 
     
@@ -34,15 +37,17 @@ class Board:
                 cellId += 1
         self.drawBoardBorder()
         
-        # creates a dictionary of the cells in the correct order after board is drawn
+        # initiating players
         if self.isFirstIteration==True:
+            # creates a dictionary of the cells in the correct order after board is drawn
             self.updateCellList()
-            # initiates player1 after the cellDict is updated
+            self.createRooms()
+            # initiates players only after the cellDict is updated
             # -10 is the diff in x position
             self.isFirstIteration = False
-            self.player1 = Player('player1', self.cellDict, -10, (self.innerLeft, self.innerTop, self.innerSize),
+            self.player1 = Player('player1', self.cellDict, self.roomsDict, -10, (self.innerLeft, self.innerTop, self.innerSize),
                                   (self.boardLeft, self.boardTop, self.width), 'yellow') 
-            self.AI = Player('AI', self.cellDict, 20, (self.innerLeft, self.innerTop, self.innerSize),
+            self.AI = Player('AI', self.cellDict, self.roomsDict, 20, (self.innerLeft, self.innerTop, self.innerSize),
                                   (self.boardLeft, self.boardTop, self.width), 'purple') 
         else:
             # draw Player1
@@ -50,7 +55,37 @@ class Board:
             # draw AI
             self.AI.drawPlayer()
         
-        
+    def createRooms(self):
+        # Kitchen
+        kitchenCharSecret = ("To most people, Mrs. White seems like an honest and optimistic " + 
+                             "woman who runs Colonel Mustard’s kitchen efficiently on a daily " + 
+                             "basis. Would anyone suspect that she has covertly taken money from " + 
+                             "Mustard and stolen valuable antiques to sell on the black market?")
+        kitchenRoomSecret = "Mustard was not in the kitchen at 9pm"
+        kitchen = Rooms('Kitchen', 'Mrs. White', kitchenCharSecret, kitchenRoomSecret)
+        self.roomsDict['kitchen'] = kitchen
+        # Master Bedroom
+        '''
+        bedroomCharSecret = ("Colonel Mustard is a decorated war hero, but he wasn’t " + 
+                             "actually in the battle for which he was awarded his most " + 
+                             "prestigious medal.")
+        bedroomRoomSecret = "Mustard was not in the bedroom at 9pm"
+        Bedroom = Rooms('Master Bedroom', 'Colonel Mustard', bedroomCharSecret, bedroomRoomSecret)
+        # Billiard Room
+        billiardCharSecret = ("Mr. Green is a businessman who is a closeted homosexual. " + 
+                              "He is desperately in love with his partner and wants to get " + 
+                              "married, but Mustard proclaimed that he would use his influence " +
+                              "to stop gay marriage.")
+        billiardRoomSecret = "Mustard was not in the billiard room at 9pm"
+        billiard = Rooms('Billiard Room', 'Mr. Green', billiardCharSecret, billiardRoomSecret)
+        # Study
+        studyCharSecret = ("Mr. Green is a businessman who is a closeted homosexual. " + 
+                              "He is desperately in love with his partner and wants to get " + 
+                              "married, but Mustard proclaimed that he would use his influence " +
+                              "to stop gay marriage.")
+        studyRoomSecret = "Mustard was not in the study room at 9pm"
+        study = Rooms('Study', 'Professor Plum', studyCharSecret, studyRoomSecret)
+        '''
     
     def drawBoardBorder(self):
         drawRect(self.boardLeft, self.boardTop, self.width, self.height, 
@@ -123,7 +158,8 @@ class Board:
     def getCellSize(self):
         cellSize = self.width/self.cols
         return cellSize
-        
+      
+    # currently not using this  
     def drawInnerBoard(self):
         #draw a huge rectangle in the middle of the screen
         drawRect(self.innerLeft, self.innerTop, self.innerSize, self.innerSize,
@@ -192,19 +228,19 @@ class Secret(Cell):
 
 
 class Rooms:
-    def __init__(self, name, character, characterSecret, isRoom): # isRoom is a boolean value
+    def __init__(self, name, character, characterSecret, roomSecret): # isRoom is a boolean value
         self.name = name
         self.accessible = True
         self.character = character
         # the secrets
         self.characterSecret = characterSecret
-        self.isRoom = isRoom
+        self.roomSecret = roomSecret
         # ownserships
         self.characterSecretOwner = None
-        self.isRoomOwner = None
+        self.roomSecretOwner = None
         
     def __repr__(self):
-        return f'{self.name}({self.character}, {self.characterSecretOwner}, {self.isRoomOwner})'
+        return f'{self.name}({self.character}, {self.characterSecretOwner}, {self.roomSecretOwner})'
     def __hash__(self):
         return hash(str(self))
     def __eq__(self, other):
@@ -223,9 +259,10 @@ class Rooms:
             return None
     
 class Player:
-    def __init__(self, name, cellDict, xPos, innerBoard, outerBoard, playerColor):
+    def __init__(self, name, cellDict, roomsDict, xPos, innerBoard, outerBoard, playerColor):
         self.name = name
         self.cellDict = cellDict
+        self.roomsDict = roomsDict
         self.currCellNum = 0
         self.currCell = cellDict[self.currCellNum]
         self.dX = xPos
@@ -244,6 +281,7 @@ class Player:
         # states
         self.buyingSecret = False
         self.removeInnerBoard = False
+        self.showRooms = False
         # buttons on board
         self.yesBtnLeft = None
         self.yesBtnTop = None
@@ -251,6 +289,13 @@ class Player:
         self.noBtnTop = None
         self.btnW = 120
         self.btnH = 40
+        self.roomBtnCol1Left = None
+        self.roomBtnCol2Left = None
+        self.roomBtnTop = None
+        self.roomBtnH = None
+        self.roomBtnW = None
+        
+        
         
     def __repr__(self):
         return f'Player({self.name}, {self.currCell})'
@@ -308,12 +353,29 @@ class Player:
         # no label
         drawRect(self.noBtnLeft, self.noBtnTop, self.btnW, self.btnH, fill='yellow')
         drawLabel(f'No (free of charge)', noCX, noCY)
+        
+    def drawRoomSelection(self):
+        self.roomBtnCol1Left = self.yesBtnLeft
+        self.roomBtnTop = self.innerTop + 40
+        self.roomBtnCol2Left = self.noBtnLeft
+        for i in range(6): # len(self.roomsDict)
+            if i < 3:
+                rectLeft = self.roomBtnCol1Left
+                rectTop = self.roomBtnTop + (i * self.btnH) + 100
+                print(i, rectTop)
+                drawRect(rectLeft, rectTop, self.btnW, self.btnH, fill='blue')
+                # drawLabel(self.roomsDict[i].name, )
+            else:
+                j = i%3
+                rectLeft = self.roomBtnCol2Left
+                rectTop = self.roomBtnTop + j * self.btnH + 50
+                drawRect(rectLeft, rectTop, self.btnW, self.btnH, fill='blue')
     
     def yesBuySecret(self):
         priceOfSecret = self.currCell.price
         self.editMoney(-priceOfSecret)
         self.updateOwnership()
-        # drawRoomSelection()
+        
         
     def editMoney(self, money):
         self.money += money
@@ -329,7 +391,11 @@ class Player:
                 self.buyingSecret = True
                 self.drawInnerBoard()
                 self.buySecretPopup()
-            # print('Secret')
+                # draws the room options if clicked on 'yes'
+                if self.showRooms == True:
+                    print('show rooms')
+                    self.drawRoomSelection()
+            # need to check how to break lines for room secret
             
     
     def drawPlayer(self):
@@ -365,8 +431,10 @@ def onMousePress(app, mouseX, mouseY):
         if (app.gameBoard.player1.yesBtnLeft <= mouseX <= (app.gameBoard.player1.yesBtnLeft + app.gameBoard.player1.btnW)
             and app.gameBoard.player1.yesBtnTop <= mouseY <= (app.gameBoard.player1.yesBtnTop + app.gameBoard.player1.btnH) ):
             print('yes')
-            app.gameBoard.player1.yesBuySecret()
-            print(app.gameBoard.cellDict[app.gameBoard.player1.currCell.cellId])
+            
+            app.gameBoard.player1.showRooms = True # after this should draw options for rooms
+            # app.gameBoard.player1.yesBuySecret() do this after the player gets the secret
+            # print(app.gameBoard.cellDict[app.gameBoard.player1.currCell.cellId])
         elif (app.gameBoard.player1.noBtnLeft <= mouseX <= (app.gameBoard.player1.noBtnLeft + app.gameBoard.player1.btnW)
             and app.gameBoard.player1.noBtnTop <= mouseY <= (app.gameBoard.player1.noBtnTop + app.gameBoard.player1.btnH) ):
             print('no')
