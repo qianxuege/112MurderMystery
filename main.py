@@ -26,9 +26,9 @@ class Board:
         # instances of cell class
         self.cellDict = dict()
         self.isFirstIteration = True
+        # players
         self.player1 = None
         self.AI = None
-        # player
         self.playerDict = dict()
         # rooms
         self.roomsDict = dict()
@@ -78,8 +78,8 @@ class Board:
                 (self.boardLeft, self.boardTop, self.width),
                 "purple",
             )
-            self.playerDict["player1"] = app.gameBoard.player1
-            self.playerDict["AI"] = app.gameBoard.AI
+            self.playerDict["player1"] = self.player1
+            self.playerDict["AI"] = self.AI
             self.currTurn = self.player1
         else:
             # draw cell using the new cellDict
@@ -489,8 +489,6 @@ class Player:
                 size=20,
             )
     
-    
-
     def drawInnerBoard(self):
         color = rgb(247, 246, 228)  # sand
         drawRect(
@@ -527,6 +525,7 @@ class Player:
             "Would you like to buy the secret?",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + (self.innerSize / 2) - 100,
+            size = 20
         )
         # yes label
         drawRect(self.yesBtnLeft, self.yesBtnTop, self.btnW, self.btnH, fill="yellow")
@@ -681,7 +680,9 @@ def onAppStart(app):
     app.paused = True
     app.stepsPerSecond = 1
     app.gameBoard = Board(500, 500, 7, 7)
-
+    app.instructionScreen = False
+    app.currPlayer = app.gameBoard.player1
+    
 
 def redrawAll(app):
     # drawLabel('112 Murder Mystery', 200, 200)
@@ -702,93 +703,95 @@ def onMousePress(app, mouseX, mouseY):
             app.gameBoard.currTurn = app.gameBoard.AI
         else:
             app.gameBoard.currTurn = app.gameBoard.player1
-    if app.gameBoard.currTurn == None:
-        currPlayer = app.gameBoard.player1
-    else:
-        currPlayer = app.gameBoard.currTurn.name
-    # currPlayerInstance = f"app.gameBoard.{currPlayer}"
+   
     
-    print(app.gameBoard.playerDict['player1'])
+    print(app.currPlayer)
 
-    # check if clicked on yes or no buttons
-    if (app.gameBoard.player1.buyingSecret == True) and (app.gameBoard.player1.showRooms == False):
-        # check if mouseX and mouseY is within bounds of Yes or No box
-        if (app.gameBoard.player1.yesBtnLeft <= mouseX <= (app.gameBoard.player1.yesBtnLeft + app.gameBoard.player1.btnW) 
-            and app.gameBoard.player1.yesBtnTop <= mouseY <= (app.gameBoard.player1.yesBtnTop + app.gameBoard.player1.btnH)
-        ):
-            print("yes")
+    if app.currPlayer != None and app.instructionScreen == False: # this is when the game starts
+        # check if clicked on yes or no buttons
+        if (app.currPlayer.buyingSecret == True) and (app.currPlayer.showRooms == False):
+            # check if mouseX and mouseY is within bounds of Yes or No box
+            if (app.currPlayer.yesBtnLeft <= mouseX <= (app.currPlayer.yesBtnLeft + app.currPlayer.btnW) 
+                and app.currPlayer.yesBtnTop <= mouseY <= (app.currPlayer.yesBtnTop + app.currPlayer.btnH)
+            ):
+                print("yes")
 
-            app.gameBoard.player1.showRooms = True  # change this state would trigger draw options for rooms
-            app.gameBoard.player1.removeInnerBoard = True # this gets rid of the yes and no btns
-            
-            # app.gameBoard.player1.yesBuySecret() do this after the player gets the secret
-            # print(app.gameBoard.cellDict[app.gameBoard.player1.currCell.cellDictId])
-        elif app.gameBoard.player1.noBtnLeft <= mouseX <= (
-            app.gameBoard.player1.noBtnLeft + app.gameBoard.player1.btnW
-        ) and app.gameBoard.player1.noBtnTop <= mouseY <= (
-            app.gameBoard.player1.noBtnTop + app.gameBoard.player1.btnH
-        ):
-            print("no")
-            app.gameBoard.player1.buyingSecret = False
-            app.gameBoard.player1.removeInnerBoard = True
+                app.currPlayer.showRooms = True  # change this state would trigger draw options for rooms
+                app.currPlayer.removeInnerBoard = True # this gets rid of the yes and no btns
+                
+                # app.gameBoard.player1.yesBuySecret() do this after the player gets the secret
+                # print(app.gameBoard.cellDict[app.gameBoard.player1.currCell.cellDictId])
+            elif app.currPlayer.noBtnLeft <= mouseX <= (
+                app.currPlayer.noBtnLeft + app.currPlayer.btnW
+            ) and app.currPlayer.noBtnTop <= mouseY <= (
+                app.currPlayer.noBtnTop + app.currPlayer.btnH
+            ):
+                print("no")
+                app.currPlayer.buyingSecret = False
+                app.currPlayer.removeInnerBoard = True
 
-    # check which room the player selected
-    if app.gameBoard.player1.roomsDrawn == True:  # need to set this state back to False
-        for i in range(len(app.gameBoard.player1.roomsDict) // 2):  # 3
-            rectTop = (app.gameBoard.player1.roomBtnTop + i * (app.gameBoard.player1.btnH + 20) + 50)
-            col1Left = app.gameBoard.player1.roomBtnCol1Left
-            col2Left = app.gameBoard.player1.roomBtnCol2Left
-            btnW = app.gameBoard.player1.btnW
-            btnH = app.gameBoard.player1.btnH
-            # column 1
-            if col1Left <= mouseX <= col1Left + btnW:
-                if rectTop <= mouseY <= rectTop + btnH:
-                    print(f"clicked on {app.gameBoard.player1.roomsDict[i]}")
-                    app.gameBoard.player1.selectedRoom = (
-                        app.gameBoard.player1.roomsDict[i]
-                    )
-                    app.gameBoard.player1.showRooms = False
-            # column 2
-            elif col2Left <= mouseX <= col2Left + btnW:
-                if rectTop <= mouseY <= rectTop + btnH:
-                    print(f"clicked on {app.gameBoard.player1.roomsDict[i+3]}")
-                    app.gameBoard.player1.selectedRoom = (
-                        app.gameBoard.player1.roomsDict[i + 3]
-                    )
+        # check which room the player selected
+        if app.currPlayer.roomsDrawn == True:  # need to set this state back to False
+            for i in range(len(app.currPlayer.roomsDict) // 2):  # 3
+                rectTop = (app.currPlayer.roomBtnTop + i * (app.currPlayer.btnH + 20) + 50)
+                col1Left = app.currPlayer.roomBtnCol1Left
+                col2Left = app.currPlayer.roomBtnCol2Left
+                btnW = app.currPlayer.btnW
+                btnH = app.currPlayer.btnH
+                # column 1
+                if col1Left <= mouseX <= col1Left + btnW:
+                    if rectTop <= mouseY <= rectTop + btnH:
+                        print(f"clicked on {app.currPlayer.roomsDict[i]}")
+                        app.currPlayer.selectedRoom = (
+                            app.currPlayer.roomsDict[i]
+                        )
+                        app.currPlayer.showRooms = False
+                # column 2
+                elif col2Left <= mouseX <= col2Left + btnW:
+                    if rectTop <= mouseY <= rectTop + btnH:
+                        print(f"clicked on {app.currPlayer.roomsDict[i+3]}")
+                        app.currPlayer.selectedRoom = (
+                            app.currPlayer.roomsDict[i + 3]
+                        )
 
-    # checks if the OK btn is clicked at the buy secret screen. If so, resets.
-    if app.gameBoard.player1.secretOKRect != None:
-        rectLeft = app.gameBoard.player1.secretOKRect[0]
-        rectTop = app.gameBoard.player1.secretOKRect[1]
-        rectW = app.gameBoard.player1.secretOKRect[2]
-        rectH = app.gameBoard.player1.secretOKRect[3]
-        if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
-            app.gameBoard.player1.buyingSecret = False
-            app.gameBoard.player1.secretOKRect = None
-    
-    # checks if the OK btn is clicked on the roomsNotAvailable screen
-    if app.gameBoard.player1.roomsDrawn == False:
-        rectLeft = app.gameBoard.player1.innerLeft + (app.gameBoard.player1.innerSize/2) - 50
-        rectTop = app.gameBoard.player1.innerTop + 150
-        rectW = 100
-        rectH = 40
-        if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
-            print('return to showRooms screen')
-            app.gameBoard.player1.showRooms = True
-            app.gameBoard.player1.selectedRoom = None
+        # checks if the OK btn is clicked at the buy secret screen. If so, resets.
+        if app.currPlayer.secretOKRect != None:
+            rectLeft = app.currPlayer.secretOKRect[0]
+            rectTop = app.currPlayer.secretOKRect[1]
+            rectW = app.currPlayer.secretOKRect[2]
+            rectH = app.currPlayer.secretOKRect[3]
+            if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
+                app.currPlayer.buyingSecret = False
+                app.currPlayer.secretOKRect = None
+        
+        # checks if the OK btn is clicked on the roomsNotAvailable screen
+        if app.currPlayer.roomsDrawn == False:
+            rectLeft = app.currPlayer.innerLeft + (app.currPlayer.innerSize/2) - 50
+            rectTop = app.currPlayer.innerTop + 150
+            rectW = 100
+            rectH = 40
+            if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
+                print('return to showRooms screen')
+                app.currPlayer.showRooms = True
+                app.currPlayer.selectedRoom = None
 
 def onKeyPress(app, key):
-    if key == "c":
-        print("running camera")
-        # runCamera()
-        print("finished running camera")
-    if key.isdigit():
-        print(key)
-        app.gameBoard.player1.updatePlayerCell(int(key))
+    if app.currPlayer != None:
+        if key == "c":
+            print("running camera")
+            # runCamera()
+            print("finished running camera")
+        if key.isdigit():
+            print(key)
+            app.currPlayer.updatePlayerCell(int(key))
 
 
 def onStep(app):
-    app.paused = not app.paused
+     # declares the player that is making the moves
+    if app.gameBoard.currTurn == None:
+        app.currPlayer = app.gameBoard.player1
+    else:
+        app.currPlayer = app.gameBoard.currTurn
 
 
 runApp()
