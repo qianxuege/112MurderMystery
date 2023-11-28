@@ -34,6 +34,7 @@ class Board:
         self.roomsDict = dict()
         # Alternate turns
         self.currTurn = None
+        self.otherPlayer = None
 
     def drawBoard(self):
         originalCellId = 0
@@ -280,8 +281,8 @@ class Board:
 class Cell:
     cellDict = dict()
 
-    def __init__(self, originalCellId, secretType, cellLeft, cellTop, cellSize):
-        self.secretType = secretType  # secret, oops, weapon
+    def __init__(self, originalCellId, cellType, cellLeft, cellTop, cellSize):
+        self.cellType = cellType  # secret, oops, weapon
         self.originalCellId = originalCellId
         self.cellDictId = None        # will be changed when updating cellDict
         self.cellLeft = cellLeft
@@ -291,12 +292,12 @@ class Cell:
         self.cy = cellTop + cellSize / 2
 
     def __repr__(self):
-        return f"{self.cellDictId}. {self.secretType}"
+        return f"{self.cellDictId}. {self.cellType}"
 
     def __eq__(self, other):
         return (
             isinstance(other, Cell)
-            and (self.secretType == other.secretType)
+            and (self.cellType == other.cellType)
             and (self.cellLeft == other.cellLeft)
             and (self.cellTop == other.cellTop)
         )
@@ -305,15 +306,15 @@ class Cell:
         return hash(str(self))
 
     def drawCell(self):
-        if self.secretType == "oops":
+        if self.cellType == "oops":
             color = rgb(227, 141, 138)  # red
-        elif self.secretType == "weapon":
+        elif self.cellType == "weapon":
             color = rgb(205, 230, 193)  # green
-        elif self.secretType == "Go":
+        elif self.cellType == "Go":
             color = rgb(255, 240, 251)  # pink
-        elif self.secretType == "secret" and self.secretOwned == False:
+        elif self.cellType == "secret" and self.secretOwned == False:
             color = rgb(235, 240, 252)  # blue
-        elif self.secretType == "secret" and self.secretOwner != None:
+        elif self.cellType == "secret" and self.secretOwner != None:
             color = rgb(104, 119, 156)  # darkerBlue
         drawRect(
             self.cellLeft,
@@ -326,9 +327,9 @@ class Cell:
         )
 
     def drawCellType(self):
-        # print the labels (secretType) on the cell
+        # print the labels (cellType) on the cell
         drawLabel(
-            f"{self.secretType}",
+            f"{self.cellType}",
             self.cellLeft + 0.5 * self.cellSize,
             self.cellTop + 0.5 * self.cellSize,
         )
@@ -336,22 +337,25 @@ class Cell:
 
 # buy and pay rent on Secret cells
 class Secret(Cell):
-    def __init__(self, originalCellId, secretType, cellLeft, cellTop, cellSize, price):
-        super().__init__(originalCellId, secretType, cellLeft, cellTop, cellSize)
+    def __init__(self, originalCellId, cellType, cellLeft, cellTop, cellSize, price):
+        super().__init__(originalCellId, cellType, cellLeft, cellTop, cellSize)
         # add a property to Secret. checks if can buy secret or need to pay rent
         self.price = price
         self.secretOwned = False
         self.secretOwner = None
+        self.secretRoom = None
+        self.secretType = None
+        self.secret = None
         self.yesBuy = False
         self.yesRent = False
 
     def __repr__(self):
-        return f"{self.cellDictId}. {self.secretType}, owner is {self.secretOwner}"
+        return f"{self.cellDictId}. {self.cellType}, owner is {self.secretOwner}"
 
     def drawCellType(self):
-        # print the labels (secretType) on the cell
+        # print the labels (cellType) on the cell
         drawLabel(
-            f"${self.price} {self.secretType}",
+            f"${self.price} {self.cellType}",
             self.cellLeft + 0.5 * self.cellSize,
             self.cellTop + 0.5 * self.cellSize,
         )
@@ -422,6 +426,10 @@ class Player:
         self.removeInnerBoard = False
         self.showRooms = False
         self.roomsDrawn = False
+        # renting states
+        self.rentingSecret = False
+        self.processingRent = False
+        self.rentOKRect = None
         # rooms and secrets
         self.charSecretOwned = []
         self.roomSecretOwned = []
@@ -534,6 +542,7 @@ class Player:
         drawRect(self.noBtnLeft, self.noBtnTop, self.btnW, self.btnH, fill="yellow")
         drawLabel(f"No (free of charge)", noCX, noCY)
 
+
     def drawRoomSelection(self):
         self.roomBtnCol1Left = self.yesBtnLeft
         self.roomBtnTop = self.innerTop + 60
@@ -587,9 +596,14 @@ class Player:
             if secretDisplayed == 'characterSecret':
                 self.charSecretOwned.append(self.selectedRoom.characterSecret) # updates list of player secrets
                 self.selectedRoom.characterSecretOwner = self.name
+                self.currCell.secretRoom = self.selectedRoom.name
+                self.currCell.secretType = 'characterSecret'
+                self.currCell.secret = self.selectedRoom.characterSecret
             elif secretDisplayed == 'roomSecret':
                 self.roomSecretOwned.append(self.selectedRoom.roomSecret)
                 self.selectedRoom.roomSecretOwner = self.name
+                self.currCell.secretType = 'roomSecret'
+                self.currCell.secret = self.selectedRoom.roomSecret
             self.yesBuySecret()
             print(self.currCell)
 
@@ -623,6 +637,49 @@ class Player:
         self.editMoney(-priceOfSecret)
         self.updateCellOwnership()
         self.selectedRoom = None
+    
+    def rentSecretPopup(self):
+        yesCX = self.innerLeft + (self.innerSize / 2)
+        yesCY = self.innerTop + (self.innerSize / 2)
+        self.yesBtnLeft = yesCX - 60
+        self.yesBtnTop = yesCY - 20
+        drawLabel("The secret of this cell has already been owned.", 
+                self.innerLeft + (self.innerSize / 2),
+                self.innerTop + (self.innerSize / 2) - 130,
+                size = 16)
+        drawLabel(
+            "You'll need to pay a rent.",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + (self.innerSize / 2) - 100,
+            size = 16
+        )
+        # OK label
+        drawRect(self.yesBtnLeft, self.yesBtnTop, self.btnW, self.btnH, fill=self.colors.mossGreen)
+        drawLabel(f"OK (Pay ${int(self.currCell.price*.75)})", yesCX, yesCY)
+        self.rentOKRect = (self.yesBtnLeft, self.yesBtnTop, self.btnW, self.btnH)
+    
+    def drawRentSecret(self):
+        self.drawWhiteInnerBoard()
+        drawLabel(
+            f"You have entered the {self.currCell.secretRoom}",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + 50,
+            size = 20
+        )
+        self.drawSecret(self.currCell.secretType, self.currCell.secret)
+        print(f'drawn secret')
+        
+        if self.rentingSecret == False:
+            self.processRentMethod()
+        # drawSecret(self, secretType, secretString)
+
+    def processRentMethod(self):
+        # the + - money is done in the onclick of APP
+        self.processingRent = False
+        self.removeInnerBoard = True
+        self.rentingSecret = False
+        
+        
 
     def editMoney(self, money):
         self.money += money
@@ -657,9 +714,22 @@ class Player:
                             self.drawRoomNotAvailable()
                             # if click on OK, self.showRooms = True
                         # use mouse press to check if ok is clicked. if clicked, return to drawselectedroom
+                        # reset through the yesBuySecret method, called in drawSelectedRoom
+            # process rent if cell secret has been owned
+            if self.currCell.secretOwned == True:
+                if self.currCell.secretOwner != self.name:
+                    if self.removeInnerBoard == False:
+                        self.drawInnerBoard()
+                        self.rentSecretPopup() # would create the rentOKRect
+                    if self.rentingSecret == True: # this state is changed when clicked 'ok' on popup
+                        print('renting secret: should display secret of the cell')
+                        self.drawRentSecret()
+                    if self.processingRent == True:
+                        self.processRentMethod()
 
-
-                # reset through the yesBuySecret method, called in drawSelectedRoom
+                else:
+                    # display you are the owner of the cell, pass
+                    pass
 
     def drawPlayer(self):
         self.updatePlayerCoordinates()
@@ -682,6 +752,7 @@ def onAppStart(app):
     app.gameBoard = Board(500, 500, 7, 7)
     app.instructionScreen = False
     app.currPlayer = app.gameBoard.player1
+    app.otherPlayer = app.gameBoard.AI
     
 
 def redrawAll(app):
@@ -697,18 +768,21 @@ def onMousePress(app, mouseX, mouseY):
     changePlayerRectTop = app.gameBoard.boardTop + app.gameBoard.height + 20
     changePlayerRectW = 200
     changePlayerRectH = 40
+    # switch curr player in onStep
     if (changePlayerRectLeft <= mouseX <= changePlayerRectLeft + changePlayerRectW and 
         changePlayerRectTop <= mouseY <= changePlayerRectTop + changePlayerRectH):
         if app.gameBoard.currTurn == app.gameBoard.player1:
             app.gameBoard.currTurn = app.gameBoard.AI
+            app.gameBoard.otherPlayer = app.gameBoard.player1
         else:
             app.gameBoard.currTurn = app.gameBoard.player1
+            app.gameBoard.otherPlayer = app.gameBoard.AI
    
     
     print(app.currPlayer)
 
     if app.currPlayer != None and app.instructionScreen == False: # this is when the game starts
-        # check if clicked on yes or no buttons
+        # check if clicked on yes or no buttons for buying
         if (app.currPlayer.buyingSecret == True) and (app.currPlayer.showRooms == False):
             # check if mouseX and mouseY is within bounds of Yes or No box
             if (app.currPlayer.yesBtnLeft <= mouseX <= (app.currPlayer.yesBtnLeft + app.currPlayer.btnW) 
@@ -720,7 +794,6 @@ def onMousePress(app, mouseX, mouseY):
                 app.currPlayer.removeInnerBoard = True # this gets rid of the yes and no btns
                 
                 # app.gameBoard.player1.yesBuySecret() do this after the player gets the secret
-                # print(app.gameBoard.cellDict[app.gameBoard.player1.currCell.cellDictId])
             elif app.currPlayer.noBtnLeft <= mouseX <= (
                 app.currPlayer.noBtnLeft + app.currPlayer.btnW
             ) and app.currPlayer.noBtnTop <= mouseY <= (
@@ -755,7 +828,7 @@ def onMousePress(app, mouseX, mouseY):
                         )
 
         # checks if the OK btn is clicked at the buy secret screen. If so, resets.
-        if app.currPlayer.secretOKRect != None:
+        if app.currPlayer.secretOKRect != None and app.currPlayer.buyingSecret == True: # secretOKRect is the coordinates for OK btn
             rectLeft = app.currPlayer.secretOKRect[0]
             rectTop = app.currPlayer.secretOKRect[1]
             rectW = app.currPlayer.secretOKRect[2]
@@ -775,6 +848,39 @@ def onMousePress(app, mouseX, mouseY):
                 app.currPlayer.showRooms = True
                 app.currPlayer.selectedRoom = None
 
+         # checks if the OK btn is clicked at the buy secret screen. If so, resets.
+        
+        ####### Renting
+        
+        # check if ok btn clicked on rentPopup screen
+        if (app.currPlayer.removeInnerBoard == False) and (app.currPlayer.rentOKRect != None):
+            # check if mouseX and mouseY is within bounds of OK Btn
+            rectLeft = app.currPlayer.rentOKRect[0]
+            rectTop = app.currPlayer.rentOKRect[1]
+            rectW = app.currPlayer.rentOKRect[2]
+            rectH = app.currPlayer.rentOKRect[3]
+            
+            if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
+                print("mousePressed. ok, display the secret")
+                app.currPlayer.rentingSecret = True
+
+        
+        # checks if the OK btn is clicked on the rent secret screen
+        if app.currPlayer.secretOKRect != None and app.currPlayer.rentingSecret == True: # secretOKRect is the coordinates for OK btn
+            rectLeft = app.currPlayer.secretOKRect[0]
+            rectTop = app.currPlayer.secretOKRect[1]
+            rectW = app.currPlayer.secretOKRect[2]
+            rectH = app.currPlayer.secretOKRect[3]
+            if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
+                processRentOfBothPlayers(app)
+                app.currPlayer.processingRent = True
+                app.currPlayer.secretOKRect = None
+                
+def processRentOfBothPlayers(app):
+    rentMoney = int(app.currPlayer.currCell.price*.75)
+    app.currPlayer.editMoney(-rentMoney)
+    app.otherPlayer.editMoney(rentMoney)
+
 def onKeyPress(app, key):
     if app.currPlayer != None:
         if key == "c":
@@ -790,8 +896,10 @@ def onStep(app):
      # declares the player that is making the moves
     if app.gameBoard.currTurn == None:
         app.currPlayer = app.gameBoard.player1
+        app.otherPlayer = app.gameBoard.AI
     else:
         app.currPlayer = app.gameBoard.currTurn
+        app.otherPlayer = app.gameBoard.otherPlayer
 
 
 runApp()
