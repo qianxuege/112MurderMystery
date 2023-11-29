@@ -9,6 +9,7 @@ class Colors:
         self.dustyBlue = rgb(116, 136, 168)
         self.mossGreen = rgb(89, 125, 92)
 
+
 class Board:
     def __init__(self, width, height, rows, cols):
         self.width = width  # 500
@@ -34,14 +35,14 @@ class Board:
         # rooms
         self.roomsDict = dict()
         # weapons
-        self.weaponsDict = dict() # [charName, weapon, bool for assignedToCell]
+        self.weaponsDict = dict()  # [charName, weapon, bool for assignedToCell]
         # Alternate turns
         self.currTurn = None
         self.otherPlayer = None
 
     def drawBoard(self):
         originalCellId = 0
-        #only passes in originalCellId when app is first created
+        # only passes in originalCellId when app is first created
         if self.isFirstIteration == True:
             for row in range(self.rows):
                 for col in range(self.cols):
@@ -50,7 +51,7 @@ class Board:
                         continue
                     self.drawCell(row, col, originalCellId)  # pass in an id
                     originalCellId += 1
-                
+
         self.drawBoardBorder()
 
         # initiating players
@@ -61,9 +62,9 @@ class Board:
             for cellNum in self.cellDict:
                 self.cellDict[cellNum].drawCell()
             self.createRooms()
-        
+
             # initiates players only after the cellDict is updated
-            # -10 is the diff in x position    
+            # -10 is the diff in x position
             self.player1 = Player(
                 "player1",
                 self.cellDict,
@@ -72,7 +73,7 @@ class Board:
                 (self.innerLeft, self.innerTop, self.innerSize),
                 (self.boardLeft, self.boardTop, self.width),
                 "yellow",
-                self.weaponsDict
+                self.weaponsDict,
             )
             self.AI = Player(
                 "AI",
@@ -82,7 +83,7 @@ class Board:
                 (self.innerLeft, self.innerTop, self.innerSize),
                 (self.boardLeft, self.boardTop, self.width),
                 "purple",
-                self.weaponsDict
+                self.weaponsDict,
             )
             self.playerDict["player1"] = self.player1
             self.playerDict["AI"] = self.AI
@@ -99,83 +100,83 @@ class Board:
             self.AI.drawPlayer()
             self.drawLowerBtns()
 
-    def createRooms(self): # also add character weapons to the weaponsDict
+    def createRooms(self):  # also add character weapons to the weaponsDict
         # need to change all char secret descriptions according to the linebreaks
         # Kitchen
         kitchenCharSecret = (
-            "To most people, Mrs. White seems like an honest \n" + 
-            "and optimistic woman who runs Colonel Mustard’s kitchen \n" + 
-            "efficiently on a daily basis. Would anyone suspect that \n" + 
-            "she has covertly taken money from Mustard and stolen \n" + 
-            "valuable antiques to sell on the black market?"
+            "To most people, Mrs. White seems like an honest \n"
+            + "and optimistic woman who runs Colonel Mustard’s kitchen \n"
+            + "efficiently on a daily basis. Would anyone suspect that \n"
+            + "she has covertly taken money from Mustard and stolen \n"
+            + "valuable antiques to sell on the black market?"
         )
         kitchenRoomSecret = "Mustard was not in the kitchen at 9pm"
         kitchen = Rooms(
             "Kitchen", 0, "Mrs. White", kitchenCharSecret, kitchenRoomSecret
         )
-        self.weaponsDict[0] = ['Mrs. White','Candlestick', False]
+        self.weaponsDict[0] = ["Mrs. White", "Candlestick", False]
         self.roomsDict[0] = kitchen
 
         # Master Bedroom
         bedroomCharSecret = (
-            "Everyone knows Colonel Mustard is a decorated war \n" +
-            "hero. He is also from a venerated and wealthy family.\n" +
-            "Ironically, he wasn’t actually in the battle for which \n" + 
-            "he was awarded his most prestigious medal."
+            "Everyone knows Colonel Mustard is a decorated war \n"
+            + "hero. He is also from a venerated and wealthy family.\n"
+            + "Ironically, he wasn’t actually in the battle for which \n"
+            + "he was awarded his most prestigious medal."
         )
         bedroomRoomSecret = "Mustard was not in the bedroom at 9pm"
         bedroom = Rooms(
             "Master Bedroom", 1, "Colonel Mustard", bedroomCharSecret, bedroomRoomSecret
         )
-        self.weaponsDict[1] = ['Colonel Mustard','Pistol', False]
+        self.weaponsDict[1] = ["Colonel Mustard", "Pistol", False]
         self.roomsDict[1] = bedroom
         # Billiard Room
         billiardCharSecret = (
-            "Mr. Green is a businessman who is a closeted homosexual.\n" +
-            "He is desperately in love with his partner and wants to \n" + 
-            "get married, but Mustard used his influence to make gay \n" +
-            "marriage illegal in his state. Green now can’t pursue \n" + 
-            "his love –– he wants revenge…"
+            "Mr. Green is a businessman who is a closeted homosexual.\n"
+            + "He is desperately in love with his partner and wants to \n"
+            + "get married, but Mustard used his influence to make gay \n"
+            + "marriage illegal in his state. Green now can’t pursue \n"
+            + "his love –– he wants revenge…"
         )
         billiardRoomSecret = "Mustard was not in the billiard room at 9pm"
         billiard = Rooms(
             "Billiard Room", 2, "Mr. Green", billiardCharSecret, billiardRoomSecret
         )
-        self.weaponsDict[2] = ['Mr. Green','Dagger', False]
+        self.weaponsDict[2] = ["Mr. Green", "Dagger", False]
         self.roomsDict[2] = billiard
         # Study
         studyCharSecret = (
-            "Plum is a professor of antiquities. He identifies \n" + 
-            "counterfeits and occasionally makes them, including\n" + 
-            "his PhD certificate. Beware, Plum knows that \n" +
-            "Mustard knows his secret…"
+            "Plum is a professor of antiquities. He identifies \n"
+            + "counterfeits and occasionally makes them, including\n"
+            + "his PhD certificate. Beware, Plum knows that \n"
+            + "Mustard knows his secret…"
         )
         studyRoomSecret = "Mustard was not in the study room at 9pm"
         study = Rooms("Study", 3, "Professor Plum", studyCharSecret, studyRoomSecret)
-        self.weaponsDict[3] = ['Professor Plum','Rope', False]
+        self.weaponsDict[3] = ["Professor Plum", "Rope", False]
         self.roomsDict[3] = study
         # Parlor
         parlorCharSecret = (
-            "Mrs. Peacock is a lawyer and the mother of a soldier\n" +
-            "under Mustard. What an honor you might think! \n" +
-            "Well, Mustard killed her son because\n" + 
-            "her son attempted to unveil Mustard’s secret."
+            "Mrs. Peacock is a lawyer and the mother of a soldier\n"
+            + "under Mustard. What an honor you might think! \n"
+            + "Well, Mustard killed her son because\n"
+            + "her son attempted to unveil Mustard’s secret."
         )
         parlorRoomSecret = "Mustard was in the Parlor at approximately 9pm"
         parlor = Rooms("Parlor", 4, "Mrs. Peacock", parlorCharSecret, parlorRoomSecret)
-        self.weaponsDict[4] = ['Mrs. Peacock','Hammer', False]
+        self.weaponsDict[4] = ["Mrs. Peacock", "Hammer", False]
         self.roomsDict[4] = parlor
         # Balcony
         balconyCharSecret = (
-            "Miss Scarlet is a movie actress whose career is crumbling.\n" +
-            "She also lost a lot of money due to gambling.\n" +
-            "Hmmm, life must be hard for her right now."
+            "Miss Scarlet is a movie actress whose career is crumbling.\n"
+            + "She also lost a lot of money due to gambling.\n"
+            + "Hmmm, life must be hard for her right now."
         )
         balconyRoomSecret = "Mustard was not in the Balcony at 9pm."
         balcony = Rooms(
             "Balcony", 5, "Miss Scarlet", balconyCharSecret, balconyRoomSecret
         )
-        self.weaponsDict[5] = ['Miss Scarlet','Poison', False]
+        self.weaponsDict[5] = ["Miss Scarlet", "Poison", False]
         self.roomsDict[5] = balcony
 
     def drawBoardBorder(self):
@@ -218,7 +219,9 @@ class Board:
             # self.originalCellId.append(cellName)
         else:
             # price for each secret is 100
-            cellName = Secret(originalCellId, "secret", cellLeft, cellTop, cellSize, 100)
+            cellName = Secret(
+                originalCellId, "secret", cellLeft, cellTop, cellSize, 100
+            )
             self.cellDict[originalCellId] = cellName
             # self.originalCellId.append(cellName)
         cellName.drawCell()
@@ -280,15 +283,45 @@ class Board:
 
     def drawLowerBtns(self):
         # make a guess
-        drawRect(self.boardLeft-15, self.boardTop + self.height + 20, 150, 40, fill=self.colors.dustyBlue, border='black')
-        drawLabel("Make a guess", self.boardLeft + 60, self.boardTop + self.height + 40, size = 20)
+        drawRect(
+            self.boardLeft - 15,
+            self.boardTop + self.height + 20,
+            150,
+            40,
+            fill=self.colors.dustyBlue,
+            border="black",
+        )
+        drawLabel(
+            "Make a guess",
+            self.boardLeft + 60,
+            self.boardTop + self.height + 40,
+            size=20,
+        )
 
         # switch turns
-        drawLabel(f"It is {self.currTurn.name}'s turn.", self.boardLeft + 60+ 180, self.boardTop + self.height + 40, size = 16)
-        drawRect(self.boardLeft + 60+ 400 - 100, self.boardTop + self.height + 20, 200, 40, fill=self.colors.dustyBlue, border='black')
-        drawLabel('click here to switch turns', self.boardLeft + 60+ 400, self.boardTop + self.height + 40, size = 16)
+        drawLabel(
+            f"It is {self.currTurn.name}'s turn.",
+            self.boardLeft + 60 + 180,
+            self.boardTop + self.height + 40,
+            size=16,
+        )
+        drawRect(
+            self.boardLeft + 60 + 400 - 100,
+            self.boardTop + self.height + 20,
+            200,
+            40,
+            fill=self.colors.dustyBlue,
+            border="black",
+        )
+        drawLabel(
+            "click here to switch turns",
+            self.boardLeft + 60 + 400,
+            self.boardTop + self.height + 40,
+            size=16,
+        )
 
         # self.boardLeft + self.width - 60, self.boardTop + self.height + 40
+
 
 class Cell:
     cellDict = dict()
@@ -296,7 +329,7 @@ class Cell:
     def __init__(self, originalCellId, cellType, cellLeft, cellTop, cellSize):
         self.cellType = cellType  # secret, oops, weapon
         self.originalCellId = originalCellId
-        self.cellDictId = None        # will be changed when updating cellDict
+        self.cellDictId = None  # will be changed when updating cellDict
         self.cellLeft = cellLeft
         self.cellTop = cellTop
         self.cellSize = cellSize
@@ -346,22 +379,25 @@ class Cell:
             self.cellTop + 0.5 * self.cellSize,
         )
 
+
 class Oops(Cell):
     def __init__(self, originalCellId, cellType, cellLeft, cellTop, cellSize):
         super().__init__(originalCellId, cellType, cellLeft, cellTop, cellSize)
-        self.rockPaperScissors = ['rock', 'paper', 'scissors']
+        self.rockPaperScissors = ["rock", "paper", "scissors"]
         self.currPlayerChoice = None
         self.murdererChoice = None
-        self.result = None
+        self.playerWonOops = None
+        self.tied = False
         self.shownInstructions = False
-         
+
 
 class Weapon(Cell):
     def __init__(self, originalCellId, cellType, cellLeft, cellTop, cellSize):
-        super().__init__(originalCellId, cellType, cellLeft, cellTop, cellSize) 
+        super().__init__(originalCellId, cellType, cellLeft, cellTop, cellSize)
         self.weapon = None
         self.weaponChar = None
         self.cellOccupied = False
+
 
 # buy and pay rent on Secret cells
 class Secret(Cell):
@@ -428,7 +464,15 @@ class Rooms:
 
 class Player:
     def __init__(
-        self, name, cellDict, roomsDict, xPos, innerBoard, outerBoard, playerColor, weaponsDict
+        self,
+        name,
+        cellDict,
+        roomsDict,
+        xPos,
+        innerBoard,
+        outerBoard,
+        playerColor,
+        weaponsDict,
     ):
         self.name = name
         self.cellDict = cellDict
@@ -463,9 +507,11 @@ class Player:
         self.showWeaponSecret = False
         self.weaponOKRect = None
         self.processingWeaponSecret = False
-        self.shownWeaponSecret = False # resets to False when gets to a new cell
+        self.shownWeaponSecret = False  # resets to False when gets to a new cell
         # oops states
-        self.showOopsInstructions = False # connects to self.currCell.shownOopsInstructions state
+        self.showOopsInstructions = (
+            False  # connects to self.currCell.shownOopsInstructions state
+        )
         self.oopsInstructionsRect = None
         self.oopsInPlay = False
         # rooms and secrets
@@ -506,13 +552,12 @@ class Player:
             self.currCell.shownInstructions = False
         if isinstance(self.currCell, Weapon):
             self.shownWeaponSecret = False
-        
+
         # mod by 24 to return to 0 after reached cell 23
         self.currCellNum = (self.currCellNum + steps) % 24
         self.currCell = self.cellDict[self.currCellNum]
         # would reset the state of not drawing inner board (bc player clicked no on the previous cell)
         self.removeInnerBoard = False
-        
 
     # lives, money
     def drawUpperLabel(self):
@@ -542,7 +587,7 @@ class Player:
                 self.boardTop - 40,
                 size=20,
             )
-    
+
     def drawInnerBoard(self):
         color = rgb(247, 246, 228)  # sand
         drawRect(
@@ -579,7 +624,7 @@ class Player:
             "Would you like to buy the secret?",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + (self.innerSize / 2) - 100,
-            size = 20
+            size=20,
         )
         # yes label
         drawRect(self.yesBtnLeft, self.yesBtnTop, self.btnW, self.btnH, fill="yellow")
@@ -587,7 +632,6 @@ class Player:
         # no label
         drawRect(self.noBtnLeft, self.noBtnTop, self.btnW, self.btnH, fill="yellow")
         drawLabel(f"No (free of charge)", noCX, noCY)
-
 
     def drawRoomSelection(self):
         self.roomBtnCol1Left = self.yesBtnLeft
@@ -625,56 +669,71 @@ class Player:
             f"You have entered the {self.selectedRoom.name}",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 50,
-            size = 20
+            size=20,
         )
         if self.selectedRoom.characterSecretOwner == None:
-            secretDisplayed = 'characterSecret'
-            self.drawSecret('character secret', self.selectedRoom.characterSecret)
-            
+            secretDisplayed = "characterSecret"
+            self.drawSecret("character secret", self.selectedRoom.characterSecret)
+
         # shows the room secret if the character secret is already owned
         elif self.selectedRoom.roomSecretOwner == None:
-            secretDisplayed = 'roomSecret'
-            self.drawSecret('room secret', self.selectedRoom.roomSecret)
+            secretDisplayed = "roomSecret"
+            self.drawSecret("room secret", self.selectedRoom.roomSecret)
         # draws the OK button in the drawSecret method
-        
+
         # updates ownership if the OK button is clicked
         if self.buyingSecret == False:
-            if secretDisplayed == 'characterSecret':
-                self.charSecretOwned.add(self.selectedRoom.characterSecret) # updates list of player secrets
+            if secretDisplayed == "characterSecret":
+                self.charSecretOwned.add(
+                    self.selectedRoom.characterSecret
+                )  # updates list of player secrets
                 self.selectedRoom.characterSecretOwner = self.name
                 self.currCell.secretRoom = self.selectedRoom.name
-                self.currCell.secretType = 'characterSecret'
+                self.currCell.secretType = "characterSecret"
                 self.currCell.secret = self.selectedRoom.characterSecret
-            elif secretDisplayed == 'roomSecret':
+            elif secretDisplayed == "roomSecret":
                 self.roomSecretOwned.add(self.selectedRoom.roomSecret)
                 self.selectedRoom.roomSecretOwner = self.name
-                self.currCell.secretType = 'roomSecret'
+                self.currCell.secretType = "roomSecret"
                 self.currCell.secret = self.selectedRoom.roomSecret
             self.yesBuySecret()
             print(self.currCell)
 
-    
     def drawSecret(self, secretType, secretString):
         centerX = self.innerLeft + (self.innerSize / 2)
-        drawLabel(f'The {secretType} is:', centerX, self.innerTop + 110)
+        drawLabel(f"The {secretType} is:", centerX, self.innerTop + 110)
         currY = self.innerTop + 130
         for line in secretString.splitlines():
             currY += 20
             drawLabel(line, centerX, currY)
-        
+
         # OK button
         dustyBlue = rgb(116, 136, 168)
-        drawRect(centerX-50, currY + 50, 100, 40, fill=dustyBlue)
+        drawRect(centerX - 50, currY + 50, 100, 40, fill=dustyBlue)
         drawLabel("OK", centerX, currY + 70)
-        self.secretOKRect = (centerX-50, currY + 50, 100, 40)
-    
+        self.secretOKRect = (centerX - 50, currY + 50, 100, 40)
+
     def drawRoomNotAvailable(self):
-        drawLabel(f"Sorry, the secrets in {self.selectedRoom.name} have been owned.", 
-                  self.innerLeft + (self.innerSize / 2), self.innerTop + 50, size = 16)
-        drawLabel(f"Please select a different room.", 
-                  self.innerLeft + (self.innerSize / 2), self.innerTop + 75, size = 16)
-        
-        drawRect(self.innerLeft + (self.innerSize / 2) - 50, self.innerTop + 150, 100, 40, fill=self.colors.dustyBlue)
+        drawLabel(
+            f"Sorry, the secrets in {self.selectedRoom.name} have been owned.",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + 50,
+            size=16,
+        )
+        drawLabel(
+            f"Please select a different room.",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + 75,
+            size=16,
+        )
+
+        drawRect(
+            self.innerLeft + (self.innerSize / 2) - 50,
+            self.innerTop + 150,
+            100,
+            40,
+            fill=self.colors.dustyBlue,
+        )
         drawLabel("OK", self.innerLeft + (self.innerSize / 2), self.innerTop + 170)
 
     # this should be called at the end of displaying the secret
@@ -683,38 +742,46 @@ class Player:
         self.editMoney(-priceOfSecret)
         self.updateCellOwnership()
         self.selectedRoom = None
-    
+
     def rentSecretPopup(self):
         yesCX = self.innerLeft + (self.innerSize / 2)
         yesCY = self.innerTop + (self.innerSize / 2)
         self.yesBtnLeft = yesCX - 60
         self.yesBtnTop = yesCY - 20
-        drawLabel("The secret of this cell has already been owned.", 
-                self.innerLeft + (self.innerSize / 2),
-                self.innerTop + (self.innerSize / 2) - 130,
-                size = 16)
+        drawLabel(
+            "The secret of this cell has already been owned.",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + (self.innerSize / 2) - 130,
+            size=16,
+        )
         drawLabel(
             "You'll need to pay a rent.",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + (self.innerSize / 2) - 100,
-            size = 16
+            size=16,
         )
         # OK label
-        drawRect(self.yesBtnLeft, self.yesBtnTop, self.btnW, self.btnH, fill=self.colors.mossGreen)
+        drawRect(
+            self.yesBtnLeft,
+            self.yesBtnTop,
+            self.btnW,
+            self.btnH,
+            fill=self.colors.mossGreen,
+        )
         drawLabel(f"OK (Pay ${int(self.currCell.price*.75)})", yesCX, yesCY)
         self.rentOKRect = (self.yesBtnLeft, self.yesBtnTop, self.btnW, self.btnH)
-    
+
     def drawRentSecret(self):
         self.drawWhiteInnerBoard()
         drawLabel(
             f"You have entered the {self.currCell.secretRoom}",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 50,
-            size = 20
+            size=20,
         )
         self.drawSecret(self.currCell.secretType, self.currCell.secret)
-        print(f'drawn secret')
-        
+        print(f"drawn secret")
+
         if self.rentingSecret == False:
             self.processRentMethod()
         # drawSecret(self, secretType, secretString)
@@ -727,126 +794,227 @@ class Player:
 
     def editMoney(self, money):
         self.money += money
-    
+
     def updateCellOwnership(self):
         self.currCell.secretOwned = True
         self.currCell.secretOwner = self.name
         # change the selectedRoom secret ownership when user closes the popup
-        
+
     # assigns an empty weapon cell a weapon secret
     def checkWeaponCellOwnership(self):
         for i in range(len(self.weaponsDict)):
             if self.weaponsDict[i][2] == False:
-                self.currCell.weaponChar = self.weaponsDict[i][0] # update cell char info
-                self.currCell.weapon = self.weaponsDict[i][1] # update cell weapon info
-                self.weaponsDict[i][2] = True # indicate that this weapon clue has been claimed
+                self.currCell.weaponChar = self.weaponsDict[i][
+                    0
+                ]  # update cell char info
+                self.currCell.weapon = self.weaponsDict[i][1]  # update cell weapon info
+                self.weaponsDict[i][
+                    2
+                ] = True  # indicate that this weapon clue has been claimed
                 self.showWeaponSecret = True
                 self.currCell.cellOccupied = True
                 break
-        
-        
+
     def drawWeaponSecret(self):
         self.drawInnerBoard()
         centerX = self.innerLeft + (self.innerSize / 2)
-        drawLabel(f"{self.currCell.weaponChar}'s weapon is {self.currCell.weapon}.", centerX, self.innerTop + 110, size=20)
-        btnX = centerX-50
+        drawLabel(
+            f"{self.currCell.weaponChar}'s weapon is {self.currCell.weapon}.",
+            centerX,
+            self.innerTop + 110,
+            size=20,
+        )
+        btnX = centerX - 50
         btnY = self.innerTop + 110 + 100
-        
+
         # OK button
         drawRect(btnX, btnY, 100, 40, fill=self.colors.dustyBlue)
         drawLabel("OK", centerX, btnY + 20)
         self.weaponOKRect = (btnX, btnY, 100, 40)
-    
+
     def processWeaponSecret(self):
-        self.weaponSecretOwned.add(f"{self.currCell.weaponChar}'s weapon is {self.currCell.weapon}.")
+        self.weaponSecretOwned.add(
+            f"{self.currCell.weaponChar}'s weapon is {self.currCell.weapon}."
+        )
         self.processingWeaponSecret = False
         self.showWeaponSecret = False
         self.shownWeaponSecret = True
-    
+
     def drawOopsInstructions(self):
         self.drawWhiteInnerBoard()
         drawLabel(
             f"The murderer has noticed you:",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 50,
-            size = 20
+            size=20,
         )
         drawLabel(
             f"Beat him in a game of rock, paper, ",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 80,
-            size = 16
+            size=16,
         )
         drawLabel(
             f"and scissors to win investigation funds!",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 100,
-            size = 16
+            size=16,
         )
         drawLabel(
             f"Click on 'rock', 'paper', or 'scissors'",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 130,
-            size = 16,
-            fill = self.colors.mossGreen
+            size=16,
+            fill=self.colors.mossGreen,
         )
-        
+
         centerX = self.innerLeft + (self.innerSize / 2)
-        btnX = centerX-50
+        btnX = centerX - 50
         btnY = self.innerTop + 110 + 100
-        
+
         # OK button
         drawRect(btnX, btnY, 100, 40, fill=self.colors.dustyBlue)
         drawLabel("OK", centerX, btnY + 20)
         self.oopsInstructionsRect = (btnX, btnY, 100, 40)
-        
+
     def drawOopsPlayingScreen(self):
         drawLabel(
             f"3 . . 2 . . 1 . .",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 50,
-            size = 30,
-            fill = self.colors.mossGreen
+            size=30,
+            fill=self.colors.mossGreen,
         )
         if self.currCell.currPlayerChoice == None:
             drawLabel(
                 f"You choose: ",
                 self.innerLeft + (self.innerSize / 20),
                 self.innerTop + 100,
-                size = 18,
-                align='left'
+                size=18,
+                align="left",
             )
             # draw the rock, paper, scissors btn
             for i in range(len(self.currCell.rockPaperScissors)):
-                x = self.innerLeft + (self.innerSize / 80) + 90*(i+1)
+                x = self.innerLeft + (self.innerSize / 80) + 90 * (i + 1)
                 y = self.innerTop + 100 + 50
-                drawRect(x-40, y-15, 80, 30, fill='yellow')
+                drawRect(x - 40, y - 15, 80, 30, fill="yellow")
                 drawLabel(f"{self.currCell.rockPaperScissors[i]}", x, y, size=16)
-                
+
             drawLabel(
-                f"The Murderer chose: ?",
+                f"The Murderer choose: ?",
                 self.innerLeft + (self.innerSize / 20),
-                self.innerTop + 200, #130 when don't have buttons
-                size = 18,
-                align='left'
+                self.innerTop + 200,
+                size=18,
+                align="left",
             )
-        else: # after the player makes a choice
+
+            if self.currCell.tied == True:
+                drawLabel(
+                    f"You tied. You'll need to play another",
+                    self.innerLeft + (self.innerSize / 2),
+                    self.innerTop + 210,
+                    size=16,
+                    fill=self.colors.mossGreen,
+                )
+                drawLabel(
+                    f"round of rock, paper, and scissors.",
+                    self.innerLeft + (self.innerSize / 2),
+                    self.innerTop + 230,
+                    size=16,
+                    fill=self.colors.mossGreen,
+                )
+        else:  # after the player makes a choice
             drawLabel(
                 f"You chose: {self.currCell.currPlayerChoice}",
                 self.innerLeft + (self.innerSize / 20),
                 self.innerTop + 100,
-                size = 18,
-                align='left'
+                size=18,
+                align="left",
             )
 
             drawLabel(
                 f"The Murderer chose: {self.currCell.murdererChoice}",
                 self.innerLeft + (self.innerSize / 20),
-                self.innerTop + 130, 
-                size = 18,
-                align='left'
+                self.innerTop + 130,
+                size=18,
+                align="left",
             )
-            
+
+            # checks the results for rock, paper, scissors
+            result = self.checkOopsResults()
+            if result == None:
+                print(
+                    f"You tied. You'll need to play another round of rock, paper, and scissors."
+                )
+                # would return to the previous screen
+                self.currCell.currPlayerChoice = self.currCell.murdererChoice = None
+                self.currCell.tied = True
+            elif result == True:
+                print(f"{self.name} won. You'll get $100 investigation fund.")
+                self.currCell.tied = False
+                self.playerWonOops = True
+                drawLabel(
+                    f"{self.name} won!",
+                    self.innerLeft + (self.innerSize / 2),
+                    self.innerTop + 210,
+                    size=16,
+                    fill=self.colors.mossGreen,
+                )
+                drawLabel(
+                    f"You'll get $100 investigation fund.",
+                    self.innerLeft + (self.innerSize / 2),
+                    self.innerTop + 230,
+                    size=16,
+                    fill=self.colors.mossGreen,
+                )
+            else:
+                print(f"{self.name} lost. You'll be deducted $200 investigation fund.")
+                self.currCell.tied = False
+                self.playerWonOops = False
+                drawLabel(
+                    f"{self.name} lost.",
+                    self.innerLeft + (self.innerSize / 2),
+                    self.innerTop + 210,
+                    size=16,
+                    fill=self.colors.mossGreen,
+                )
+                drawLabel(
+                    f"You'll be deducted $200 investigation fund.",
+                    self.innerLeft + (self.innerSize / 2),
+                    self.innerTop + 230,
+                    size=16,
+                    fill=self.colors.mossGreen,
+                )
+            if result == True or result == False:
+                centerX = self.innerLeft + (self.innerSize / 2)
+                btnX = centerX - 50
+                btnY = self.innerTop + 270
+                # OK button
+                drawRect(btnX, btnY, 100, 40, fill=self.colors.dustyBlue)
+                drawLabel("OK", centerX, btnY + 20)
+                self.oopsInstructionsRect = (btnX, btnY, 100, 40)
+
+    def checkOopsResults(self):
+        # None --> tied, True --> currPlayer won, False --> Murderer won
+        if self.currCell.currPlayerChoice == self.currCell.murdererChoice:
+            return None
+        elif (
+            self.currCell.currPlayerChoice == "rock"
+            and self.currCell.murdererChoice == "scissors"
+        ):
+            return True
+        elif (
+            self.currCell.currPlayerChoice == "paper"
+            and self.currCell.murdererChoice == "rock"
+        ):
+            return True
+        elif (
+            self.currCell.currPlayerChoice == "scissors"
+            and self.currCell.murdererChoice == "paper"
+        ):
+            return True
+        else:
+            return False
 
     def checkOnCell(self):
         if isinstance(self.currCell, Secret):
@@ -866,7 +1034,10 @@ class Player:
                     self.showRooms = False  # state
                     self.roomsDrawn = False  # state
                     # check if the room secrets have been owned.
-                    if self.selectedRoom.characterSecretOwner == None or self.selectedRoom.roomSecretOwner == None:
+                    if (
+                        self.selectedRoom.characterSecretOwner == None
+                        or self.selectedRoom.roomSecretOwner == None
+                    ):
                         self.drawSelectedRoom()
                     else:
                         if self.roomsDrawn == False:
@@ -879,9 +1050,11 @@ class Player:
                 if self.currCell.secretOwner != self.name:
                     if self.removeInnerBoard == False:
                         self.drawInnerBoard()
-                        self.rentSecretPopup() # would create the rentOKRect
-                    if self.rentingSecret == True: # this state is changed when clicked 'ok' on popup
-                        print('renting secret: should display secret of the cell')
+                        self.rentSecretPopup()  # would create the rentOKRect
+                    if (
+                        self.rentingSecret == True
+                    ):  # this state is changed when clicked 'ok' on popup
+                        print("renting secret: should display secret of the cell")
                         self.drawRentSecret()
                     if self.processingRent == True:
                         self.processRentMethod()
@@ -894,7 +1067,9 @@ class Player:
                 self.checkWeaponCellOwnership()
             elif self.currCell.cellOccupied == True and self.shownWeaponSecret == False:
                 self.showWeaponSecret = True
-            if self.showWeaponSecret == True: # this will run if player clicked ok on checkWeaponCellOwnership
+            if (
+                self.showWeaponSecret == True
+            ):  # this will run if player clicked ok on checkWeaponCellOwnership
                 self.drawWeaponSecret()
             if self.processingWeaponSecret == True:
                 self.processWeaponSecret()
@@ -927,7 +1102,7 @@ def onAppStart(app):
     app.instructionScreen = False
     app.currPlayer = app.gameBoard.player1
     app.otherPlayer = app.gameBoard.AI
-    
+
 
 def redrawAll(app):
     # drawLabel('112 Murder Mystery', 200, 200)
@@ -938,35 +1113,46 @@ def redrawAll(app):
 
 def onMousePress(app, mouseX, mouseY):
     # change the player name based on whose turn it is --> create a variable
-    changePlayerRectLeft = app.gameBoard.boardLeft + 60+ 400 - 100
+    changePlayerRectLeft = app.gameBoard.boardLeft + 60 + 400 - 100
     changePlayerRectTop = app.gameBoard.boardTop + app.gameBoard.height + 20
     changePlayerRectW = 200
     changePlayerRectH = 40
     # switch curr player in onStep
-    if (changePlayerRectLeft <= mouseX <= changePlayerRectLeft + changePlayerRectW and 
-        changePlayerRectTop <= mouseY <= changePlayerRectTop + changePlayerRectH):
+    if (
+        changePlayerRectLeft <= mouseX <= changePlayerRectLeft + changePlayerRectW
+        and changePlayerRectTop <= mouseY <= changePlayerRectTop + changePlayerRectH
+    ):
         if app.gameBoard.currTurn == app.gameBoard.player1:
             app.gameBoard.currTurn = app.gameBoard.AI
             app.gameBoard.otherPlayer = app.gameBoard.player1
         else:
             app.gameBoard.currTurn = app.gameBoard.player1
             app.gameBoard.otherPlayer = app.gameBoard.AI
-   
-    
+
     print(app.currPlayer)
 
-    if app.currPlayer != None and app.instructionScreen == False: # this is when the game starts
+    if (
+        app.currPlayer != None and app.instructionScreen == False
+    ):  # this is when the game starts
         # check if clicked on yes or no buttons for buying
-        if (app.currPlayer.buyingSecret == True) and (app.currPlayer.showRooms == False):
+        if (app.currPlayer.buyingSecret == True) and (
+            app.currPlayer.showRooms == False
+        ):
             # check if mouseX and mouseY is within bounds of Yes or No box
-            if (app.currPlayer.yesBtnLeft <= mouseX <= (app.currPlayer.yesBtnLeft + app.currPlayer.btnW) 
-                and app.currPlayer.yesBtnTop <= mouseY <= (app.currPlayer.yesBtnTop + app.currPlayer.btnH)
+            if app.currPlayer.yesBtnLeft <= mouseX <= (
+                app.currPlayer.yesBtnLeft + app.currPlayer.btnW
+            ) and app.currPlayer.yesBtnTop <= mouseY <= (
+                app.currPlayer.yesBtnTop + app.currPlayer.btnH
             ):
                 print("yes")
 
-                app.currPlayer.showRooms = True  # change this state would trigger draw options for rooms
-                app.currPlayer.removeInnerBoard = True # this gets rid of the yes and no btns
-                
+                app.currPlayer.showRooms = (
+                    True  # change this state would trigger draw options for rooms
+                )
+                app.currPlayer.removeInnerBoard = (
+                    True  # this gets rid of the yes and no btns
+                )
+
                 # app.gameBoard.player1.yesBuySecret() do this after the player gets the secret
             elif app.currPlayer.noBtnLeft <= mouseX <= (
                 app.currPlayer.noBtnLeft + app.currPlayer.btnW
@@ -980,7 +1166,9 @@ def onMousePress(app, mouseX, mouseY):
         # check which room the player selected
         if app.currPlayer.roomsDrawn == True:  # need to set this state back to False
             for i in range(len(app.currPlayer.roomsDict) // 2):  # 3
-                rectTop = (app.currPlayer.roomBtnTop + i * (app.currPlayer.btnH + 20) + 50)
+                rectTop = (
+                    app.currPlayer.roomBtnTop + i * (app.currPlayer.btnH + 20) + 50
+                )
                 col1Left = app.currPlayer.roomBtnCol1Left
                 col2Left = app.currPlayer.roomBtnCol2Left
                 btnW = app.currPlayer.btnW
@@ -989,105 +1177,149 @@ def onMousePress(app, mouseX, mouseY):
                 if col1Left <= mouseX <= col1Left + btnW:
                     if rectTop <= mouseY <= rectTop + btnH:
                         print(f"clicked on {app.currPlayer.roomsDict[i]}")
-                        app.currPlayer.selectedRoom = (
-                            app.currPlayer.roomsDict[i]
-                        )
+                        app.currPlayer.selectedRoom = app.currPlayer.roomsDict[i]
                         app.currPlayer.showRooms = False
                 # column 2
                 elif col2Left <= mouseX <= col2Left + btnW:
                     if rectTop <= mouseY <= rectTop + btnH:
                         print(f"clicked on {app.currPlayer.roomsDict[i+3]}")
-                        app.currPlayer.selectedRoom = (
-                            app.currPlayer.roomsDict[i + 3]
-                        )
+                        app.currPlayer.selectedRoom = app.currPlayer.roomsDict[i + 3]
 
         # checks if the OK btn is clicked at the buy secret screen. If so, resets.
-        if app.currPlayer.secretOKRect != None and app.currPlayer.buyingSecret == True: # secretOKRect is the coordinates for OK btn
+        if (
+            app.currPlayer.secretOKRect != None and app.currPlayer.buyingSecret == True
+        ):  # secretOKRect is the coordinates for OK btn
             rectLeft = app.currPlayer.secretOKRect[0]
             rectTop = app.currPlayer.secretOKRect[1]
             rectW = app.currPlayer.secretOKRect[2]
             rectH = app.currPlayer.secretOKRect[3]
-            if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
+            if (
+                rectLeft <= mouseX <= rectLeft + rectW
+                and rectTop <= mouseY <= rectTop + rectH
+            ):
                 app.currPlayer.buyingSecret = False
                 app.currPlayer.secretOKRect = None
-        
+
         # checks if the OK btn is clicked on the roomsNotAvailable screen
         if app.currPlayer.roomsDrawn == False:
-            rectLeft = app.currPlayer.innerLeft + (app.currPlayer.innerSize/2) - 50
+            rectLeft = app.currPlayer.innerLeft + (app.currPlayer.innerSize / 2) - 50
             rectTop = app.currPlayer.innerTop + 150
             rectW = 100
             rectH = 40
-            if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
-                print('return to showRooms screen')
+            if (
+                rectLeft <= mouseX <= rectLeft + rectW
+                and rectTop <= mouseY <= rectTop + rectH
+            ):
+                print("return to showRooms screen")
                 app.currPlayer.showRooms = True
                 app.currPlayer.selectedRoom = None
 
-         # checks if the OK btn is clicked at the buy secret screen. If so, resets.
-        
+        # checks if the OK btn is clicked at the buy secret screen. If so, resets.
+
         ####### Renting
-        
+
         # check if ok btn clicked on rentPopup screen
-        if (app.currPlayer.removeInnerBoard == False) and (app.currPlayer.rentOKRect != None):
+        if (app.currPlayer.removeInnerBoard == False) and (
+            app.currPlayer.rentOKRect != None
+        ):
             # check if mouseX and mouseY is within bounds of OK Btn
             rectLeft = app.currPlayer.rentOKRect[0]
             rectTop = app.currPlayer.rentOKRect[1]
             rectW = app.currPlayer.rentOKRect[2]
             rectH = app.currPlayer.rentOKRect[3]
-            
-            if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
+
+            if (
+                rectLeft <= mouseX <= rectLeft + rectW
+                and rectTop <= mouseY <= rectTop + rectH
+            ):
                 print("mousePressed. ok, display the secret")
                 app.currPlayer.rentingSecret = True
 
         # checks if the OK btn is clicked on the rent secret screen
-        if app.currPlayer.secretOKRect != None and app.currPlayer.rentingSecret == True: # secretOKRect is the coordinates for OK btn
+        if (app.currPlayer.secretOKRect != None and app.currPlayer.rentingSecret == True):  # secretOKRect is the coordinates for OK btn
             rectLeft = app.currPlayer.secretOKRect[0]
             rectTop = app.currPlayer.secretOKRect[1]
             rectW = app.currPlayer.secretOKRect[2]
             rectH = app.currPlayer.secretOKRect[3]
-            if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
+            if (
+                rectLeft <= mouseX <= rectLeft + rectW
+                and rectTop <= mouseY <= rectTop + rectH
+            ):
                 processRentOfBothPlayers(app)
                 app.currPlayer.processingRent = True
                 app.currPlayer.secretOKRect = None
-                
+
         # checks if the OK btn is clicked on the weapon screen
-        if app.currPlayer.showWeaponSecret == True and app.currPlayer.weaponOKRect != None:
+        if (app.currPlayer.showWeaponSecret == True and app.currPlayer.weaponOKRect != None):
             rectLeft = app.currPlayer.weaponOKRect[0]
             rectTop = app.currPlayer.weaponOKRect[1]
             rectW = app.currPlayer.weaponOKRect[2]
             rectH = app.currPlayer.weaponOKRect[3]
-            if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
+            if (
+                rectLeft <= mouseX <= rectLeft + rectW
+                and rectTop <= mouseY <= rectTop + rectH
+            ):
                 # close the weapon secret screen
                 app.currPlayer.showWeaponSecret = False
                 app.currPlayer.weaponOKRect = None
                 app.currPlayer.processingWeaponSecret = True
-                
+
         # checks if the OK btn is clicked on the oopsInstructions screen
-        if app.currPlayer.currCell.shownInstructions == False and app.currPlayer.oopsInstructionsRect != None:
+        if (app.currPlayer.currCell.shownInstructions == False and app.currPlayer.oopsInstructionsRect != None):
             rectLeft = app.currPlayer.oopsInstructionsRect[0]
             rectTop = app.currPlayer.oopsInstructionsRect[1]
             rectW = app.currPlayer.oopsInstructionsRect[2]
             rectH = app.currPlayer.oopsInstructionsRect[3]
-            if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
+            if (rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH):
                 # close the instructions screen and open oopsPlayingScreen screen
                 app.currPlayer.currCell.shownInstructions = True
                 app.currPlayer.oopsInPlay = True
-        
+
         # checks which rock, paper, scissors btn the player clicked on
-        if app.currPlayer.oopsInPlay == True and app.currPlayer.currCell.currPlayerChoice == None:
+        if (
+            app.currPlayer.oopsInPlay == True
+            and app.currPlayer.currCell.currPlayerChoice == None
+        ):
             for i in range(len(app.currPlayer.currCell.rockPaperScissors)):
-                rectLeft = app.currPlayer.innerLeft + (app.currPlayer.innerSize / 80) + 90*(i+1) - 40
+                rectLeft = (
+                    app.currPlayer.innerLeft
+                    + (app.currPlayer.innerSize / 80)
+                    + 90 * (i + 1)
+                    - 40
+                )
                 rectTop = app.currPlayer.innerTop + 100 + 50 - 15
                 rectW = 80
                 rectH = 30
-                if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
-                    app.currPlayer.currCell.currPlayerChoice = app.currPlayer.currCell.rockPaperScissors[i]
-                    randomInt = random.randint(0, 2) # both ends are inclusive
-                    app.currPlayer.currCell.murdererChoice = app.currPlayer.currCell.rockPaperScissors[randomInt]
-                
+                if (
+                    rectLeft <= mouseX <= rectLeft + rectW
+                    and rectTop <= mouseY <= rectTop + rectH
+                ):
+                    app.currPlayer.currCell.currPlayerChoice = (
+                        app.currPlayer.currCell.rockPaperScissors[i]
+                    )
+                    randomInt = random.randint(0, 2)  # both ends are inclusive
+                    app.currPlayer.currCell.murdererChoice = (
+                        app.currPlayer.currCell.rockPaperScissors[randomInt]
+                    )
+        # checks if ok btn clicked on oops result screen
+        if app.currPlayer.currCell.currPlayerChoice != None and app.currPlayer.oopsInstructionsRect != None:
+            rectLeft = app.currPlayer.oopsInstructionsRect[0]
+            rectTop = app.currPlayer.oopsInstructionsRect[1]
+            rectW = app.currPlayer.oopsInstructionsRect[2]
+            rectH = app.currPlayer.oopsInstructionsRect[3]
+            if (
+                    rectLeft <= mouseX <= rectLeft + rectW
+                    and rectTop <= mouseY <= rectTop + rectH
+                ):
+                app.currPlayer.oopsInPlay = False
+                # need to process the payment before this line, and reset any other states
+
+
 def processRentOfBothPlayers(app):
-    rentMoney = int(app.currPlayer.currCell.price*.75)
+    rentMoney = int(app.currPlayer.currCell.price * 0.75)
     app.currPlayer.editMoney(-rentMoney)
     app.otherPlayer.editMoney(rentMoney)
+
 
 def onKeyPress(app, key):
     if app.currPlayer != None:
@@ -1101,7 +1333,7 @@ def onKeyPress(app, key):
 
 
 def onStep(app):
-     # declares the player that is making the moves
+    # declares the player that is making the moves
     if app.gameBoard.currTurn == None:
         app.currPlayer = app.gameBoard.player1
         app.otherPlayer = app.gameBoard.AI
