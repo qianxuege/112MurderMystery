@@ -32,6 +32,8 @@ class Board:
         self.playerDict = dict()
         # rooms
         self.roomsDict = dict()
+        # weapons
+        self.weaponsDict = dict()
         # Alternate turns
         self.currTurn = None
         self.otherPlayer = None
@@ -69,6 +71,7 @@ class Board:
                 (self.innerLeft, self.innerTop, self.innerSize),
                 (self.boardLeft, self.boardTop, self.width),
                 "yellow",
+                self.weaponsDict
             )
             self.AI = Player(
                 "AI",
@@ -78,6 +81,7 @@ class Board:
                 (self.innerLeft, self.innerTop, self.innerSize),
                 (self.boardLeft, self.boardTop, self.width),
                 "purple",
+                self.weaponsDict
             )
             self.playerDict["player1"] = self.player1
             self.playerDict["AI"] = self.AI
@@ -93,7 +97,7 @@ class Board:
             self.AI.drawPlayer()
             self.drawLowerBtns()
 
-    def createRooms(self):
+    def createRooms(self): # also add character weapons to the weaponsDict
         # need to change all char secret descriptions according to the linebreaks
         # Kitchen
         kitchenCharSecret = (
@@ -107,6 +111,7 @@ class Board:
         kitchen = Rooms(
             "Kitchen", 0, "Mrs. White", kitchenCharSecret, kitchenRoomSecret
         )
+        self.weaponsDict['Mrs. White'] = 'Candlestick'
         self.roomsDict[0] = kitchen
 
         # Master Bedroom
@@ -120,6 +125,7 @@ class Board:
         bedroom = Rooms(
             "Master Bedroom", 1, "Colonel Mustard", bedroomCharSecret, bedroomRoomSecret
         )
+        self.weaponsDict['Colonel Mustard'] = 'Pistol'
         self.roomsDict[1] = bedroom
         # Billiard Room
         billiardCharSecret = (
@@ -133,6 +139,7 @@ class Board:
         billiard = Rooms(
             "Billiard Room", 2, "Mr. Green", billiardCharSecret, billiardRoomSecret
         )
+        self.weaponsDict['Mr. Green'] = 'Dagger'
         self.roomsDict[2] = billiard
         # Study
         studyCharSecret = (
@@ -143,6 +150,7 @@ class Board:
         )
         studyRoomSecret = "Mustard was not in the study room at 9pm"
         study = Rooms("Study", 3, "Professor Plum", studyCharSecret, studyRoomSecret)
+        self.weaponsDict['Professor Plum'] = 'Rope'
         self.roomsDict[3] = study
         # Parlor
         parlorCharSecret = (
@@ -153,6 +161,7 @@ class Board:
         )
         parlorRoomSecret = "Mustard was in the Parlor at approximately 9pm"
         parlor = Rooms("Parlor", 4, "Mrs. Peacock", parlorCharSecret, parlorRoomSecret)
+        self.weaponsDict['Mrs. Peacock'] = 'Hammer'
         self.roomsDict[4] = parlor
         # Balcony
         balconyCharSecret = (
@@ -164,6 +173,7 @@ class Board:
         balcony = Rooms(
             "Balcony", 5, "Miss Scarlet", balconyCharSecret, balconyRoomSecret
         )
+        self.weaponsDict['Miss Scarlet'] = 'Poison'
         self.roomsDict[5] = balcony
 
     def drawBoardBorder(self):
@@ -192,7 +202,7 @@ class Board:
         cellSize = self.getCellSize()
         # these are the weapon's clue cells
         if originalCellId in {13, 7, 3, 10, 16, 20}:
-            cellName = Cell(originalCellId, "weapon", cellLeft, cellTop, cellSize)
+            cellName = Weapon(originalCellId, "weapon", cellLeft, cellTop, cellSize)
             self.cellDict[originalCellId] = cellName
             # self.originalCellId.append(cellName)
         # these are the cells that would set back the investigation
@@ -334,6 +344,9 @@ class Cell:
             self.cellTop + 0.5 * self.cellSize,
         )
 
+class Weapon(Cell):
+    def __init__(self, originalCellId, cellType, cellLeft, cellTop, cellSize):
+        super().__init__(originalCellId, cellType, cellLeft, cellTop, cellSize) 
 
 # buy and pay rent on Secret cells
 class Secret(Cell):
@@ -400,11 +413,12 @@ class Rooms:
 
 class Player:
     def __init__(
-        self, name, cellDict, roomsDict, xPos, innerBoard, outerBoard, playerColor
+        self, name, cellDict, roomsDict, xPos, innerBoard, outerBoard, playerColor, weaponsDict
     ):
         self.name = name
         self.cellDict = cellDict
         self.roomsDict = roomsDict
+        self.weaponsDict = weaponsDict
         self.currCellNum = 0
         self.currCell = cellDict[self.currCellNum]
         self.dX = xPos
@@ -730,6 +744,8 @@ class Player:
                 else:
                     # display you are the owner of the cell, pass
                     pass
+        if isinstance(self.currCell, Weapon):
+            print(self.weaponsDict)
 
     def drawPlayer(self):
         self.updatePlayerCoordinates()
