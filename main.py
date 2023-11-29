@@ -1,5 +1,6 @@
 from cmu_graphics import *
 import copy
+import random
 from handDetection import runCamera
 
 
@@ -208,7 +209,7 @@ class Board:
             # self.originalCellId.append(cellName)
         # these are the cells that would set back the investigation
         elif originalCellId in {15, 0, 4, 12, 22}:
-            cellName = Cell(originalCellId, "oops", cellLeft, cellTop, cellSize)
+            cellName = Oops(originalCellId, "oops", cellLeft, cellTop, cellSize)
             self.cellDict[originalCellId] = cellName
             # self.originalCellId.append(cellName)
         elif originalCellId == 17:
@@ -345,6 +346,16 @@ class Cell:
             self.cellTop + 0.5 * self.cellSize,
         )
 
+class Oops(Cell):
+    def __init__(self, originalCellId, cellType, cellLeft, cellTop, cellSize):
+        super().__init__(originalCellId, cellType, cellLeft, cellTop, cellSize)
+        self.rockPaperScissors = ['rock', 'paper', 'scissors']
+        self.currPlayerChoice = None
+        self.murdererChoice = None
+        self.result = None
+        self.shownInstructions = False
+         
+
 class Weapon(Cell):
     def __init__(self, originalCellId, cellType, cellLeft, cellTop, cellSize):
         super().__init__(originalCellId, cellType, cellLeft, cellTop, cellSize) 
@@ -453,6 +464,10 @@ class Player:
         self.weaponOKRect = None
         self.processingWeaponSecret = False
         self.shownWeaponSecret = False # resets to False when gets to a new cell
+        # oops states
+        self.showOopsInstructions = False # connects to self.currCell.shownOopsInstructions state
+        self.oopsInstructionsRect = None
+        self.oopsInPlay = False
         # rooms and secrets
         self.charSecretOwned = set()
         self.roomSecretOwned = set()
@@ -486,12 +501,18 @@ class Player:
         self.cy = self.currCell.cy
 
     def updatePlayerCell(self, steps):  # this should be called when rolled a dice
+        # before moving to a new cell, reset the state of the current cell
+        if isinstance(self.currCell, Oops):
+            self.currCell.shownInstructions = False
+        if isinstance(self.currCell, Weapon):
+            self.shownWeaponSecret = False
+        
         # mod by 24 to return to 0 after reached cell 23
         self.currCellNum = (self.currCellNum + steps) % 24
         self.currCell = self.cellDict[self.currCellNum]
         # would reset the state of not drawing inner board (bc player clicked no on the previous cell)
         self.removeInnerBoard = False
-        self.shownWeaponSecret = False
+        
 
     # lives, money
     def drawUpperLabel(self):
@@ -742,6 +763,90 @@ class Player:
         self.showWeaponSecret = False
         self.shownWeaponSecret = True
     
+    def drawOopsInstructions(self):
+        self.drawWhiteInnerBoard()
+        drawLabel(
+            f"The murderer has noticed you:",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + 50,
+            size = 20
+        )
+        drawLabel(
+            f"Beat him in a game of rock, paper, ",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + 80,
+            size = 16
+        )
+        drawLabel(
+            f"and scissors to win investigation funds!",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + 100,
+            size = 16
+        )
+        drawLabel(
+            f"Click on 'rock', 'paper', or 'scissors'",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + 130,
+            size = 16,
+            fill = self.colors.mossGreen
+        )
+        
+        centerX = self.innerLeft + (self.innerSize / 2)
+        btnX = centerX-50
+        btnY = self.innerTop + 110 + 100
+        
+        # OK button
+        drawRect(btnX, btnY, 100, 40, fill=self.colors.dustyBlue)
+        drawLabel("OK", centerX, btnY + 20)
+        self.oopsInstructionsRect = (btnX, btnY, 100, 40)
+        
+    def drawOopsPlayingScreen(self):
+        drawLabel(
+            f"3 . . 2 . . 1 . .",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + 50,
+            size = 30,
+            fill = self.colors.mossGreen
+        )
+        if self.currCell.currPlayerChoice == None:
+            drawLabel(
+                f"You choose: ",
+                self.innerLeft + (self.innerSize / 20),
+                self.innerTop + 100,
+                size = 18,
+                align='left'
+            )
+            # draw the rock, paper, scissors btn
+            for i in range(len(self.currCell.rockPaperScissors)):
+                x = self.innerLeft + (self.innerSize / 80) + 90*(i+1)
+                y = self.innerTop + 100 + 50
+                drawRect(x-40, y-15, 80, 30, fill='yellow')
+                drawLabel(f"{self.currCell.rockPaperScissors[i]}", x, y, size=16)
+                
+            drawLabel(
+                f"The Murderer chose: ?",
+                self.innerLeft + (self.innerSize / 20),
+                self.innerTop + 200, #130 when don't have buttons
+                size = 18,
+                align='left'
+            )
+        else: # after the player makes a choice
+            drawLabel(
+                f"You chose: {self.currCell.currPlayerChoice}",
+                self.innerLeft + (self.innerSize / 20),
+                self.innerTop + 100,
+                size = 18,
+                align='left'
+            )
+
+            drawLabel(
+                f"The Murderer chose: {self.currCell.murdererChoice}",
+                self.innerLeft + (self.innerSize / 20),
+                self.innerTop + 130, 
+                size = 18,
+                align='left'
+            )
+            
 
     def checkOnCell(self):
         if isinstance(self.currCell, Secret):
@@ -794,6 +899,11 @@ class Player:
             if self.processingWeaponSecret == True:
                 self.processWeaponSecret()
                 print(f"{self.name}'s weapon secrets include {self.weaponSecretOwned}")
+        if isinstance(self.currCell, Oops):
+            if self.currCell.shownInstructions == False:
+                self.drawOopsInstructions()
+            if self.oopsInPlay == True:
+                self.drawOopsPlayingScreen()
 
     def drawPlayer(self):
         self.updatePlayerCoordinates()
@@ -948,9 +1058,31 @@ def onMousePress(app, mouseX, mouseY):
             if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
                 # close the weapon secret screen
                 app.currPlayer.showWeaponSecret = False
-                print('should remove weapon secret screen')
                 app.currPlayer.weaponOKRect = None
                 app.currPlayer.processingWeaponSecret = True
+                
+        # checks if the OK btn is clicked on the oopsInstructions screen
+        if app.currPlayer.currCell.shownInstructions == False and app.currPlayer.oopsInstructionsRect != None:
+            rectLeft = app.currPlayer.oopsInstructionsRect[0]
+            rectTop = app.currPlayer.oopsInstructionsRect[1]
+            rectW = app.currPlayer.oopsInstructionsRect[2]
+            rectH = app.currPlayer.oopsInstructionsRect[3]
+            if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
+                # close the instructions screen and open oopsPlayingScreen screen
+                app.currPlayer.currCell.shownInstructions = True
+                app.currPlayer.oopsInPlay = True
+        
+        # checks which rock, paper, scissors btn the player clicked on
+        if app.currPlayer.oopsInPlay == True and app.currPlayer.currCell.currPlayerChoice == None:
+            for i in range(len(app.currPlayer.currCell.rockPaperScissors)):
+                rectLeft = app.currPlayer.innerLeft + (app.currPlayer.innerSize / 80) + 90*(i+1) - 40
+                rectTop = app.currPlayer.innerTop + 100 + 50 - 15
+                rectW = 80
+                rectH = 30
+                if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
+                    app.currPlayer.currCell.currPlayerChoice = app.currPlayer.currCell.rockPaperScissors[i]
+                    randomInt = random.randint(0, 2) # both ends are inclusive
+                    app.currPlayer.currCell.murdererChoice = app.currPlayer.currCell.rockPaperScissors[randomInt]
                 
 def processRentOfBothPlayers(app):
     rentMoney = int(app.currPlayer.currCell.price*.75)
