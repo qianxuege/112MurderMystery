@@ -33,7 +33,7 @@ class Board:
         # rooms
         self.roomsDict = dict()
         # weapons
-        self.weaponsDict = dict()
+        self.weaponsDict = dict() # [charName, weapon, bool for assignedToCell]
         # Alternate turns
         self.currTurn = None
         self.otherPlayer = None
@@ -60,9 +60,9 @@ class Board:
             for cellNum in self.cellDict:
                 self.cellDict[cellNum].drawCell()
             self.createRooms()
+        
             # initiates players only after the cellDict is updated
-            # -10 is the diff in x position
-            self.isFirstIteration = False
+            # -10 is the diff in x position    
             self.player1 = Player(
                 "player1",
                 self.cellDict,
@@ -86,6 +86,7 @@ class Board:
             self.playerDict["player1"] = self.player1
             self.playerDict["AI"] = self.AI
             self.currTurn = self.player1
+            self.isFirstIteration = False
         else:
             # draw cell using the new cellDict
             for cellNum in self.cellDict:
@@ -111,7 +112,7 @@ class Board:
         kitchen = Rooms(
             "Kitchen", 0, "Mrs. White", kitchenCharSecret, kitchenRoomSecret
         )
-        self.weaponsDict['Mrs. White'] = 'Candlestick'
+        self.weaponsDict[0] = ['Mrs. White','Candlestick', False]
         self.roomsDict[0] = kitchen
 
         # Master Bedroom
@@ -125,7 +126,7 @@ class Board:
         bedroom = Rooms(
             "Master Bedroom", 1, "Colonel Mustard", bedroomCharSecret, bedroomRoomSecret
         )
-        self.weaponsDict['Colonel Mustard'] = 'Pistol'
+        self.weaponsDict[1] = ['Colonel Mustard','Pistol', False]
         self.roomsDict[1] = bedroom
         # Billiard Room
         billiardCharSecret = (
@@ -139,7 +140,7 @@ class Board:
         billiard = Rooms(
             "Billiard Room", 2, "Mr. Green", billiardCharSecret, billiardRoomSecret
         )
-        self.weaponsDict['Mr. Green'] = 'Dagger'
+        self.weaponsDict[2] = ['Mr. Green','Dagger', False]
         self.roomsDict[2] = billiard
         # Study
         studyCharSecret = (
@@ -150,7 +151,7 @@ class Board:
         )
         studyRoomSecret = "Mustard was not in the study room at 9pm"
         study = Rooms("Study", 3, "Professor Plum", studyCharSecret, studyRoomSecret)
-        self.weaponsDict['Professor Plum'] = 'Rope'
+        self.weaponsDict[3] = ['Professor Plum','Rope', False]
         self.roomsDict[3] = study
         # Parlor
         parlorCharSecret = (
@@ -161,7 +162,7 @@ class Board:
         )
         parlorRoomSecret = "Mustard was in the Parlor at approximately 9pm"
         parlor = Rooms("Parlor", 4, "Mrs. Peacock", parlorCharSecret, parlorRoomSecret)
-        self.weaponsDict['Mrs. Peacock'] = 'Hammer'
+        self.weaponsDict[4] = ['Mrs. Peacock','Hammer', False]
         self.roomsDict[4] = parlor
         # Balcony
         balconyCharSecret = (
@@ -173,7 +174,7 @@ class Board:
         balcony = Rooms(
             "Balcony", 5, "Miss Scarlet", balconyCharSecret, balconyRoomSecret
         )
-        self.weaponsDict['Miss Scarlet'] = 'Poison'
+        self.weaponsDict[5] = ['Miss Scarlet','Poison', False]
         self.roomsDict[5] = balcony
 
     def drawBoardBorder(self):
@@ -347,6 +348,9 @@ class Cell:
 class Weapon(Cell):
     def __init__(self, originalCellId, cellType, cellLeft, cellTop, cellSize):
         super().__init__(originalCellId, cellType, cellLeft, cellTop, cellSize) 
+        self.weapon = None
+        self.weaponChar = None
+        self.cellOccupied = False
 
 # buy and pay rent on Secret cells
 class Secret(Cell):
@@ -444,9 +448,15 @@ class Player:
         self.rentingSecret = False
         self.processingRent = False
         self.rentOKRect = None
+        # weapon states
+        self.showWeaponSecret = False
+        self.weaponOKRect = None
+        self.processingWeaponSecret = False
+        self.shownWeaponSecret = False # resets to False when gets to a new cell
         # rooms and secrets
-        self.charSecretOwned = []
-        self.roomSecretOwned = []
+        self.charSecretOwned = set()
+        self.roomSecretOwned = set()
+        self.weaponSecretOwned = set()
         self.selectedRoom = None
         self.secretOKRect = None
         # buttons on board
@@ -481,6 +491,7 @@ class Player:
         self.currCell = self.cellDict[self.currCellNum]
         # would reset the state of not drawing inner board (bc player clicked no on the previous cell)
         self.removeInnerBoard = False
+        self.shownWeaponSecret = False
 
     # lives, money
     def drawUpperLabel(self):
@@ -608,13 +619,13 @@ class Player:
         # updates ownership if the OK button is clicked
         if self.buyingSecret == False:
             if secretDisplayed == 'characterSecret':
-                self.charSecretOwned.append(self.selectedRoom.characterSecret) # updates list of player secrets
+                self.charSecretOwned.add(self.selectedRoom.characterSecret) # updates list of player secrets
                 self.selectedRoom.characterSecretOwner = self.name
                 self.currCell.secretRoom = self.selectedRoom.name
                 self.currCell.secretType = 'characterSecret'
                 self.currCell.secret = self.selectedRoom.characterSecret
             elif secretDisplayed == 'roomSecret':
-                self.roomSecretOwned.append(self.selectedRoom.roomSecret)
+                self.roomSecretOwned.add(self.selectedRoom.roomSecret)
                 self.selectedRoom.roomSecretOwner = self.name
                 self.currCell.secretType = 'roomSecret'
                 self.currCell.secret = self.selectedRoom.roomSecret
@@ -692,8 +703,6 @@ class Player:
         self.processingRent = False
         self.removeInnerBoard = True
         self.rentingSecret = False
-        
-        
 
     def editMoney(self, money):
         self.money += money
@@ -702,6 +711,37 @@ class Player:
         self.currCell.secretOwned = True
         self.currCell.secretOwner = self.name
         # change the selectedRoom secret ownership when user closes the popup
+        
+    # assigns an empty weapon cell a weapon secret
+    def checkWeaponCellOwnership(self):
+        for i in range(len(self.weaponsDict)):
+            if self.weaponsDict[i][2] == False:
+                self.currCell.weaponChar = self.weaponsDict[i][0] # update cell char info
+                self.currCell.weapon = self.weaponsDict[i][1] # update cell weapon info
+                self.weaponsDict[i][2] = True # indicate that this weapon clue has been claimed
+                self.showWeaponSecret = True
+                self.currCell.cellOccupied = True
+                break
+        
+        
+    def drawWeaponSecret(self):
+        self.drawInnerBoard()
+        centerX = self.innerLeft + (self.innerSize / 2)
+        drawLabel(f"{self.currCell.weaponChar}'s weapon is {self.currCell.weapon}.", centerX, self.innerTop + 110, size=20)
+        btnX = centerX-50
+        btnY = self.innerTop + 110 + 100
+        
+        # OK button
+        drawRect(btnX, btnY, 100, 40, fill=self.colors.dustyBlue)
+        drawLabel("OK", centerX, btnY + 20)
+        self.weaponOKRect = (btnX, btnY, 100, 40)
+    
+    def processWeaponSecret(self):
+        self.weaponSecretOwned.add(f"{self.currCell.weaponChar}'s weapon is {self.currCell.weapon}.")
+        self.processingWeaponSecret = False
+        self.showWeaponSecret = False
+        self.shownWeaponSecret = True
+    
 
     def checkOnCell(self):
         if isinstance(self.currCell, Secret):
@@ -745,7 +785,15 @@ class Player:
                     # display you are the owner of the cell, pass
                     pass
         if isinstance(self.currCell, Weapon):
-            print(self.weaponsDict)
+            if self.currCell.cellOccupied == False:
+                self.checkWeaponCellOwnership()
+            elif self.currCell.cellOccupied == True and self.shownWeaponSecret == False:
+                self.showWeaponSecret = True
+            if self.showWeaponSecret == True: # this will run if player clicked ok on checkWeaponCellOwnership
+                self.drawWeaponSecret()
+            if self.processingWeaponSecret == True:
+                self.processWeaponSecret()
+                print(f"{self.name}'s weapon secrets include {self.weaponSecretOwned}")
 
     def drawPlayer(self):
         self.updatePlayerCoordinates()
@@ -880,7 +928,6 @@ def onMousePress(app, mouseX, mouseY):
                 print("mousePressed. ok, display the secret")
                 app.currPlayer.rentingSecret = True
 
-        
         # checks if the OK btn is clicked on the rent secret screen
         if app.currPlayer.secretOKRect != None and app.currPlayer.rentingSecret == True: # secretOKRect is the coordinates for OK btn
             rectLeft = app.currPlayer.secretOKRect[0]
@@ -891,6 +938,19 @@ def onMousePress(app, mouseX, mouseY):
                 processRentOfBothPlayers(app)
                 app.currPlayer.processingRent = True
                 app.currPlayer.secretOKRect = None
+                
+        # checks if the OK btn is clicked on the weapon screen
+        if app.currPlayer.showWeaponSecret == True and app.currPlayer.weaponOKRect != None:
+            rectLeft = app.currPlayer.weaponOKRect[0]
+            rectTop = app.currPlayer.weaponOKRect[1]
+            rectW = app.currPlayer.weaponOKRect[2]
+            rectH = app.currPlayer.weaponOKRect[3]
+            if rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH:
+                # close the weapon secret screen
+                app.currPlayer.showWeaponSecret = False
+                print('should remove weapon secret screen')
+                app.currPlayer.weaponOKRect = None
+                app.currPlayer.processingWeaponSecret = True
                 
 def processRentOfBothPlayers(app):
     rentMoney = int(app.currPlayer.currCell.price*.75)
