@@ -388,7 +388,12 @@ class Oops(Cell):
         self.murdererChoice = None
         self.playerWonOops = None
         self.tied = False
-        self.shownInstructions = False
+
+    def reset(self):
+        self.currPlayerChoice = None
+        self.murdererChoice = None
+        self.playerWonOops = None
+        self.tied = False
 
 
 class Weapon(Cell):
@@ -514,6 +519,7 @@ class Player:
         )
         self.oopsInstructionsRect = None
         self.oopsInPlay = False
+        self.shownOopsInstructions = False # for ties
         # rooms and secrets
         self.charSecretOwned = set()
         self.roomSecretOwned = set()
@@ -549,7 +555,7 @@ class Player:
     def updatePlayerCell(self, steps):  # this should be called when rolled a dice
         # before moving to a new cell, reset the state of the current cell
         if isinstance(self.currCell, Oops):
-            self.currCell.shownInstructions = False
+            self.shownOopsInstructions = False
         if isinstance(self.currCell, Weapon):
             self.shownWeaponSecret = False
 
@@ -780,7 +786,6 @@ class Player:
             size=20,
         )
         self.drawSecret(self.currCell.secretType, self.currCell.secret)
-        print(f"drawn secret")
 
         if self.rentingSecret == False:
             self.processRentMethod()
@@ -912,14 +917,14 @@ class Player:
                 drawLabel(
                     f"You tied. You'll need to play another",
                     self.innerLeft + (self.innerSize / 2),
-                    self.innerTop + 210,
+                    self.innerTop + 260,
                     size=16,
                     fill=self.colors.mossGreen,
                 )
                 drawLabel(
                     f"round of rock, paper, and scissors.",
                     self.innerLeft + (self.innerSize / 2),
-                    self.innerTop + 230,
+                    self.innerTop + 280,
                     size=16,
                     fill=self.colors.mossGreen,
                 )
@@ -943,16 +948,12 @@ class Player:
             # checks the results for rock, paper, scissors
             result = self.checkOopsResults()
             if result == None:
-                print(
-                    f"You tied. You'll need to play another round of rock, paper, and scissors."
-                )
                 # would return to the previous screen
                 self.currCell.currPlayerChoice = self.currCell.murdererChoice = None
                 self.currCell.tied = True
             elif result == True:
-                print(f"{self.name} won. You'll get $100 investigation fund.")
                 self.currCell.tied = False
-                self.playerWonOops = True
+                self.currCell.playerWonOops = True
                 drawLabel(
                     f"{self.name} won!",
                     self.innerLeft + (self.innerSize / 2),
@@ -968,9 +969,9 @@ class Player:
                     fill=self.colors.mossGreen,
                 )
             else:
-                print(f"{self.name} lost. You'll be deducted $200 investigation fund.")
+                print(f"{self.name} lost.")
                 self.currCell.tied = False
-                self.playerWonOops = False
+                self.currCell.playerWonOops = False
                 drawLabel(
                     f"{self.name} lost.",
                     self.innerLeft + (self.innerSize / 2),
@@ -1073,9 +1074,8 @@ class Player:
                 self.drawWeaponSecret()
             if self.processingWeaponSecret == True:
                 self.processWeaponSecret()
-                print(f"{self.name}'s weapon secrets include {self.weaponSecretOwned}")
         if isinstance(self.currCell, Oops):
-            if self.currCell.shownInstructions == False:
+            if self.shownOopsInstructions == False:
                 self.drawOopsInstructions()
             if self.oopsInPlay == True:
                 self.drawOopsPlayingScreen()
@@ -1125,9 +1125,13 @@ def onMousePress(app, mouseX, mouseY):
         if app.gameBoard.currTurn == app.gameBoard.player1:
             app.gameBoard.currTurn = app.gameBoard.AI
             app.gameBoard.otherPlayer = app.gameBoard.player1
+            # if type(app.gameBoard.currTurn.currCell)==Oops:
+            #     app.gameBoard.otherPlayer.currCell.reset()
         else:
             app.gameBoard.currTurn = app.gameBoard.player1
             app.gameBoard.otherPlayer = app.gameBoard.AI
+            # if type(app.gameBoard.currTurn.currCell)==Oops:
+            #     app.gameBoard.otherPlayer.currCell.reset()
 
     print(app.currPlayer)
 
@@ -1176,13 +1180,11 @@ def onMousePress(app, mouseX, mouseY):
                 # column 1
                 if col1Left <= mouseX <= col1Left + btnW:
                     if rectTop <= mouseY <= rectTop + btnH:
-                        print(f"clicked on {app.currPlayer.roomsDict[i]}")
                         app.currPlayer.selectedRoom = app.currPlayer.roomsDict[i]
                         app.currPlayer.showRooms = False
                 # column 2
                 elif col2Left <= mouseX <= col2Left + btnW:
                     if rectTop <= mouseY <= rectTop + btnH:
-                        print(f"clicked on {app.currPlayer.roomsDict[i+3]}")
                         app.currPlayer.selectedRoom = app.currPlayer.roomsDict[i + 3]
 
         # checks if the OK btn is clicked at the buy secret screen. If so, resets.
@@ -1210,7 +1212,6 @@ def onMousePress(app, mouseX, mouseY):
                 rectLeft <= mouseX <= rectLeft + rectW
                 and rectTop <= mouseY <= rectTop + rectH
             ):
-                print("return to showRooms screen")
                 app.currPlayer.showRooms = True
                 app.currPlayer.selectedRoom = None
 
@@ -1265,18 +1266,19 @@ def onMousePress(app, mouseX, mouseY):
                 app.currPlayer.processingWeaponSecret = True
 
         # checks if the OK btn is clicked on the oopsInstructions screen
-        if (app.currPlayer.currCell.shownInstructions == False and app.currPlayer.oopsInstructionsRect != None):
+        if (isinstance(app.currPlayer.currCell, Oops) and app.currPlayer.shownOopsInstructions == False and app.currPlayer.oopsInstructionsRect != None):
             rectLeft = app.currPlayer.oopsInstructionsRect[0]
             rectTop = app.currPlayer.oopsInstructionsRect[1]
             rectW = app.currPlayer.oopsInstructionsRect[2]
             rectH = app.currPlayer.oopsInstructionsRect[3]
             if (rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH):
                 # close the instructions screen and open oopsPlayingScreen screen
-                app.currPlayer.currCell.shownInstructions = True
+                app.currPlayer.shownOopsInstructions = True
+                app.currPlayer.oopsInstructionsRect = None
                 app.currPlayer.oopsInPlay = True
 
         # checks which rock, paper, scissors btn the player clicked on
-        if (
+        if (isinstance(app.currPlayer.currCell, Oops) and
             app.currPlayer.oopsInPlay == True
             and app.currPlayer.currCell.currPlayerChoice == None
         ):
@@ -1302,7 +1304,7 @@ def onMousePress(app, mouseX, mouseY):
                         app.currPlayer.currCell.rockPaperScissors[randomInt]
                     )
         # checks if ok btn clicked on oops result screen
-        if app.currPlayer.currCell.currPlayerChoice != None and app.currPlayer.oopsInstructionsRect != None:
+        if isinstance(app.currPlayer.currCell, Oops) and app.currPlayer.currCell.currPlayerChoice != None and app.currPlayer.oopsInstructionsRect != None:
             rectLeft = app.currPlayer.oopsInstructionsRect[0]
             rectTop = app.currPlayer.oopsInstructionsRect[1]
             rectW = app.currPlayer.oopsInstructionsRect[2]
@@ -1311,15 +1313,25 @@ def onMousePress(app, mouseX, mouseY):
                     rectLeft <= mouseX <= rectLeft + rectW
                     and rectTop <= mouseY <= rectTop + rectH
                 ):
+                processOops(app)
+                app.currPlayer.oopsInstructionsRect = None
                 app.currPlayer.oopsInPlay = False
                 # need to process the payment before this line, and reset any other states
 
+def processOops(app):
+    if isinstance(app.currPlayer.currCell, Oops) and app.currPlayer.currCell.playerWonOops == True:
+        app.currPlayer.currCell.currPlayerChoice = app.currPlayer.currCell.murdererChoice = None
+        app.currPlayer.currCell.playerWonOops = None
+        app.currPlayer.editMoney(100)
+    elif isinstance(app.currPlayer.currCell, Oops) and app.currPlayer.currCell.playerWonOops == False:
+        app.currPlayer.currCell.currPlayerChoice = app.currPlayer.currCell.murdererChoice = None
+        app.currPlayer.currCell.playerWonOops = None
+        app.currPlayer.editMoney(-200)
 
 def processRentOfBothPlayers(app):
     rentMoney = int(app.currPlayer.currCell.price * 0.75)
     app.currPlayer.editMoney(-rentMoney)
     app.otherPlayer.editMoney(rentMoney)
-
 
 def onKeyPress(app, key):
     if app.currPlayer != None:
