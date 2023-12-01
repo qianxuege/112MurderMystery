@@ -13,6 +13,7 @@ class Colors:
     def __init__(self):
         self.dustyBlue = rgb(116, 136, 168)
         self.mossGreen = rgb(89, 125, 92)
+        self.sand = rgb(247, 246, 228)
         
 class Guess:
     def __init__(self, charGuess, weaponGuess, roomGuess):
@@ -39,6 +40,57 @@ class Guess:
         return newString
 
 
+class PlayerNotes:
+    def __init__(self, currPlayer, notesBoardLeft, notesBoardTop, notesBoardW, notesBoardH, colors):
+        self.currPlayer = currPlayer
+        self.notesBoardLeft = notesBoardLeft
+        self.notesBoardTop = notesBoardTop
+        self.notesBoardW = notesBoardW
+        self.notesBoardH = notesBoardH
+        self.colors = colors
+    def __hash__(self):
+        return hash(str(self))
+    def __repr__(self):
+        return f"Displays notes of {self.currPlayer.name}"
+    def __eq__(self, other):
+        return isinstance(other, PlayerNotes) and self.currPlayer == other.currPlayer
+    
+    def drawIndividualNotes(self, charSecretOwned, weaponSecretOwned, roomSecretOwned):
+        xLeft = self.notesBoardLeft + (self.notesBoardW /20)
+        currY = self.notesBoardTop + 80
+        i = 0
+        if charSecretOwned != set():
+            drawLabel("Character Secret Owned:", xLeft, currY + 20 * i, size=16, align='left')
+            i+= 1
+            for secret in charSecretOwned:
+                drawLabel(secret, xLeft, currY + 20* i, align='left')
+                i+= 1
+        
+        if weaponSecretOwned != set():
+            drawLabel("Weapon Secret Owned:", xLeft, currY + 20 * i, size=16, align='left')
+            i += 1
+            for secret in weaponSecretOwned:
+                drawLabel(secret, xLeft, currY + 20* i, align='left')
+                i+= 1
+        
+        if roomSecretOwned != set():
+            drawLabel("Room Secret Owned:", xLeft, currY + 20 * i, size=16, align='left')
+            i += 1
+            for secret in roomSecretOwned:
+                drawLabel(secret, xLeft, currY + 20* i, align='left')
+                i+= 1
+    
+    def drawNotes(self):
+        drawRect(self.notesBoardLeft, self.notesBoardTop, self.notesBoardW, self.notesBoardH, fill=self.colors.sand)
+        
+        cx = self.notesBoardLeft + (self.notesBoardW /2)
+        cy = self.notesBoardTop + (self.notesBoardH /2)
+        drawLabel(f"{self.currPlayer.name} Notes", cx, self.notesBoardTop + 50)
+        
+
+        self.drawIndividualNotes(self.currPlayer.charSecretOwned, self.currPlayer.weaponSecretOwned, self.currPlayer.roomSecretOwned)
+        
+
 class Board:
     def __init__(self, width, height, rows, cols):
         self.width = width  # 500
@@ -47,7 +99,7 @@ class Board:
         self.cols = cols  # 7
         self.cellBorderWidth = 1
         self.cellSize = self.width / self.cols
-        self.boardLeft = 150
+        self.boardLeft = 400 # was 150
         self.boardTop = 100
         self.colors = Colors()
         # inner box properties
@@ -71,6 +123,9 @@ class Board:
         # make a guess
         self.makingAGuess = False
         self.textboxList = []
+        # player notes
+        self.player1Notes = None
+        self.AINotes = None
 
     def drawBoard(self):
         originalCellId = 0
@@ -126,6 +181,10 @@ class Board:
             self.playerDict["player1"] = self.player1
             self.playerDict["AI"] = self.AI
             self.currTurn = self.player1
+            # initiates player notes
+            self.player1Notes = PlayerNotes(self.player1, self.boardLeft - 350, self.boardTop, 250, self.height, self.colors)
+            self.AINotes = PlayerNotes(self.AI, self.boardLeft - 350, self.boardTop, 250, self.height, self.colors)
+            
             self.isFirstIteration = False
         else:
             # draw cell using the new cellDict
@@ -137,6 +196,7 @@ class Board:
             # draw AI
             self.AI.drawPlayer()
             self.drawLowerBtns()
+            self.player1Notes.drawNotes()
 
     def initiateTextboxes(self):
         textboxLeft = self.innerLeft + (self.innerSize / 20) + 100
@@ -910,6 +970,10 @@ class Player:
 
     def processRentMethod(self):
         # the + - money is done in the onclick of APP
+        if self.currCell.secretType == "characterSecret":
+            self.charSecretOwned.add(self.currCell.secret)
+        elif self.currCell.secretType == "roomSecret":
+            self.roomSecretOwned.add(self.currCell.secret)
         self.processingRent = False
         self.removeInnerBoard = True
         self.rentingSecret = False
@@ -1330,7 +1394,7 @@ class Player:
 
 def onAppStart(app):
     app.height = 700
-    app.width = 800
+    app.width = 1000
     app.paused = True
     app.stepsPerSecond = 1
     app.playerWon = False
