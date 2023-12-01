@@ -1,5 +1,6 @@
 from cmu_graphics import *
 import copy, random, string, json
+import jsonpickle
 from imageManager import loadImages
 from handDetection import runCamera
 
@@ -9,20 +10,60 @@ read these articles on writing and reading json file:
 https://www.geeksforgeeks.org/reading-and-writing-json-to-a-file-in-python/
 https://www.freecodecamp.org/news/loading-a-json-file-in-python-how-to-read-and-parse-json/
 https://www.w3docs.com/snippets/python/how-to-make-a-class-json-serializable.html#:~:text=In%20order%20to%20make%20a,can%20be%20converted%20to%20JSON.
+https://stackoverflow.com/questions/22281059/set-object-is-not-json-serializable
 """
+
+'''
+convert rgb to hex and hex to rgb: 
+https://www.codespeedy.com/convert-rgb-to-hex-color-code-in-python/
+'''
+
+'''
+convert string to variable names:
+https://www.geeksforgeeks.org/convert-string-into-variable-name-in-python/
+'''
 
 
 class Colors:
-    def __init__(self):
+    def __init__(self, name):
+        self.name = name
         self.dustyBlue = rgb(116, 136, 168)
         self.mossGreen = rgb(89, 125, 92)
         self.sand = rgb(247, 246, 228)
+    
+    def to_json(self):
+        return {
+            'name': self.name,
+            'dustyBlue': self.dustyBlue,
+            'mossGreen': self.mossGreen,
+            'sand': self.sand
+        }
+    
+    def __hash__(self):
+        return hash(str(self))
+    
+    def __repr__(self):
+        return f"Colors(dustyBlue, mossGreen, sand)"
+    
+    def __eq__(self, other):
+        return isinstance(other, Colors)
+    
+    
         
 class Guess:
-    def __init__(self, charGuess, weaponGuess, roomGuess):
+    def __init__(self, charGuess, weaponGuess, roomGuess, name='playerGuess'):
+        self.name = name
         self.charGuess = self.capitalization(charGuess)
         self.weaponGuess = self.capitalization(weaponGuess)
         self.roomGuess = self.capitalization(roomGuess)
+
+    def to_json(self):
+        return {
+            'name': self.name,
+            'charGuess': self.charGuess,
+            'weaponGuess': self.weaponGuess,
+            'roomGuess': self.roomGuess  
+        }
     
     def __repr__(self):
         return f"{self.charGuess}, using {self.weaponGuess}, killed Colonel Mustard in the {self.roomGuess}."
@@ -40,6 +81,7 @@ class Guess:
         newString = ""
         for word in s.split(" "):
             newString += word[0].upper() + word[1:]
+            newString += " "
         return newString
 
 
@@ -51,10 +93,22 @@ class PlayerNotes:
         self.notesBoardW = notesBoardW
         self.notesBoardH = notesBoardH
         self.colors = colors
+        self.name = str(self)
+        
+    def to_json(self):
+        return {
+            "currPlayer": self.currPlayer,
+            "notesBoardLeft": self.notesBoardLeft,
+            "notesBoardTop": self.notesBoardTop,
+            "notesBoardW": self.notesBoardW,
+            "notesBoardH": self.notesBoardH,
+            "colors": self.colors,
+            "name": self.name
+        }
     def __hash__(self):
         return hash(str(self))
     def __repr__(self):
-        return f"Displays notes of {self.currPlayer.name}"
+        return f"Player notes of {self.currPlayer.name}"
     def __eq__(self, other):
         return isinstance(other, PlayerNotes) and self.currPlayer == other.currPlayer
     
@@ -96,6 +150,7 @@ class PlayerNotes:
 
 class Board:
     def __init__(self, width, height, rows, cols):
+        self.name = 'gameBoard'
         self.width = width  # 500
         self.height = height  # 500
         self.rows = rows  # 7
@@ -104,7 +159,7 @@ class Board:
         self.cellSize = self.width / self.cols
         self.boardLeft = 400 # was 150
         self.boardTop = 100
-        self.colors = Colors()
+        self.colors = Colors('colors')
         # inner box properties
         self.innerLeft = self.boardLeft + self.cellSize
         self.innerTop = self.boardTop + self.cellSize
@@ -132,39 +187,40 @@ class Board:
     
     def to_json(self):
         return {
-            "self.width": self.width,
-            "self.height": self.height,
-            "self.rows": self.rows,
-            "self.cols": self.cols,
-            "self.cellBorderWidth": self.cellBorderWidth,
-            "self.cellSize": self.cellSize,
-            "self.boardLeft": self.boardLeft,
-            "self.boardTop": self.boardTop,
-            "self.colors": self.colors,
+            "name": self.name,
+            "width": self.width,
+            "height": self.height,
+            "rows": self.rows,
+            "cols": self.cols,
+            "cellBorderWidth": self.cellBorderWidth,
+            "cellSize": self.cellSize,
+            "boardLeft": self.boardLeft,
+            "boardTop": self.boardTop,
+            "colors": self.colors,
             # inner box properties
-            "self.innerLeft": self.innerLeft,
-            "self.innerTop": self.innerTop,
-            "self.innerSize": self.innerSize,
+            "innerLeft": self.innerLeft,
+            "innerTop": self.innerTop,
+            "innerSize": self.innerSize,
             # instances of cell class
-            "self.cellDict": self.cellDict,
-            "self.isFirstIteration": self.isFirstIteration,
+            "cellDict": self.cellDict,
+            "isFirstIteration": self.isFirstIteration,
             # players
-            "self.player1": self.player1,
-            "self.AI": self.AI,
-            "self.playerDict": self.playerDict,
+            "player1": self.player1,
+            "AI": self.AI,
+            "playerDict": self.playerDict,
             # rooms
-            "self.roomsDict": self.roomsDict,
+            "roomsDict": self.roomsDict,
             # weapons
-            "self.weaponsDict": self.weaponsDict,  # [charName, weapon, bool for assignedToCell]
+            "weaponsDict": self.weaponsDict,  # [charName, weapon, bool for assignedToCell]
             # Alternate turns
-            "self.currTurn": self.currTurn,
-            "self.otherPlayer": self.otherPlayer,
+            "currTurn": self.currTurn,
+            "otherPlayer": self.otherPlayer,
             # make a guess
-            "self.makingAGuess": self.makingAGuess,
-            "self.textboxList": self.textboxList,
+            "makingAGuess": self.makingAGuess,
+            "textboxList": self.textboxList,
             # player notes
-            "self.player1Notes": self.player1Notes,
-            "self.AINotes": self.AINotes
+            "player1Notes": self.player1Notes,
+            "AINotes": self.AINotes
         }
         
     def __repr__(self):
@@ -197,6 +253,7 @@ class Board:
             print(self.cellDict)
             for cellNum in self.cellDict:
                 self.cellDict[cellNum].drawCell()
+                self.cellDict[cellNum].name = str(self.cellDict[cellNum])
             self.createRooms()
 
             # initiate makeAGuess textboxes
@@ -495,6 +552,7 @@ class Cell:
     cellDict = dict()
 
     def __init__(self, originalCellId, cellType, cellLeft, cellTop, cellSize):
+        self.name = ''
         self.cellType = cellType  # secret, oops, weapon
         self.originalCellId = originalCellId
         self.cellDictId = None  # will be changed when updating cellDict
@@ -503,6 +561,19 @@ class Cell:
         self.cellSize = cellSize
         self.cx = cellLeft + cellSize / 2
         self.cy = cellTop + cellSize / 2
+    
+    def to_json(self):
+        return {
+            "name": self.name,
+            "cellType": self.cellType,
+            "originalCellId": self.originalCellId,
+            "cellDictId": self.cellDictId,
+            "cellLeft": self.cellLeft,
+            "cellTop": self.cellTop,
+            "cellSize": self.cellSize,
+            "cx": self.cx,
+            "cy": self.cy
+        }
 
     def __repr__(self):
         return f"{self.cellDictId}. {self.cellType}"
@@ -556,6 +627,24 @@ class Oops(Cell):
         self.murdererChoice = None
         self.playerWonOops = None
         self.tied = False
+    
+    def to_json(self):
+        return {
+            "name": self.name,
+            "cellType": self.cellType,
+            "originalCellId": self.originalCellId,
+            "cellDictId": self.cellDictId,
+            "cellLeft": self.cellLeft,
+            "cellTop": self.cellTop,
+            "cellSize": self.cellSize,
+            "cx": self.cx,
+            "cy": self.cy,
+            "rockPaperScissors": self.rockPaperScissors,
+            "currPlayerChoice": self.currPlayerChoice,
+            "murdererChoice": self.murdererChoice,
+            "playerWonOops": self.playerWonOops,
+            "tied": self.tied
+        }
 
     def reset(self):
         self.currPlayerChoice = None
@@ -570,6 +659,22 @@ class Weapon(Cell):
         self.weapon = None
         self.weaponChar = None
         self.cellOccupied = False
+    
+    def to_json(self):
+        return {
+            "name": self.name,
+            "cellType": self.cellType,
+            "originalCellId": self.originalCellId,
+            "cellDictId": self.cellDictId,
+            "cellLeft": self.cellLeft,
+            "cellTop": self.cellTop,
+            "cellSize": self.cellSize,
+            "cx": self.cx,
+            "cy": self.cy,
+            "weapon": self.weapon,
+            "weaponChar": self.weaponChar,
+            "cellOccupied": self.cellOccupied
+        }
 
 
 # buy and pay rent on Secret cells
@@ -585,6 +690,27 @@ class Secret(Cell):
         self.secret = None
         self.yesBuy = False
         self.yesRent = False
+    
+    def to_json(self):
+        return {
+            "name": self.name,
+            "cellType": self.cellType,
+            "originalCellId": self.originalCellId,
+            "cellDictId": self.cellDictId,
+            "cellLeft": self.cellLeft,
+            "cellTop": self.cellTop,
+            "cellSize": self.cellSize,
+            "cx": self.cx,
+            "cy": self.cy,
+            "price": self.price,
+            "secretOwned": self.secretOwned,
+            "secretOwner": self.secretOwner,
+            "secretRoom": self.secretRoom,
+            "secretType": self.secretType,
+            "secret": self.secret,
+            "yesBuy": self.yesBuy,
+            "yesRent": self.yesRent,
+        }
 
     def __repr__(self):
         return f"{self.cellDictId}. {self.cellType}, owner is {self.secretOwner}"
@@ -612,6 +738,18 @@ class Rooms:
         # ownserships
         self.characterSecretOwner = None
         self.roomSecretOwner = None
+    
+    def to_json(self):
+        return {
+            "name": self.name,
+            "id": self.id,
+            "accessible": self.accessible,
+            "character": self.character,
+            "characterSecret": self.characterSecret,
+            "roomSecret": self.roomSecret,
+            "characterSecretOwner": self.characterSecretOwner,
+            "roomSecretOwner": self.roomSecretOwner
+        }
 
     def __repr__(self):
         return f"{self.name}({self.character}, {self.characterSecretOwner}, {self.roomSecretOwner})"
@@ -642,6 +780,18 @@ class Textbox:
         self.selected = False
         # self.addingKey = False
         self.label = ""
+    
+    def to_json(self):
+        return {
+            "name": self.name,
+            "rectLeft": self.rectLeft,
+            "rectTop": self.rectTop,
+            "rectW": self.rectW,
+            "rectH": self.rectH,
+            "fill": self.fill,
+            "selected": self.selected,
+            "label": self.label
+        }
 
     def __repr__(self):
         return (
@@ -717,7 +867,7 @@ class Player:
         self.boardTop = outerBoard[1]
         self.boardSize = outerBoard[2]
         self.playerColor = playerColor
-        self.colors = Colors()
+        self.colors = Colors('colors')
         # upper labels
         self.lives = 3
         self.money = 1500
@@ -765,8 +915,73 @@ class Player:
         self.checkGuessRect = None
         self.wrongGuess = False
 
+    def to_json(self):
+        return {
+            "name": self.name,
+            "cellDict": self.cellDict,
+            "roomsDict": self.roomsDict,
+            "weaponsDict": self.weaponsDict,
+            "currCellNum": self.currCellNum,
+            "currCell": self.currCell,
+            "dX": self.dX,
+            "cx": self.cx,
+            "cy": self.cy,
+            "innerLeft": self.innerLeft,
+            "innerTop": self.innerTop,
+            "innerSize": self.innerSize,
+            "boardLeft": self.boardLeft,
+            "boardTop": self.boardTop,
+            "boardSize": self.boardSize,
+            "playerColor": self.playerColor,
+            "colors": self.colors,
+            # upper labels
+            "lives": self.lives,
+            "money": self.money,
+            # states
+            "buyingSecret": self.buyingSecret,
+            "removeInnerBoard": self.removeInnerBoard,
+            "showRooms": self.showRooms,
+            "roomsDrawn": self.roomsDrawn,
+            # renting states
+            "rentingSecret": self.rentingSecret,
+            "processingRent": self.processingRent,
+            "rentOKRect": self.rentOKRect,
+            # weapon states
+            "showWeaponSecret": self.showWeaponSecret,
+            "weaponOKRect": self.weaponOKRect,
+            "processingWeaponSecret": self.processingWeaponSecret,
+            "shownWeaponSecret": self.shownWeaponSecret,  # resets to False when gets to a new cell
+            # oops states
+            "showOopsInstructions": self.showOopsInstructions,
+            "oopsInstructionsRect": self.oopsInstructionsRect,
+            "oopsInPlay": self.oopsInPlay,
+            "shownOopsInstructions": self.shownOopsInstructions,  # for ties
+            # rooms and secrets
+            "charSecretOwned": self.charSecretOwned,
+            "roomSecretOwned": self.roomSecretOwned,
+            "weaponSecretOwned": self.weaponSecretOwned,
+            "selectedRoom": self.selectedRoom,
+            "secretOKRect": self.secretOKRect,
+            # buttons on board
+            "yesBtnLeft": self.yesBtnLeft,
+            "yesBtnTop": self.yesBtnTop,
+            "noBtnLeft": self.noBtnLeft,
+            "noBtnTop": self.noBtnTop,
+            "btnW": self.btnW,
+            "btnH": self.btnH,
+            "roomBtnCol1Left": self.roomBtnCol1Left,
+            "roomBtnCol2Left": self.roomBtnCol2Left,
+            "roomBtnTop": self.roomBtnTop,
+            "roomBtnH": self.roomBtnH,
+            "roomBtnW": self.roomBtnW,
+            # check if guessed right
+            "textboxList": self.textboxList,
+            "checkGuessRect": self.checkGuessRect,
+            "wrongGuess": self.wrongGuess
+        }
+
     def __repr__(self):
-        return f"Player({self.name}, {self.currCell})"
+        return f"{self.name}"
 
     def __hash__(self):
         return hash(str(self))
@@ -1448,7 +1663,7 @@ def onAppStart(app):
     app.stepsPerSecond = 1
     app.imageDict = loadImages() # this returns the imageDict
     app.instructions = "You are invited to a wedding banquet on a lonely island,\n but on the day of the wedding, the groom \n died at 9PM. Everyone is grieving. \nYou are a detective that vows to find out \nwhat has happened prior to the wedding day."
-    app.colors = Colors()
+    app.colors = Colors('colors')
     app.instructionScreen = True
     # restart(app)
     
@@ -1485,7 +1700,7 @@ def restart(app):
     # app.instructionScreen = False
     app.currPlayer = app.gameBoard.player1
     app.otherPlayer = app.gameBoard.AI
-    app.answer = Guess("Mrs Peacock", "Hammer", "Parlor")
+    app.answer = Guess("Mrs Peacock", "Hammer", "Parlor", "answer")
 
 
 def redrawAll(app):
@@ -1540,25 +1755,71 @@ def checkSaveProgress(app, mouseX, mouseY):
         
 def saveToJson(app):
     # write to json file
+    
+    
     appPropertiesDict = {
-        "app.height": app.height,
-        "app.width": app.width,
-        "app.paused": app.paused,
-        "app.stepsPerSecond": app.stepsPerSecond,
-        "app.playerWon": app.playerWon,
-        "app.playerLost": app.playerLost,
-        "app.gameboard": app.gameBoard,
-        "app.instructionScreen": app.instructionScreen,
-        "app.currPlayer": app.currPlayer,
-        "app.otherPlayer": app.otherPlayer,
-        "app.answer": app.answer
+        "name": "app",
+        "height": app.height,
+        "width": app.width,
+        "paused": app.paused,
+        "stepsPerSecond": app.stepsPerSecond,
+        "playerWon": app.playerWon,
+        "playerLost": app.playerLost,
+        "gameboard": app.gameBoard,
+        "instructionScreen": app.instructionScreen,
+        "currPlayer": app.currPlayer,
+        "otherPlayer": app.otherPlayer,
+        "answer": app.answer
     }
     # Serializing json
-    json_object = json.dumps(appPropertiesDict, indent=4)
+    # json_object = json.dumps(gameBoardDict, indent=4)
     
-    # Writing to sample.json
-    with open("prevGame.json") as outfile:
-        outfile.write(json_object)
+ 
+
+    
+    
+    
+    # convert to json object
+    obj = app.gameBoard.player1Notes
+    json_str = json.dumps(obj.to_json(), indent=4, default=set_default)
+    print(json_str)
+    
+    # json_str = json.dumps(appPropertiesDict, indent=4, default=set_default)
+    
+    # write to the json file
+    with open("prevGame.json", "w") as outfile:
+        outfile.write(json_str)
+    
+    
+    # readJsonFile(app)
+    
+    
+    # print(json_str)
+
+# this function was taken from the stackOverflow link above
+def set_default(obj):
+    try:
+        if isinstance(obj, set):
+            return list(obj)
+        elif isinstance(obj, str) or isinstance(obj, list) or isinstance(obj, int) or isinstance(obj, float):
+            return obj
+        else: 
+            return str(obj)
+    except:
+        print("an error occurred")
+
+# rgb and hex conversion functions were taken from GeeksForGeeks link above
+def rgb_to_hex(rgb):
+    return '%02x%02x%02x' % rgb
+
+def hex_to_rgb(value):
+    value = value.lstrip('#')
+    lv = len(value)
+    return tuple(int(value[i:i+lv//3], 16) for i in range(0, lv, lv//3))
+# hex_to_rgb("FF65BA")
+
+
+
 
 def onMousePress(app, mouseX, mouseY):
     if app.instructionScreen == True:

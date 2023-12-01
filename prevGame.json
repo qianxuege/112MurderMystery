@@ -1,0 +1,9 @@
+{
+    "currPlayer": "player1",
+    "notesBoardLeft": 50,
+    "notesBoardTop": 100,
+    "notesBoardW": 250,
+    "notesBoardH": 500,
+    "colors": "Colors(dustyBlue, mossGreen, sand)",
+    "name": "Player notes of player1"
+}
