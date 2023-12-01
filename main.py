@@ -1,11 +1,14 @@
 from cmu_graphics import *
-import copy, random, string
+import copy, random, string, json
+from imageManager import loadImages
 from handDetection import runCamera
 
 
 """
-read this article on writing and reading json file: 
+read these articles on writing and reading json file: 
 https://www.geeksforgeeks.org/reading-and-writing-json-to-a-file-in-python/
+https://www.freecodecamp.org/news/loading-a-json-file-in-python-how-to-read-and-parse-json/
+https://www.w3docs.com/snippets/python/how-to-make-a-class-json-serializable.html#:~:text=In%20order%20to%20make%20a,can%20be%20converted%20to%20JSON.
 """
 
 
@@ -126,6 +129,52 @@ class Board:
         # player notes
         self.player1Notes = None
         self.AINotes = None
+    
+    def to_json(self):
+        return {
+            "self.width": self.width,
+            "self.height": self.height,
+            "self.rows": self.rows,
+            "self.cols": self.cols,
+            "self.cellBorderWidth": self.cellBorderWidth,
+            "self.cellSize": self.cellSize,
+            "self.boardLeft": self.boardLeft,
+            "self.boardTop": self.boardTop,
+            "self.colors": self.colors,
+            # inner box properties
+            "self.innerLeft": self.innerLeft,
+            "self.innerTop": self.innerTop,
+            "self.innerSize": self.innerSize,
+            # instances of cell class
+            "self.cellDict": self.cellDict,
+            "self.isFirstIteration": self.isFirstIteration,
+            # players
+            "self.player1": self.player1,
+            "self.AI": self.AI,
+            "self.playerDict": self.playerDict,
+            # rooms
+            "self.roomsDict": self.roomsDict,
+            # weapons
+            "self.weaponsDict": self.weaponsDict,  # [charName, weapon, bool for assignedToCell]
+            # Alternate turns
+            "self.currTurn": self.currTurn,
+            "self.otherPlayer": self.otherPlayer,
+            # make a guess
+            "self.makingAGuess": self.makingAGuess,
+            "self.textboxList": self.textboxList,
+            # player notes
+            "self.player1Notes": self.player1Notes,
+            "self.AINotes": self.AINotes
+        }
+        
+    def __repr__(self):
+        return f"Board({self.player1}, {self.AI})"
+    
+    def __hash__(self):
+        return hash(str(self))
+
+    def __eq__(self, other):
+        return isinstance(other, Board) and self.player1 == other.player1 and self.AI == other.AI
 
     def drawBoard(self):
         originalCellId = 0
@@ -397,6 +446,10 @@ class Board:
         )
 
     def drawLowerBtns(self):
+        # save progress
+        drawRect(self.boardLeft - 350, self.boardTop + self.height + 20, 250, 40, fill=self.colors.dustyBlue, border='black')
+        drawLabel("Save Progress", self.boardLeft - 350 + 125, self.boardTop + self.height + 40, size=20)
+        
         # make a guess
         drawRect(
             self.boardLeft - 15,
@@ -568,10 +621,6 @@ class Rooms:
 
     def __eq__(self, other):
         return isinstance(other, Rooms) and (other.name == self.name)
-
-    def buySecret(self, player):
-        #
-        pass
 
     def checkSecret(self):
         if self.characterSecretOwner == None:
@@ -1397,10 +1446,43 @@ def onAppStart(app):
     app.width = 1000
     app.paused = True
     app.stepsPerSecond = 1
+    app.imageDict = loadImages() # this returns the imageDict
+    app.instructions = "You are invited to a wedding banquet on a lonely island,\n but on the day of the wedding, the groom \n died at 9PM. Everyone is grieving. \nYou are a detective that vows to find out \nwhat has happened prior to the wedding day."
+    app.colors = Colors()
+    app.instructionScreen = True
+    # restart(app)
+    
+def readJsonFile(app):
+    # Opening JSON file
+    with open('prevGame.json') as openfile:
+        # Reading from json file
+        json_object = json.load(openfile)
+    print(json_object)
+    
+def drawInstructionScreen(app):
+    # draw instructions screen
+    drawRect(0, 0, app.width, app.height, fill="black")
+    drawImage(app.imageDict["mansion"], app.width/2, app.height/2, align="center", width=app.width, height=app.height)
+    drawLabel("112 Murder Mystery", app.width/2, 150, fill='white', size=36)
+    
+    centerX = app.width/2
+    currY = 180
+    for line in app.instructions.splitlines():
+        currY += 20
+        drawLabel(line, centerX, currY, fill='white')
+    
+    drawRect(app.width/10 * 2.5 - 150, app.height/2 + 150 - 30, 300, 60, fill=app.colors.dustyBlue)
+    drawLabel("Start New Game", app.width/10 * 2.5, app.height/2 + 150, fill='white', size=18)
+    
+    drawRect(app.width/10 * 7.5 - 150, app.height/2 + 150 - 30, 300, 60, fill=app.colors.dustyBlue)
+    drawLabel("Resume Previous Game", app.width/10 * 7.5, app.height/2 + 150, fill='white', size=18)
+    
+        
+def restart(app):
     app.playerWon = False
     app.playerLost = False
     app.gameBoard = Board(500, 500, 7, 7)
-    app.instructionScreen = False
+    # app.instructionScreen = False
     app.currPlayer = app.gameBoard.player1
     app.otherPlayer = app.gameBoard.AI
     app.answer = Guess("Mrs Peacock", "Hammer", "Parlor")
@@ -1409,21 +1491,25 @@ def onAppStart(app):
 def redrawAll(app):
     # drawLabel('112 Murder Mystery', 200, 200)
     # drawLabel(app.paused, 200, 250)
-
-    app.gameBoard.drawBoard()
-
-    # draws the make a guess screen
-    if app.gameBoard.makingAGuess == True:
-        app.currPlayer.drawMakeAGuessScreen()
+    if app.instructionScreen == True:
+        drawInstructionScreen(app)
+    else:
+        app.gameBoard.drawBoard()
         
-    # winning page
-    if app.currPlayer != None:
-        if app.playerWon == True:
-            drawWinningScreen(app)
-        elif app.playerLost == True:
-            drawPlayerLostScreen(app)
-        elif app.currPlayer.wrongGuess == True:
-            app.currPlayer.drawMadeAWrongGuess()
+        # draws the make a guess screen
+        if app.gameBoard.makingAGuess == True:
+            app.currPlayer.drawMakeAGuessScreen()
+            
+        # winning page
+        if app.currPlayer != None:
+            if app.playerWon == True:
+                drawWinningScreen(app)
+            elif app.playerLost == True:
+                drawPlayerLostScreen(app)
+            elif app.currPlayer.wrongGuess == True:
+                app.currPlayer.drawMadeAWrongGuess()
+
+
 
 def drawPlayerLostScreen(app):
     drawRect(app.gameBoard.boardLeft+ 50, app.gameBoard.boardTop + 50, app.gameBoard.width - 100, app.gameBoard.height - 100, fill='pink')
@@ -1442,292 +1528,335 @@ def checkMakeAGuess(app, x, y):
         app.gameBoard.makingAGuess = True
         # start here --> implement make a guess feature
 
+def checkSaveProgress(app, mouseX, mouseY):
+    rectLeft = app.gameBoard.boardLeft - 350
+    rectTop = app.gameBoard.boardTop + app.gameBoard.height + 20
+    rectW = 250
+    rectH = 40
+    if (rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH):
+        print('save progress')
+        saveToJson(app)
+        
+        
+def saveToJson(app):
+    # write to json file
+    appPropertiesDict = {
+        "app.height": app.height,
+        "app.width": app.width,
+        "app.paused": app.paused,
+        "app.stepsPerSecond": app.stepsPerSecond,
+        "app.playerWon": app.playerWon,
+        "app.playerLost": app.playerLost,
+        "app.gameboard": app.gameBoard,
+        "app.instructionScreen": app.instructionScreen,
+        "app.currPlayer": app.currPlayer,
+        "app.otherPlayer": app.otherPlayer,
+        "app.answer": app.answer
+    }
+    # Serializing json
+    json_object = json.dumps(appPropertiesDict, indent=4)
+    
+    # Writing to sample.json
+    with open("prevGame.json") as outfile:
+        outfile.write(json_object)
 
 def onMousePress(app, mouseX, mouseY):
-    # change the player name based on whose turn it is --> create a variable
-    changePlayerRectLeft = app.gameBoard.boardLeft + 60 + 400 - 100
-    changePlayerRectTop = app.gameBoard.boardTop + app.gameBoard.height + 20
-    changePlayerRectW = 200
-    changePlayerRectH = 40
-    # switch curr player in onStep
-    if (
-        changePlayerRectLeft <= mouseX <= changePlayerRectLeft + changePlayerRectW
-        and changePlayerRectTop <= mouseY <= changePlayerRectTop + changePlayerRectH
-    ):
-        if app.gameBoard.currTurn == app.gameBoard.player1:
-            app.gameBoard.currTurn = app.gameBoard.AI
-            app.currPlayer = app.gameBoard.currTurn
-            app.gameBoard.otherPlayer = app.gameBoard.player1
-            # app.gameBoard.otherPlayer.resetCell = True
-            # in redrawAll, need to check if this is onCell()
-        else:
-            app.gameBoard.currTurn = app.gameBoard.player1
-            app.currPlayer = app.gameBoard.currTurn
-            app.gameBoard.otherPlayer = app.gameBoard.AI
-            # app.gameBoard.otherPlayer.resetCell = True
-            # if type(app.gameBoard.currTurn.currCell)==Oops:
-            #     app.gameBoard.otherPlayer.currCell.reset()
+    if app.instructionScreen == True:
+        # checks if should start new game
+        startNewGameRect = (app.width/10 * 2.5 - 150, app.height/2 + 150 - 30, 300, 60)
+        startNewGameRectLeft = startNewGameRect[0]
+        startNewGameRectTop = startNewGameRect[1]
+        startNewGameRectW = startNewGameRect[2]
+        startNewGameRectH = startNewGameRect[3]
+        if startNewGameRectLeft <= mouseX <= startNewGameRectLeft + startNewGameRectW and startNewGameRectTop <= mouseY <= startNewGameRectTop + startNewGameRectH:
+            app.instructionScreen = False
+            restart(app)
+    else:
+        # check if need to save progress and write to json file
+        checkSaveProgress(app, mouseX, mouseY)
+        
+        # change the player name based on whose turn it is --> create a variable
+        changePlayerRectLeft = app.gameBoard.boardLeft + 60 + 400 - 100
+        changePlayerRectTop = app.gameBoard.boardTop + app.gameBoard.height + 20
+        changePlayerRectW = 200
+        changePlayerRectH = 40
+        # switch curr player in onStep
+        if (
+            changePlayerRectLeft <= mouseX <= changePlayerRectLeft + changePlayerRectW
+            and changePlayerRectTop <= mouseY <= changePlayerRectTop + changePlayerRectH
+        ):
+            if app.gameBoard.currTurn == app.gameBoard.player1:
+                app.gameBoard.currTurn = app.gameBoard.AI
+                app.currPlayer = app.gameBoard.currTurn
+                app.gameBoard.otherPlayer = app.gameBoard.player1
+                # app.gameBoard.otherPlayer.resetCell = True
+                # in redrawAll, need to check if this is onCell()
+            else:
+                app.gameBoard.currTurn = app.gameBoard.player1
+                app.currPlayer = app.gameBoard.currTurn
+                app.gameBoard.otherPlayer = app.gameBoard.AI
+                # app.gameBoard.otherPlayer.resetCell = True
+                # if type(app.gameBoard.currTurn.currCell)==Oops:
+                #     app.gameBoard.otherPlayer.currCell.reset()
 
-    if (
-        app.currPlayer != None and app.instructionScreen == False
-    ):  # this is when the game starts
-        
-        # check if player chose to make a guess
-        checkMakeAGuess(app, mouseX, mouseY)
-        
-        # check if makeAGuess textbox is being clicked on --> change selected to True --> allow keyPress
-        if app.gameBoard.makingAGuess == True:
-            for i in range(len(app.gameBoard.textboxList)):
-                currTextbox = app.gameBoard.textboxList[i]
-                rest = (
-                    app.gameBoard.textboxList[0:i] + app.gameBoard.textboxList[i + 1 :]
-                )
-                rectLeft = currTextbox.rectLeft
-                rectTop = currTextbox.rectTop
-                rectW = currTextbox.rectW
-                rectH = currTextbox.rectH
-                if (
-                    rectLeft <= mouseX <= rectLeft + rectW
-                    and rectTop <= mouseY <= rectTop + rectH
-                ):
-                    currTextbox.selected = not currTextbox.selected
-                    # resets all other textbox's selected state
-                    for textbox in rest:
-                        textbox.selected = False
-        
-            # checks if checkGuess btn is being clicked on
-            if app.currPlayer.checkGuessRect != None:
-                rectLeft = app.currPlayer.checkGuessRect[0]
-                rectTop = app.currPlayer.checkGuessRect[1]
-                rectW = app.currPlayer.checkGuessRect[2]
-                rectH = app.currPlayer.checkGuessRect[3]
-                if (
-                    rectLeft <= mouseX <= rectLeft + rectW
-                    and rectTop <= mouseY <= rectTop + rectH
-                ):
-                    if app.currPlayer.wrongGuess==False:
-                        playerGuess = Guess(app.gameBoard.textboxList[0].label, app.gameBoard.textboxList[1].label, app.gameBoard.textboxList[2].label)
-                        if playerGuess == app.answer:
-                            # reset
+        if (
+            app.currPlayer != None and app.instructionScreen == False
+        ):  # this is when the game starts
+            
+            # check if player chose to make a guess
+            checkMakeAGuess(app, mouseX, mouseY)
+            
+            # check if makeAGuess textbox is being clicked on --> change selected to True --> allow keyPress
+            if app.gameBoard.makingAGuess == True:
+                for i in range(len(app.gameBoard.textboxList)):
+                    currTextbox = app.gameBoard.textboxList[i]
+                    rest = (
+                        app.gameBoard.textboxList[0:i] + app.gameBoard.textboxList[i + 1 :]
+                    )
+                    rectLeft = currTextbox.rectLeft
+                    rectTop = currTextbox.rectTop
+                    rectW = currTextbox.rectW
+                    rectH = currTextbox.rectH
+                    if (
+                        rectLeft <= mouseX <= rectLeft + rectW
+                        and rectTop <= mouseY <= rectTop + rectH
+                    ):
+                        currTextbox.selected = not currTextbox.selected
+                        # resets all other textbox's selected state
+                        for textbox in rest:
+                            textbox.selected = False
+            
+                # checks if checkGuess btn is being clicked on
+                if app.currPlayer.checkGuessRect != None:
+                    rectLeft = app.currPlayer.checkGuessRect[0]
+                    rectTop = app.currPlayer.checkGuessRect[1]
+                    rectW = app.currPlayer.checkGuessRect[2]
+                    rectH = app.currPlayer.checkGuessRect[3]
+                    if (
+                        rectLeft <= mouseX <= rectLeft + rectW
+                        and rectTop <= mouseY <= rectTop + rectH
+                    ):
+                        if app.currPlayer.wrongGuess==False:
+                            playerGuess = Guess(app.gameBoard.textboxList[0].label, app.gameBoard.textboxList[1].label, app.gameBoard.textboxList[2].label)
+                            if playerGuess == app.answer:
+                                # reset
+                                currTextbox.selected = False
+                                app.playerWon = True
+                                for textbox in app.gameBoard.textboxList:
+                                    textbox.reset()
+                                app.gameBoard.makingAGuess = False
+                                app.currPlayer.checkGuessRect = None
+                            else:
+                                app.currPlayer.wrongGuess = True
+                        elif app.currPlayer.wrongGuess==True:
+                            app.currPlayer.lives -= 1
                             currTextbox.selected = False
-                            app.playerWon = True
+                            app.playerWon = False
                             for textbox in app.gameBoard.textboxList:
                                 textbox.reset()
                             app.gameBoard.makingAGuess = False
                             app.currPlayer.checkGuessRect = None
-                        else:
-                            app.currPlayer.wrongGuess = True
-                    elif app.currPlayer.wrongGuess==True:
-                        app.currPlayer.lives -= 1
-                        currTextbox.selected = False
-                        app.playerWon = False
-                        for textbox in app.gameBoard.textboxList:
-                            textbox.reset()
-                        app.gameBoard.makingAGuess = False
-                        app.currPlayer.checkGuessRect = None
-                        app.currPlayer.wrongGuess=False
+                            app.currPlayer.wrongGuess=False
+
                         
-                        
-                        # player life - 1
-                    
 
-        # check if clicked on yes or no buttons for buying
-        if (app.currPlayer.buyingSecret == True) and (
-            app.currPlayer.showRooms == False
-        ):
-            # check if mouseX and mouseY is within bounds of Yes or No box
-            if app.currPlayer.yesBtnLeft <= mouseX <= (
-                app.currPlayer.yesBtnLeft + app.currPlayer.btnW
-            ) and app.currPlayer.yesBtnTop <= mouseY <= (
-                app.currPlayer.yesBtnTop + app.currPlayer.btnH
+            # check if clicked on yes or no buttons for buying
+            if (app.currPlayer.buyingSecret == True) and (
+                app.currPlayer.showRooms == False
             ):
-                print("yes")
+                # check if mouseX and mouseY is within bounds of Yes or No box
+                if app.currPlayer.yesBtnLeft <= mouseX <= (
+                    app.currPlayer.yesBtnLeft + app.currPlayer.btnW
+                ) and app.currPlayer.yesBtnTop <= mouseY <= (
+                    app.currPlayer.yesBtnTop + app.currPlayer.btnH
+                ):
+                    print("yes")
 
-                app.currPlayer.showRooms = (
-                    True  # change this state would trigger draw options for rooms
-                )
-                app.currPlayer.removeInnerBoard = (
-                    True  # this gets rid of the yes and no btns
-                )
+                    app.currPlayer.showRooms = (
+                        True  # change this state would trigger draw options for rooms
+                    )
+                    app.currPlayer.removeInnerBoard = (
+                        True  # this gets rid of the yes and no btns
+                    )
 
-                # app.gameBoard.player1.yesBuySecret() do this after the player gets the secret
-            elif app.currPlayer.noBtnLeft <= mouseX <= (
-                app.currPlayer.noBtnLeft + app.currPlayer.btnW
-            ) and app.currPlayer.noBtnTop <= mouseY <= (
-                app.currPlayer.noBtnTop + app.currPlayer.btnH
-            ):
-                print("no")
-                app.currPlayer.buyingSecret = False
-                app.currPlayer.removeInnerBoard = True
+                    # app.gameBoard.player1.yesBuySecret() do this after the player gets the secret
+                elif app.currPlayer.noBtnLeft <= mouseX <= (
+                    app.currPlayer.noBtnLeft + app.currPlayer.btnW
+                ) and app.currPlayer.noBtnTop <= mouseY <= (
+                    app.currPlayer.noBtnTop + app.currPlayer.btnH
+                ):
+                    print("no")
+                    app.currPlayer.buyingSecret = False
+                    app.currPlayer.removeInnerBoard = True
 
-        # check which room the player selected
-        if app.currPlayer.roomsDrawn == True:  # need to set this state back to False
-            for i in range(len(app.currPlayer.roomsDict) // 2):  # 3
-                rectTop = (
-                    app.currPlayer.roomBtnTop + i * (app.currPlayer.btnH + 20) + 50
-                )
-                col1Left = app.currPlayer.roomBtnCol1Left
-                col2Left = app.currPlayer.roomBtnCol2Left
-                btnW = app.currPlayer.btnW
-                btnH = app.currPlayer.btnH
-                # column 1
-                if col1Left <= mouseX <= col1Left + btnW:
-                    if rectTop <= mouseY <= rectTop + btnH:
-                        app.currPlayer.selectedRoom = app.currPlayer.roomsDict[i]
-                        app.currPlayer.showRooms = False
-                # column 2
-                elif col2Left <= mouseX <= col2Left + btnW:
-                    if rectTop <= mouseY <= rectTop + btnH:
-                        app.currPlayer.selectedRoom = app.currPlayer.roomsDict[i + 3]
+            # check which room the player selected
+            if app.currPlayer.roomsDrawn == True:  # need to set this state back to False
+                for i in range(len(app.currPlayer.roomsDict) // 2):  # 3
+                    rectTop = (
+                        app.currPlayer.roomBtnTop + i * (app.currPlayer.btnH + 20) + 50
+                    )
+                    col1Left = app.currPlayer.roomBtnCol1Left
+                    col2Left = app.currPlayer.roomBtnCol2Left
+                    btnW = app.currPlayer.btnW
+                    btnH = app.currPlayer.btnH
+                    # column 1
+                    if col1Left <= mouseX <= col1Left + btnW:
+                        if rectTop <= mouseY <= rectTop + btnH:
+                            app.currPlayer.selectedRoom = app.currPlayer.roomsDict[i]
+                            app.currPlayer.showRooms = False
+                    # column 2
+                    elif col2Left <= mouseX <= col2Left + btnW:
+                        if rectTop <= mouseY <= rectTop + btnH:
+                            app.currPlayer.selectedRoom = app.currPlayer.roomsDict[i + 3]
 
-        # checks if the OK btn is clicked at the buy secret screen. If so, resets.
-        if (
-            app.currPlayer.secretOKRect != None and app.currPlayer.buyingSecret == True
-        ):  # secretOKRect is the coordinates for OK btn
-            rectLeft = app.currPlayer.secretOKRect[0]
-            rectTop = app.currPlayer.secretOKRect[1]
-            rectW = app.currPlayer.secretOKRect[2]
-            rectH = app.currPlayer.secretOKRect[3]
+            # checks if the OK btn is clicked at the buy secret screen. If so, resets.
             if (
-                rectLeft <= mouseX <= rectLeft + rectW
-                and rectTop <= mouseY <= rectTop + rectH
-            ):
-                app.currPlayer.buyingSecret = False
-                app.currPlayer.secretOKRect = None
-
-        # checks if the OK btn is clicked on the roomsNotAvailable screen
-        if app.currPlayer.roomsDrawn == False:
-            rectLeft = app.currPlayer.innerLeft + (app.currPlayer.innerSize / 2) - 50
-            rectTop = app.currPlayer.innerTop + 150
-            rectW = 100
-            rectH = 40
-            if (
-                rectLeft <= mouseX <= rectLeft + rectW
-                and rectTop <= mouseY <= rectTop + rectH
-            ):
-                app.currPlayer.showRooms = True
-                app.currPlayer.selectedRoom = None
-
-        # checks if the OK btn is clicked at the buy secret screen. If so, resets.
-
-        ####### Renting
-
-        # check if ok btn clicked on rentPopup screen
-        if (app.currPlayer.removeInnerBoard == False) and (
-            app.currPlayer.rentOKRect != None
-        ):
-            # check if mouseX and mouseY is within bounds of OK Btn
-            rectLeft = app.currPlayer.rentOKRect[0]
-            rectTop = app.currPlayer.rentOKRect[1]
-            rectW = app.currPlayer.rentOKRect[2]
-            rectH = app.currPlayer.rentOKRect[3]
-
-            if (
-                rectLeft <= mouseX <= rectLeft + rectW
-                and rectTop <= mouseY <= rectTop + rectH
-            ):
-                print("mousePressed. ok, display the secret")
-                app.currPlayer.rentingSecret = True
-
-        # checks if the OK btn is clicked on the rent secret screen
-        if (
-            app.currPlayer.secretOKRect != None and app.currPlayer.rentingSecret == True
-        ):  # secretOKRect is the coordinates for OK btn
-            rectLeft = app.currPlayer.secretOKRect[0]
-            rectTop = app.currPlayer.secretOKRect[1]
-            rectW = app.currPlayer.secretOKRect[2]
-            rectH = app.currPlayer.secretOKRect[3]
-            if (
-                rectLeft <= mouseX <= rectLeft + rectW
-                and rectTop <= mouseY <= rectTop + rectH
-            ):
-                processRentOfBothPlayers(app)
-                app.currPlayer.processingRent = True
-                app.currPlayer.secretOKRect = None
-
-        # checks if the OK btn is clicked on the weapon screen
-        if (
-            app.currPlayer.showWeaponSecret == True
-            and app.currPlayer.weaponOKRect != None
-        ):
-            rectLeft = app.currPlayer.weaponOKRect[0]
-            rectTop = app.currPlayer.weaponOKRect[1]
-            rectW = app.currPlayer.weaponOKRect[2]
-            rectH = app.currPlayer.weaponOKRect[3]
-            if (
-                rectLeft <= mouseX <= rectLeft + rectW
-                and rectTop <= mouseY <= rectTop + rectH
-            ):
-                # close the weapon secret screen
-                app.currPlayer.showWeaponSecret = False
-                app.currPlayer.weaponOKRect = None
-                app.currPlayer.processingWeaponSecret = True
-
-        # checks if the OK btn is clicked on the oopsInstructions screen
-        if (
-            isinstance(app.currPlayer.currCell, Oops)
-            and app.currPlayer.shownOopsInstructions == False
-            and app.currPlayer.oopsInstructionsRect != None
-        ):
-            rectLeft = app.currPlayer.oopsInstructionsRect[0]
-            rectTop = app.currPlayer.oopsInstructionsRect[1]
-            rectW = app.currPlayer.oopsInstructionsRect[2]
-            rectH = app.currPlayer.oopsInstructionsRect[3]
-            if (
-                rectLeft <= mouseX <= rectLeft + rectW
-                and rectTop <= mouseY <= rectTop + rectH
-            ):
-                # close the instructions screen and open oopsPlayingScreen screen
-                app.currPlayer.shownOopsInstructions = True
-                app.currPlayer.oopsInstructionsRect = None
-                app.currPlayer.oopsInPlay = True
-
-        # checks which rock, paper, scissors btn the player clicked on
-        if (
-            isinstance(app.currPlayer.currCell, Oops)
-            and app.currPlayer.oopsInPlay == True
-            and app.currPlayer.currCell.currPlayerChoice == None
-        ):
-            for i in range(len(app.currPlayer.currCell.rockPaperScissors)):
-                rectLeft = (
-                    app.currPlayer.innerLeft
-                    + (app.currPlayer.innerSize / 80)
-                    + 90 * (i + 1)
-                    - 40
-                )
-                rectTop = app.currPlayer.innerTop + 100 + 50 - 15
-                rectW = 80
-                rectH = 30
+                app.currPlayer.secretOKRect != None and app.currPlayer.buyingSecret == True
+            ):  # secretOKRect is the coordinates for OK btn
+                rectLeft = app.currPlayer.secretOKRect[0]
+                rectTop = app.currPlayer.secretOKRect[1]
+                rectW = app.currPlayer.secretOKRect[2]
+                rectH = app.currPlayer.secretOKRect[3]
                 if (
                     rectLeft <= mouseX <= rectLeft + rectW
                     and rectTop <= mouseY <= rectTop + rectH
                 ):
-                    app.currPlayer.currCell.currPlayerChoice = (
-                        app.currPlayer.currCell.rockPaperScissors[i]
-                    )
-                    randomInt = random.randint(0, 2)  # both ends are inclusive
-                    app.currPlayer.currCell.murdererChoice = (
-                        app.currPlayer.currCell.rockPaperScissors[randomInt]
-                    )
+                    app.currPlayer.buyingSecret = False
+                    app.currPlayer.secretOKRect = None
 
-        # checks if ok btn clicked on oops result screen
-        if (
-            isinstance(app.currPlayer.currCell, Oops)
-            and app.currPlayer.currCell.currPlayerChoice != None
-            and app.currPlayer.oopsInstructionsRect != None
-        ):
-            rectLeft = app.currPlayer.oopsInstructionsRect[0]
-            rectTop = app.currPlayer.oopsInstructionsRect[1]
-            rectW = app.currPlayer.oopsInstructionsRect[2]
-            rectH = app.currPlayer.oopsInstructionsRect[3]
-            if (
-                rectLeft <= mouseX <= rectLeft + rectW
-                and rectTop <= mouseY <= rectTop + rectH
+            # checks if the OK btn is clicked on the roomsNotAvailable screen
+            if app.currPlayer.roomsDrawn == False:
+                rectLeft = app.currPlayer.innerLeft + (app.currPlayer.innerSize / 2) - 50
+                rectTop = app.currPlayer.innerTop + 150
+                rectW = 100
+                rectH = 40
+                if (
+                    rectLeft <= mouseX <= rectLeft + rectW
+                    and rectTop <= mouseY <= rectTop + rectH
+                ):
+                    app.currPlayer.showRooms = True
+                    app.currPlayer.selectedRoom = None
+
+            # checks if the OK btn is clicked at the buy secret screen. If so, resets.
+
+            ####### Renting
+
+            # check if ok btn clicked on rentPopup screen
+            if (app.currPlayer.removeInnerBoard == False) and (
+                app.currPlayer.rentOKRect != None
             ):
-                processOops(app)
-                app.currPlayer.oopsInstructionsRect = None
-                app.currPlayer.oopsInPlay = False
-                # need to process the payment before this line, and reset any other states
+                # check if mouseX and mouseY is within bounds of OK Btn
+                rectLeft = app.currPlayer.rentOKRect[0]
+                rectTop = app.currPlayer.rentOKRect[1]
+                rectW = app.currPlayer.rentOKRect[2]
+                rectH = app.currPlayer.rentOKRect[3]
+
+                if (
+                    rectLeft <= mouseX <= rectLeft + rectW
+                    and rectTop <= mouseY <= rectTop + rectH
+                ):
+                    print("mousePressed. ok, display the secret")
+                    app.currPlayer.rentingSecret = True
+
+            # checks if the OK btn is clicked on the rent secret screen
+            if (
+                app.currPlayer.secretOKRect != None and app.currPlayer.rentingSecret == True
+            ):  # secretOKRect is the coordinates for OK btn
+                rectLeft = app.currPlayer.secretOKRect[0]
+                rectTop = app.currPlayer.secretOKRect[1]
+                rectW = app.currPlayer.secretOKRect[2]
+                rectH = app.currPlayer.secretOKRect[3]
+                if (
+                    rectLeft <= mouseX <= rectLeft + rectW
+                    and rectTop <= mouseY <= rectTop + rectH
+                ):
+                    processRentOfBothPlayers(app)
+                    app.currPlayer.processingRent = True
+                    app.currPlayer.secretOKRect = None
+
+            # checks if the OK btn is clicked on the weapon screen
+            if (
+                app.currPlayer.showWeaponSecret == True
+                and app.currPlayer.weaponOKRect != None
+            ):
+                rectLeft = app.currPlayer.weaponOKRect[0]
+                rectTop = app.currPlayer.weaponOKRect[1]
+                rectW = app.currPlayer.weaponOKRect[2]
+                rectH = app.currPlayer.weaponOKRect[3]
+                if (
+                    rectLeft <= mouseX <= rectLeft + rectW
+                    and rectTop <= mouseY <= rectTop + rectH
+                ):
+                    # close the weapon secret screen
+                    app.currPlayer.showWeaponSecret = False
+                    app.currPlayer.weaponOKRect = None
+                    app.currPlayer.processingWeaponSecret = True
+
+            # checks if the OK btn is clicked on the oopsInstructions screen
+            if (
+                isinstance(app.currPlayer.currCell, Oops)
+                and app.currPlayer.shownOopsInstructions == False
+                and app.currPlayer.oopsInstructionsRect != None
+            ):
+                rectLeft = app.currPlayer.oopsInstructionsRect[0]
+                rectTop = app.currPlayer.oopsInstructionsRect[1]
+                rectW = app.currPlayer.oopsInstructionsRect[2]
+                rectH = app.currPlayer.oopsInstructionsRect[3]
+                if (
+                    rectLeft <= mouseX <= rectLeft + rectW
+                    and rectTop <= mouseY <= rectTop + rectH
+                ):
+                    # close the instructions screen and open oopsPlayingScreen screen
+                    app.currPlayer.shownOopsInstructions = True
+                    app.currPlayer.oopsInstructionsRect = None
+                    app.currPlayer.oopsInPlay = True
+
+            # checks which rock, paper, scissors btn the player clicked on
+            if (
+                isinstance(app.currPlayer.currCell, Oops)
+                and app.currPlayer.oopsInPlay == True
+                and app.currPlayer.currCell.currPlayerChoice == None
+            ):
+                for i in range(len(app.currPlayer.currCell.rockPaperScissors)):
+                    rectLeft = (
+                        app.currPlayer.innerLeft
+                        + (app.currPlayer.innerSize / 80)
+                        + 90 * (i + 1)
+                        - 40
+                    )
+                    rectTop = app.currPlayer.innerTop + 100 + 50 - 15
+                    rectW = 80
+                    rectH = 30
+                    if (
+                        rectLeft <= mouseX <= rectLeft + rectW
+                        and rectTop <= mouseY <= rectTop + rectH
+                    ):
+                        app.currPlayer.currCell.currPlayerChoice = (
+                            app.currPlayer.currCell.rockPaperScissors[i]
+                        )
+                        randomInt = random.randint(0, 2)  # both ends are inclusive
+                        app.currPlayer.currCell.murdererChoice = (
+                            app.currPlayer.currCell.rockPaperScissors[randomInt]
+                        )
+
+            # checks if ok btn clicked on oops result screen
+            if (
+                isinstance(app.currPlayer.currCell, Oops)
+                and app.currPlayer.currCell.currPlayerChoice != None
+                and app.currPlayer.oopsInstructionsRect != None
+            ):
+                rectLeft = app.currPlayer.oopsInstructionsRect[0]
+                rectTop = app.currPlayer.oopsInstructionsRect[1]
+                rectW = app.currPlayer.oopsInstructionsRect[2]
+                rectH = app.currPlayer.oopsInstructionsRect[3]
+                if (
+                    rectLeft <= mouseX <= rectLeft + rectW
+                    and rectTop <= mouseY <= rectTop + rectH
+                ):
+                    processOops(app)
+                    app.currPlayer.oopsInstructionsRect = None
+                    app.currPlayer.oopsInPlay = False
+                    # need to process the payment before this line, and reset any other states
 
 
 def processOops(app):
@@ -1758,11 +1887,16 @@ def processRentOfBothPlayers(app):
 
 
 def onKeyPress(app, key):
+    if key == "j" and app.gameBoard.makingAGuess == False:
+        saveToJson(app)
+        
     if app.currPlayer != None:
         if key == "c" and app.gameBoard.makingAGuess == False:
             print("running camera")
             # runCamera()
             print("finished running camera")
+        if key == "r" and app.gameBoard.makingAGuess == False:  
+            restart(app)
         if key.isdigit():
             print(key)
             app.currPlayer.updatePlayerCell(int(key))
@@ -1782,16 +1916,17 @@ def checkGameStatus(app):
         app.playerLost = True
 
 def onStep(app):
+    if app.instructionScreen == False:
     # declares the player that is making the moves
-    if app.gameBoard.currTurn == None:
-        app.currPlayer = app.gameBoard.player1
-        app.otherPlayer = app.gameBoard.AI
-    else:
-        app.currPlayer = app.gameBoard.currTurn
-        app.otherPlayer = app.gameBoard.otherPlayer
-    
-    # checks if player lost
-    checkGameStatus(app)
+        if app.gameBoard.currTurn == None:
+            app.currPlayer = app.gameBoard.player1
+            app.otherPlayer = app.gameBoard.AI
+        else:
+            app.currPlayer = app.gameBoard.currTurn
+            app.otherPlayer = app.gameBoard.otherPlayer
+        
+        # checks if player lost
+        checkGameStatus(app)
 
 
 runApp()
