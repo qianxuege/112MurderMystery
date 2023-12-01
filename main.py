@@ -30,9 +30,11 @@ class Guess:
         return (isinstance(other, Guess) and self.charGuess == other.charGuess and 
                 self.weaponGuess == other.weaponGuess and self.roomGuess == other.roomGuess)
     
-    def capitalization(self, string):
+    def capitalization(self, s):
+        if s == "":
+            return s
         newString = ""
-        for word in string.split(" "):
+        for word in s.split(" "):
             newString += word[0].upper() + word[1:]
         return newString
 
@@ -652,6 +654,7 @@ class Player:
         # check if guessed right
         self.textboxList = textboxList  # imported from gameboard
         self.checkGuessRect = None
+        self.wrongGuess = False
 
     def __repr__(self):
         return f"Player({self.name}, {self.currCell})"
@@ -1190,6 +1193,62 @@ class Player:
             self.innerTop + 280,
             size=20,
         )
+        
+    def drawMadeAWrongGuess(self):
+        self.drawWhiteInnerBoard()
+        drawLabel(
+            f"Sorry this is not the correct answer.",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + 50,
+            size=20,
+        )
+        drawLabel(
+            f"The murderer has fooled you.",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + 100,
+            size=18,
+        )
+        drawLabel(
+            f"You are going to lose a life.",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + 130,
+            size=18,
+        )
+        drawLabel(
+            f"Reminder: having 0 lives or 0 money",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + 160,
+            size=16,
+            fill=self.colors.mossGreen
+        )
+        drawLabel(
+            f"will result in you losing the game.",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + 180,
+            size=16,
+            fill=self.colors.mossGreen
+        )
+        drawRect(
+            self.innerLeft + (self.innerSize / 2) - 50,
+            self.innerTop + 280 - 20,
+            100,
+            40,
+            fill=self.colors.dustyBlue,
+        )
+        # update the dimensions for checkGuessRect
+        self.checkGuessRect = (
+            self.innerLeft + (self.innerSize / 2) - 50,
+            self.innerTop + 280 - 20,
+            100,
+            40,
+        )
+        drawLabel(
+            f"OK",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + 280,
+            size=20,
+        )
+        
 
     def checkOnCell(self):
         if isinstance(self.currCell, Secret):
@@ -1294,9 +1353,17 @@ def redrawAll(app):
         app.currPlayer.drawMakeAGuessScreen()
         
     # winning page
-    if app.playerWon == True:
-        drawWinningScreen(app)
+    if app.currPlayer != None:
+        if app.playerWon == True:
+            drawWinningScreen(app)
+        elif app.playerLost == True:
+            drawPlayerLostScreen(app)
+        elif app.currPlayer.wrongGuess == True:
+            app.currPlayer.drawMadeAWrongGuess()
 
+def drawPlayerLostScreen(app):
+    drawRect(app.gameBoard.boardLeft+ 50, app.gameBoard.boardTop + 50, app.gameBoard.width - 100, app.gameBoard.height - 100, fill='pink')
+    drawLabel(f"{app.currPlayer.name} Lost", app.gameBoard.boardLeft+ (app.gameBoard.width/2), app.gameBoard.boardTop + (app.gameBoard.height/2))
 
 def drawWinningScreen(app):
     drawRect(app.gameBoard.boardLeft+ 50, app.gameBoard.boardTop + 50, app.gameBoard.width - 100, app.gameBoard.height - 100, fill='pink')
@@ -1374,20 +1441,28 @@ def onMousePress(app, mouseX, mouseY):
                     rectLeft <= mouseX <= rectLeft + rectW
                     and rectTop <= mouseY <= rectTop + rectH
                 ):
-                    playerGuess = Guess(app.gameBoard.textboxList[0].label, app.gameBoard.textboxList[1].label, app.gameBoard.textboxList[2].label)
-                    if playerGuess == app.answer:
-                        # reset
+                    if app.currPlayer.wrongGuess==False:
+                        playerGuess = Guess(app.gameBoard.textboxList[0].label, app.gameBoard.textboxList[1].label, app.gameBoard.textboxList[2].label)
+                        if playerGuess == app.answer:
+                            # reset
+                            currTextbox.selected = False
+                            app.playerWon = True
+                            for textbox in app.gameBoard.textboxList:
+                                textbox.reset()
+                            app.gameBoard.makingAGuess = False
+                            app.currPlayer.checkGuessRect = None
+                        else:
+                            app.currPlayer.wrongGuess = True
+                    elif app.currPlayer.wrongGuess==True:
+                        app.currPlayer.lives -= 1
                         currTextbox.selected = False
-                        app.playerWon = True
+                        app.playerWon = False
                         for textbox in app.gameBoard.textboxList:
                             textbox.reset()
                         app.gameBoard.makingAGuess = False
                         app.currPlayer.checkGuessRect = None
+                        app.currPlayer.wrongGuess=False
                         
-                        print('player won')
-                    else:
-                        print('player lost')
-                        app.currPlayer.lives -= 1
                         
                         # player life - 1
                     
@@ -1638,6 +1713,9 @@ def onKeyPress(app, key):
                 elif key == "backspace":
                     currTextbox.deleteOneChar()
 
+def checkGameStatus(app):
+    if app.currPlayer.money <= 0 or app.currPlayer.lives <= 0:
+        app.playerLost = True
 
 def onStep(app):
     # declares the player that is making the moves
@@ -1647,6 +1725,9 @@ def onStep(app):
     else:
         app.currPlayer = app.gameBoard.currTurn
         app.otherPlayer = app.gameBoard.otherPlayer
+    
+    # checks if player lost
+    checkGameStatus(app)
 
 
 runApp()
