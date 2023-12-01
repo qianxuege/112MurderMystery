@@ -1,9 +1,351 @@
 {
-    "currPlayer": "player1",
-    "notesBoardLeft": 50,
-    "notesBoardTop": 100,
-    "notesBoardW": 250,
-    "notesBoardH": 500,
-    "colors": "Colors(dustyBlue, mossGreen, sand)",
-    "name": "Player notes of player1"
+    "gameBoard": {
+        "name": "gameBoard",
+        "width": 500,
+        "height": 500,
+        "rows": 7,
+        "cols": 7,
+        "cellBorderWidth": 1,
+        "cellSize": 71.42857142857143,
+        "boardLeft": 400,
+        "boardTop": 100,
+        "colors": "Colors(dustyBlue, mossGreen, sand)",
+        "innerLeft": 471.42857142857144,
+        "innerTop": 171.42857142857144,
+        "innerSize": 357.1428571428571,
+        "cellDict": {
+            "0": "0. Go",
+            "1": "1. oops",
+            "2": "2. weapon",
+            "3": "3. secret, owner is None",
+            "4": "4. secret, owner is None",
+            "5": "5. weapon",
+            "6": "6. oops",
+            "7": "7. secret, owner is None",
+            "8": "8. secret, owner is None",
+            "9": "9. weapon",
+            "10": "10. oops",
+            "11": "11. secret, owner is None",
+            "12": "12. secret, owner is None",
+            "13": "13. secret, owner is None",
+            "14": "14. weapon",
+            "15": "15. oops",
+            "16": "16. secret, owner is None",
+            "17": "17. weapon",
+            "18": "18. secret, owner is None",
+            "19": "19. oops",
+            "20": "20. secret, owner is None",
+            "21": "21. weapon",
+            "22": "22. secret, owner is None",
+            "23": "23. secret, owner is None"
+        },
+        "isFirstIteration": false,
+        "player1": "player1",
+        "AI": "AI",
+        "playerDict": {
+            "player1": "player1",
+            "AI": "AI"
+        },
+        "roomsDict": {
+            "0": "Kitchen(Mrs. White, None, None)",
+            "1": "Master Bedroom(Colonel Mustard, None, None)",
+            "2": "Billiard Room(Mr. Green, None, None)",
+            "3": "Study(Professor Plum, None, None)",
+            "4": "Parlor(Mrs. Peacock, None, None)",
+            "5": "Balcony(Miss Scarlet, None, None)"
+        },
+        "weaponsDict": {
+            "0": [
+                "Mrs. White",
+                "Candlestick",
+                true
+            ],
+            "1": [
+                "Colonel Mustard",
+                "Pistol",
+                false
+            ],
+            "2": [
+                "Mr. Green",
+                "Dagger",
+                false
+            ],
+            "3": [
+                "Professor Plum",
+                "Rope",
+                false
+            ],
+            "4": [
+                "Mrs. Peacock",
+                "Hammer",
+                false
+            ],
+            "5": [
+                "Miss Scarlet",
+                "Poison",
+                false
+            ]
+        },
+        "currTurn": "player1",
+        "otherPlayer": null,
+        "makingAGuess": false,
+        "textboxList": [
+            "Textbox(charTextbox, selected is False, text is )",
+            "Textbox(weaponTextbox, selected is False, text is )",
+            "Textbox(roomTextbox, selected is False, text is )"
+        ],
+        "player1Notes": "Player notes of player1",
+        "AINotes": "Player notes of AI"
+    },
+    "player1": {
+        "name": "player1",
+        "cellDict": {
+            "0": "0. Go",
+            "1": "1. oops",
+            "2": "2. weapon",
+            "3": "3. secret, owner is None",
+            "4": "4. secret, owner is None",
+            "5": "5. weapon",
+            "6": "6. oops",
+            "7": "7. secret, owner is None",
+            "8": "8. secret, owner is None",
+            "9": "9. weapon",
+            "10": "10. oops",
+            "11": "11. secret, owner is None",
+            "12": "12. secret, owner is None",
+            "13": "13. secret, owner is None",
+            "14": "14. weapon",
+            "15": "15. oops",
+            "16": "16. secret, owner is None",
+            "17": "17. weapon",
+            "18": "18. secret, owner is None",
+            "19": "19. oops",
+            "20": "20. secret, owner is None",
+            "21": "21. weapon",
+            "22": "22. secret, owner is None",
+            "23": "23. secret, owner is None"
+        },
+        "roomsDict": {
+            "0": "Kitchen(Mrs. White, None, None)",
+            "1": "Master Bedroom(Colonel Mustard, None, None)",
+            "2": "Billiard Room(Mr. Green, None, None)",
+            "3": "Study(Professor Plum, None, None)",
+            "4": "Parlor(Mrs. Peacock, None, None)",
+            "5": "Balcony(Miss Scarlet, None, None)"
+        },
+        "weaponsDict": {
+            "0": [
+                "Mrs. White",
+                "Candlestick",
+                true
+            ],
+            "1": [
+                "Colonel Mustard",
+                "Pistol",
+                false
+            ],
+            "2": [
+                "Mr. Green",
+                "Dagger",
+                false
+            ],
+            "3": [
+                "Professor Plum",
+                "Rope",
+                false
+            ],
+            "4": [
+                "Mrs. Peacock",
+                "Hammer",
+                false
+            ],
+            "5": [
+                "Miss Scarlet",
+                "Poison",
+                false
+            ]
+        },
+        "currCellNum": 2,
+        "currCell": "2. weapon",
+        "dX": -10,
+        "cx": 425.7142857142857,
+        "cy": 421.42857142857144,
+        "innerLeft": 471.42857142857144,
+        "innerTop": 171.42857142857144,
+        "innerSize": 357.1428571428571,
+        "boardLeft": 400,
+        "boardTop": 100,
+        "boardSize": 500,
+        "playerColor": "yellow",
+        "colors": "Colors(dustyBlue, mossGreen, sand)",
+        "lives": 3,
+        "money": 1500,
+        "buyingSecret": false,
+        "removeInnerBoard": false,
+        "showRooms": false,
+        "roomsDrawn": false,
+        "rentingSecret": false,
+        "processingRent": false,
+        "rentOKRect": null,
+        "showWeaponSecret": false,
+        "weaponOKRect": [
+            600.0,
+            381.42857142857144,
+            100,
+            40
+        ],
+        "processingWeaponSecret": false,
+        "shownWeaponSecret": true,
+        "showOopsInstructions": false,
+        "oopsInstructionsRect": null,
+        "oopsInPlay": false,
+        "shownOopsInstructions": false,
+        "charSecretOwned": [],
+        "roomSecretOwned": [],
+        "weaponSecretOwned": [
+            "Mrs. White's weapon is Candlestick."
+        ],
+        "selectedRoom": null,
+        "secretOKRect": null,
+        "yesBtnLeft": null,
+        "yesBtnTop": null,
+        "noBtnLeft": null,
+        "noBtnTop": null,
+        "btnW": 120,
+        "btnH": 40,
+        "roomBtnCol1Left": null,
+        "roomBtnCol2Left": null,
+        "roomBtnTop": null,
+        "roomBtnH": null,
+        "roomBtnW": null,
+        "textboxList": [
+            "Textbox(charTextbox, selected is False, text is )",
+            "Textbox(weaponTextbox, selected is False, text is )",
+            "Textbox(roomTextbox, selected is False, text is )"
+        ],
+        "checkGuessRect": null,
+        "wrongGuess": false
+    },
+    "AI": {
+        "name": "AI",
+        "cellDict": {
+            "0": "0. Go",
+            "1": "1. oops",
+            "2": "2. weapon",
+            "3": "3. secret, owner is None",
+            "4": "4. secret, owner is None",
+            "5": "5. weapon",
+            "6": "6. oops",
+            "7": "7. secret, owner is None",
+            "8": "8. secret, owner is None",
+            "9": "9. weapon",
+            "10": "10. oops",
+            "11": "11. secret, owner is None",
+            "12": "12. secret, owner is None",
+            "13": "13. secret, owner is None",
+            "14": "14. weapon",
+            "15": "15. oops",
+            "16": "16. secret, owner is None",
+            "17": "17. weapon",
+            "18": "18. secret, owner is None",
+            "19": "19. oops",
+            "20": "20. secret, owner is None",
+            "21": "21. weapon",
+            "22": "22. secret, owner is None",
+            "23": "23. secret, owner is None"
+        },
+        "roomsDict": {
+            "0": "Kitchen(Mrs. White, None, None)",
+            "1": "Master Bedroom(Colonel Mustard, None, None)",
+            "2": "Billiard Room(Mr. Green, None, None)",
+            "3": "Study(Professor Plum, None, None)",
+            "4": "Parlor(Mrs. Peacock, None, None)",
+            "5": "Balcony(Miss Scarlet, None, None)"
+        },
+        "weaponsDict": {
+            "0": [
+                "Mrs. White",
+                "Candlestick",
+                true
+            ],
+            "1": [
+                "Colonel Mustard",
+                "Pistol",
+                false
+            ],
+            "2": [
+                "Mr. Green",
+                "Dagger",
+                false
+            ],
+            "3": [
+                "Professor Plum",
+                "Rope",
+                false
+            ],
+            "4": [
+                "Mrs. Peacock",
+                "Hammer",
+                false
+            ],
+            "5": [
+                "Miss Scarlet",
+                "Poison",
+                false
+            ]
+        },
+        "currCellNum": 0,
+        "currCell": "0. Go",
+        "dX": 20,
+        "cx": 455.7142857142857,
+        "cy": 564.2857142857142,
+        "innerLeft": 471.42857142857144,
+        "innerTop": 171.42857142857144,
+        "innerSize": 357.1428571428571,
+        "boardLeft": 400,
+        "boardTop": 100,
+        "boardSize": 500,
+        "playerColor": "purple",
+        "colors": "Colors(dustyBlue, mossGreen, sand)",
+        "lives": 3,
+        "money": 1500,
+        "buyingSecret": false,
+        "removeInnerBoard": true,
+        "showRooms": false,
+        "roomsDrawn": false,
+        "rentingSecret": false,
+        "processingRent": false,
+        "rentOKRect": null,
+        "showWeaponSecret": false,
+        "weaponOKRect": null,
+        "processingWeaponSecret": false,
+        "shownWeaponSecret": false,
+        "showOopsInstructions": false,
+        "oopsInstructionsRect": null,
+        "oopsInPlay": false,
+        "shownOopsInstructions": false,
+        "charSecretOwned": [],
+        "roomSecretOwned": [],
+        "weaponSecretOwned": [],
+        "selectedRoom": null,
+        "secretOKRect": null,
+        "yesBtnLeft": null,
+        "yesBtnTop": null,
+        "noBtnLeft": null,
+        "noBtnTop": null,
+        "btnW": 120,
+        "btnH": 40,
+        "roomBtnCol1Left": null,
+        "roomBtnCol2Left": null,
+        "roomBtnTop": null,
+        "roomBtnH": null,
+        "roomBtnW": null,
+        "textboxList": [
+            "Textbox(charTextbox, selected is False, text is )",
+            "Textbox(weaponTextbox, selected is False, text is )",
+            "Textbox(roomTextbox, selected is False, text is )"
+        ],
+        "checkGuessRect": null,
+        "wrongGuess": false
+    }
 }

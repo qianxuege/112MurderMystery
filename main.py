@@ -11,6 +11,7 @@ https://www.geeksforgeeks.org/reading-and-writing-json-to-a-file-in-python/
 https://www.freecodecamp.org/news/loading-a-json-file-in-python-how-to-read-and-parse-json/
 https://www.w3docs.com/snippets/python/how-to-make-a-class-json-serializable.html#:~:text=In%20order%20to%20make%20a,can%20be%20converted%20to%20JSON.
 https://stackoverflow.com/questions/22281059/set-object-is-not-json-serializable
+https://medium.com/@KaranDahiya2000/modify-json-fields-using-python-1b2d88d16908
 """
 
 '''
@@ -1667,12 +1668,7 @@ def onAppStart(app):
     app.instructionScreen = True
     # restart(app)
     
-def readJsonFile(app):
-    # Opening JSON file
-    with open('prevGame.json') as openfile:
-        # Reading from json file
-        json_object = json.load(openfile)
-    print(json_object)
+
     
 def drawInstructionScreen(app):
     # draw instructions screen
@@ -1771,30 +1767,34 @@ def saveToJson(app):
         "otherPlayer": app.otherPlayer,
         "answer": app.answer
     }
-    # Serializing json
-    # json_object = json.dumps(gameBoardDict, indent=4)
-    
- 
 
     
     
-    
-    # convert to json object
-    obj = app.gameBoard.player1Notes
-    json_str = json.dumps(obj.to_json(), indent=4, default=set_default)
-    print(json_str)
-    
-    # json_str = json.dumps(appPropertiesDict, indent=4, default=set_default)
-    
-    # write to the json file
+    with open('prevGame.json') as openfile:
+        # read JSON data
+        data = json.load(openfile)
+        
+        py_objects = [app.gameBoard, app.gameBoard.player1, app.gameBoard.AI]
+        
+        # add field
+        for obj in py_objects:
+            # data[obj.name] = json.dumps(obj.to_json(), default=set_default)
+            data[obj.name] = obj.to_json()
+        
+        newData = json.dumps(data, indent=4, default=set_default)
+        
     with open("prevGame.json", "w") as outfile:
-        outfile.write(json_str)
+        outfile.write(newData)
     
-    
-    # readJsonFile(app)
-    
-    
-    # print(json_str)
+    readJsonFile(app)
+
+
+def readJsonFile(app):
+    # Opening JSON file
+    with open('prevGame.json') as openfile:
+        # Reading from json file
+        json_object = json.load(openfile)
+    print(json_object["player1"]["currCell"])
 
 # this function was taken from the stackOverflow link above
 def set_default(obj):
