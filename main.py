@@ -160,6 +160,8 @@ class PlayerNotes:
 
 class Board:
     def __init__(self, width, height, rows, cols):
+        self.boardLoaded = False # will not be stored in json file
+        
         self.name = 'gameBoard'
         self.width = width  # 500
         self.height = height  # 500
@@ -242,6 +244,104 @@ class Board:
     def __eq__(self, other):
         return isinstance(other, Board) and self.player1 == other.player1 and self.AI == other.AI
 
+    def readJsonFile(self):
+        # resume previous game
+        # Opening JSON file
+        with open('prevGame.json') as openfile:
+            # Reading from json file
+            json_object = json.load(openfile)
+    
+        # update cellDict
+        for cellNum in json_object["cellDict"]:
+            # for propertyName in json_object["cellDict"][cellNum]:
+                # propertyNameStr = propertyName
+            gameBoardCell = self.cellDict[int(cellNum)]
+            jsonCell = json_object["cellDict"][cellNum]
+            if gameBoardCell.cellType == "secret":
+                gameBoardCell.price = jsonCell["price"]
+                gameBoardCell.secretOwned = jsonCell["secretOwned"]
+                gameBoardCell.secretOwner = jsonCell["secretOwner"]
+                gameBoardCell.secretRoom = jsonCell["secretRoom"]
+                gameBoardCell.secretType = jsonCell["secretType"]
+                gameBoardCell.secret = jsonCell["secret"]
+                gameBoardCell.yesBuy = jsonCell["yesBuy"]
+                gameBoardCell.yesRent = jsonCell["yesRent"]
+            elif gameBoardCell.cellType == "oops":
+                gameBoardCell.currPlayerChoice = jsonCell["currPlayerChoice"]
+                gameBoardCell.murdererChoice = jsonCell["murdererChoice"]
+                gameBoardCell.playerWonOops = jsonCell["playerWonOops"]
+                gameBoardCell.tied = jsonCell["tied"]
+            elif gameBoardCell.cellType == "weapon":
+                gameBoardCell.weapon = jsonCell["weapon"]
+                gameBoardCell.weaponChar = jsonCell["weaponChar"]
+                gameBoardCell.cellOccupied = jsonCell["cellOccupied"]
+        
+        # update roomsDict
+        for roomNum in json_object["roomsDict"]:
+            gameBoardRoom = self.roomsDict[int(roomNum)]
+            jsonRoom = json_object["roomsDict"][roomNum]
+            gameBoardRoom.accessible = jsonRoom["accessible"]
+            gameBoardRoom.characterSecretOwner = jsonRoom["characterSecretOwner"]
+            gameBoardRoom.roomSecretOwner = jsonRoom["roomSecretOwner"]
+        
+        # update weaponsDict
+        for weaponNum in json_object["gameBoard"]["weaponsDict"]:
+            self.weaponsDict[int(weaponNum)] = json_object["gameBoard"]["weaponsDict"][weaponNum]
+        
+        # updates textboxDict
+        for textboxNum in json_object["textboxDict"]:
+            self.textboxDict[int(textboxNum)].selected = json_object["textboxDict"][textboxNum]["selected"]
+            self.textboxDict[int(textboxNum)].label = json_object["textboxDict"][textboxNum]["label"]
+        
+        self.makingAGuess = json_object["gameBoard"]["makingAGuess"]
+        
+        # reassign properties to player
+        for playerName in [self.player1, self.AI]:
+            # playerName is app object, jsonPlayer is json file object
+            jsonPlayer = json_object[playerName.name]
+            playerName.isCurrPlayer = jsonPlayer["isCurrPlayer"]
+            playerName.cellDict = self.cellDict
+            playerName.roomsDict = self.roomsDict
+            playerName.weaponsDict = self.weaponsDict
+            playerName.currCellNum = jsonPlayer["currCellNum"]
+            playerName.currCell = self.cellDict[playerName.currCellNum]
+            playerName.playerColor = jsonPlayer["playerColor"]
+            playerName.lives = jsonPlayer["lives"]
+            playerName.money = jsonPlayer["money"]
+            playerName.buyingSecret = jsonPlayer["buyingSecret"]
+            playerName.removeInnerBoard = jsonPlayer["removeInnerBoard"]
+            playerName.showRooms = jsonPlayer["showRooms"]
+            playerName.roomsDrawn = jsonPlayer["roomsDrawn"]
+            playerName.rentingSecret = jsonPlayer["rentingSecret"]
+            playerName.processingRent = jsonPlayer["processingRent"]
+            playerName.rentOKRect = jsonPlayer["rentOKRect"]
+            playerName.showWeaponSecret = jsonPlayer["showWeaponSecret"]
+            playerName.weaponOKRect = jsonPlayer["weaponOKRect"]
+            playerName.processingWeaponSecret = jsonPlayer["processingWeaponSecret"]
+            playerName.shownWeaponSecret = jsonPlayer["shownWeaponSecret"]
+            playerName.showOopsInstructions = jsonPlayer["showOopsInstructions"]
+            playerName.oopsInstructionsRect = jsonPlayer["oopsInstructionsRect"]
+            playerName.oopsInPlay = jsonPlayer["oopsInPlay"]
+            playerName.shownOopsInstructions = jsonPlayer["shownOopsInstructions"]
+            playerName.charSecretOwned = set(jsonPlayer["charSecretOwned"])
+            playerName.roomSecretOwned = set(jsonPlayer["roomSecretOwned"])
+            playerName.weaponSecretOwned = set(jsonPlayer["weaponSecretOwned"])
+            selectedRoomStr = jsonPlayer["selectedRoom"]
+            if selectedRoomStr != None:
+                roomIdx = selectedRoomStr[0:1]
+                playerName.selectedRoom = self.roomsDict[int(roomIdx)]
+            else:
+                playerName.selectedRoom = jsonPlayer["selectedRoom"]
+            playerName.secretOKRect = jsonPlayer["secretOKRect"]
+            playerName.textboxDict = self.textboxDict
+            playerName.checkGuessRect = jsonPlayer["checkGuessRect"]
+            playerName.wrongGuess = jsonPlayer["wrongGuess"]
+            
+        # create new instances of playerNOtes
+        self.player1Notes = PlayerNotes(self.player1, self.boardLeft - 350, self.boardTop, 250, self.height, self.colors)
+        self.AINotes = PlayerNotes(self.AI, self.boardLeft - 350, self.boardTop, 250, self.height, self.colors)
+
+    
     def drawBoard(self):
         originalCellId = 0
         # only passes in originalCellId when app is first created
@@ -301,6 +401,9 @@ class Board:
             # initiates player notes
             self.player1Notes = PlayerNotes(self.player1, self.boardLeft - 350, self.boardTop, 250, self.height, self.colors)
             self.AINotes = PlayerNotes(self.AI, self.boardLeft - 350, self.boardTop, 250, self.height, self.colors)
+            
+            self.boardLoaded = True
+
             
             self.isFirstIteration = False
         else:
@@ -762,7 +865,7 @@ class Rooms:
         }
 
     def __repr__(self):
-        return f"{self.name}({self.character}, {self.characterSecretOwner}, {self.roomSecretOwner})"
+        return f"{self.id}. {self.name}({self.character}, {self.characterSecretOwner}, {self.roomSecretOwner})"
 
     def __hash__(self):
         return hash(str(self))
@@ -1679,6 +1782,7 @@ def onAppStart(app):
     app.instructions = "You are invited to a wedding banquet on a lonely island,\n but on the day of the wedding, the groom \n died at 9PM. Everyone is grieving. \nYou are a detective that vows to find out \nwhat has happened prior to the wedding day."
     app.colors = Colors('colors')
     app.instructionScreen = True
+    app.resumePrevGame = False # not included in json file
     # restart(app)
     
 
@@ -1765,7 +1869,6 @@ def checkSaveProgress(app, mouseX, mouseY):
 def saveToJson(app):
     # write to json file
     
-    
     appPropertiesDict = {
         "name": "app",
         "height": app.height,
@@ -1795,7 +1898,6 @@ def saveToJson(app):
         
         # add field
         for obj in py_objects:
-            # data[obj.name] = json.dumps(obj.to_json(), default=set_default)
             data[obj.name] = obj.to_json()
         
         
@@ -1821,8 +1923,6 @@ def saveToJson(app):
         
     with open("prevGame.json", "w") as outfile:
         outfile.write(newData)
-    
-    readJsonFile(app)
 
 
 def readJsonFile(app):
@@ -1832,16 +1932,99 @@ def readJsonFile(app):
         json_object = json.load(openfile)
     
     # update gameBoard
-    '''
-    app.gameBoard,isFirstIteration = json_object["isFirstIteration"]
-    app.gameBoard.cellDict = json_object["cellDict"]
-    app.gameBoard.player1 = json_object["player1"]
-    app.gameBoard.AI = json_object["AI"]
-    app.gameBoard.roomsDict = json_object["roomsDict"]
-    app.gameBoard.textboxDict = json_object["textboxDict"]
-    '''
+    # use a for loop and reassign the properties of each object
     
-    print(json_object["player1"]["buyingSecret"])
+    # update cellDict
+    for cellNum in json_object["cellDict"]:
+        # for propertyName in json_object["cellDict"][cellNum]:
+            # propertyNameStr = propertyName
+        gameBoardCell = app.gameBoard.cellDict[int(cellNum)]
+        jsonCell = json_object["cellDict"][cellNum]
+        if gameBoardCell.cellType == "secret":
+            gameBoardCell.price = jsonCell["price"]
+            gameBoardCell.secretOwned = jsonCell["secretOwned"]
+            gameBoardCell.secretOwner = jsonCell["secretOwner"]
+            gameBoardCell.secretRoom = jsonCell["secretRoom"]
+            gameBoardCell.secretType = jsonCell["secretType"]
+            gameBoardCell.secret = jsonCell["secret"]
+            gameBoardCell.yesBuy = jsonCell["yesBuy"]
+            gameBoardCell.yesRent = jsonCell["yesRent"]
+        elif gameBoardCell.cellType == "oops":
+            gameBoardCell.currPlayerChoice = jsonCell["currPlayerChoice"]
+            gameBoardCell.murdererChoice = jsonCell["murdererChoice"]
+            gameBoardCell.playerWonOops = jsonCell["playerWonOops"]
+            gameBoardCell.tied = jsonCell["tied"]
+        elif gameBoardCell.cellType == "weapon":
+            gameBoardCell.weapon = jsonCell["weapon"]
+            gameBoardCell.weaponChar = jsonCell["weaponChar"]
+            gameBoardCell.cellOccupied = jsonCell["cellOccupied"]
+    
+    # update roomsDict
+    for roomNum in json_object["roomsDict"]:
+        gameBoardRoom = app.gameBoard.roomsDict[int(roomNum)]
+        jsonRoom = json_object["roomsDict"][roomNum]
+        gameBoardRoom.accessible = jsonRoom["accessible"]
+        gameBoardRoom.characterSecretOwner = jsonRoom["characterSecretOwner"]
+        gameBoardRoom.roomSecretOwner = jsonRoom["roomSecretOwner"]
+    
+    # update weaponsDict
+    for weaponNum in json_object["gameBoard"]["weaponsDict"]:
+        app.gameBoard.weaponsDict[int(weaponNum)] = json_object["gameBoard"]["weaponsDict"][weaponNum]
+    
+    # updates textboxDict
+    for textboxNum in json_object["textboxDict"]:
+        app.gameBoard.textboxDict[int(textboxNum)].selected = json_object["textboxDict"][textboxNum]["selected"]
+        app.gameBoard.textboxDict[int(textboxNum)].label = json_object["textboxDict"][textboxNum]["label"]
+    
+    app.gameBoard.makingAGuess = json_object["gameBoard"]["makingAGuess"]
+    
+    # reassign properties to player
+    for playerName in [app.gameBoard.player1, app.gameBoard.AI]:
+        # playerName is app object, jsonPlayer is json file object
+        jsonPlayer = json_object[playerName.name]
+        playerName.isCurrPlayer = jsonPlayer["isCurrPlayer"]
+        playerName.cellDict = app.gameBoard.cellDict
+        playerName.roomsDict = app.gameBoard.roomsDict
+        playerName.weaponsDict = app.gameBoard.weaponsDict
+        playerName.currCellNum = jsonPlayer["currCellNum"]
+        playerName.currCell = app.gameBoard.cellDict[playerName.currCellNum]
+        playerName.playerColor = jsonPlayer["playerColor"]
+        playerName.lives = jsonPlayer["lives"]
+        playerName.money = jsonPlayer["money"]
+        playerName.buyingSecret = jsonPlayer["buyingSecret"]
+        playerName.removeInnerBoard = jsonPlayer["removeInnerBoard"]
+        playerName.showRooms = jsonPlayer["showRooms"]
+        playerName.roomsDrawn = jsonPlayer["roomsDrawn"]
+        playerName.rentingSecret = jsonPlayer["rentingSecret"]
+        playerName.processingRent = jsonPlayer["processingRent"]
+        playerName.rentOKRect = jsonPlayer["rentOKRect"]
+        playerName.showWeaponSecret = jsonPlayer["showWeaponSecret"]
+        playerName.weaponOKRect = jsonPlayer["weaponOKRect"]
+        playerName.processingWeaponSecret = jsonPlayer["processingWeaponSecret"]
+        playerName.shownWeaponSecret = jsonPlayer["shownWeaponSecret"]
+        playerName.showOopsInstructions = jsonPlayer["showOopsInstructions"]
+        playerName.oopsInstructionsRect = jsonPlayer["oopsInstructionsRect"]
+        playerName.oopsInPlay = jsonPlayer["oopsInPlay"]
+        playerName.shownOopsInstructions = jsonPlayer["shownOopsInstructions"]
+        playerName.charSecretOwned = set(jsonPlayer["charSecretOwned"])
+        playerName.roomSecretOwned = set(jsonPlayer["roomSecretOwned"])
+        playerName.weaponSecretOwned = set(jsonPlayer["weaponSecretOwned"])
+        selectedRoomStr = jsonPlayer["selectedRoom"]
+        if selectedRoomStr != None:
+            roomIdx = selectedRoomStr[0:1]
+            playerName.selectedRoom = app.gameBoard.roomsDict[int(roomIdx)]
+        else:
+            playerName.selectedRoom = jsonPlayer["selectedRoom"]
+        playerName.secretOKRect = jsonPlayer["secretOKRect"]
+        playerName.textboxDict = app.gameBoard.textboxDict
+        playerName.checkGuessRect = jsonPlayer["checkGuessRect"]
+        playerName.wrongGuess = jsonPlayer["wrongGuess"]
+        
+    # create new instances of playerNOtes
+    app.gameBoard.player1Notes = PlayerNotes(app.gameBoard.player1, app.gameBoard.boardLeft - 350, app.gameBoard.boardTop, 250, app.gameBoard.height, app.gameBoard.colors)
+    app.gameBoard.AINotes = PlayerNotes(app.gameBoard.AI, app.gameBoard.boardLeft - 350, app.gameBoard.boardTop, 250, app.gameBoard.height, app.gameBoard.colors)
+
+
 
 # this function was taken from the stackOverflow link above
 def set_default(obj):
@@ -1876,9 +2059,19 @@ def onMousePress(app, mouseX, mouseY):
         startNewGameRectTop = startNewGameRect[1]
         startNewGameRectW = startNewGameRect[2]
         startNewGameRectH = startNewGameRect[3]
+        resumeGameRect = (app.width/10 * 7.5 - 150, app.height/2 + 150 - 30, 300, 60)
+        resumeGameRectLeft = resumeGameRect[0]
+        resumeGameRectTop = resumeGameRect[1]
+        resumeGameRectW = resumeGameRect[2]
+        resumeGameRectH = resumeGameRect[3]
         if startNewGameRectLeft <= mouseX <= startNewGameRectLeft + startNewGameRectW and startNewGameRectTop <= mouseY <= startNewGameRectTop + startNewGameRectH:
             app.instructionScreen = False
             restart(app)
+        elif resumeGameRectLeft <= mouseX <= resumeGameRectLeft + resumeGameRectW and resumeGameRectTop <= mouseY <= resumeGameRectTop + resumeGameRectH:
+            app.instructionScreen = False
+            app.resumePrevGame = True
+            restart(app)
+            
     else:
         # check if need to save progress and write to json file
         checkSaveProgress(app, mouseX, mouseY)
@@ -2241,8 +2434,12 @@ def onStep(app):
             app.currPlayer = app.gameBoard.currTurn
             app.otherPlayer = app.gameBoard.otherPlayer
         
+        if app.resumePrevGame == True and app.gameBoard.boardLoaded == True:
+            readJsonFile(app)
+        
         # checks if player lost
         checkGameStatus(app)
+        
 
 
 runApp()

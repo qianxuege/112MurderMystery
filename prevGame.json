@@ -43,12 +43,12 @@
         "player1": "player1",
         "AI": "AI",
         "roomsDict": {
-            "0": "Kitchen(Mrs. White, player1, None)",
-            "1": "Master Bedroom(Colonel Mustard, None, None)",
-            "2": "Billiard Room(Mr. Green, None, None)",
-            "3": "Study(Professor Plum, None, None)",
-            "4": "Parlor(Mrs. Peacock, None, None)",
-            "5": "Balcony(Miss Scarlet, None, None)"
+            "0": "0. Kitchen(Mrs. White, player1, None)",
+            "1": "1. Master Bedroom(Colonel Mustard, None, None)",
+            "2": "2. Billiard Room(Mr. Green, None, None)",
+            "3": "3. Study(Professor Plum, None, None)",
+            "4": "4. Parlor(Mrs. Peacock, None, None)",
+            "5": "5. Balcony(Miss Scarlet, None, None)"
         },
         "weaponsDict": {
             "0": [
@@ -123,12 +123,12 @@
             "23": "23. secret, owner is None"
         },
         "roomsDict": {
-            "0": "Kitchen(Mrs. White, player1, None)",
-            "1": "Master Bedroom(Colonel Mustard, None, None)",
-            "2": "Billiard Room(Mr. Green, None, None)",
-            "3": "Study(Professor Plum, None, None)",
-            "4": "Parlor(Mrs. Peacock, None, None)",
-            "5": "Balcony(Miss Scarlet, None, None)"
+            "0": "0. Kitchen(Mrs. White, player1, None)",
+            "1": "1. Master Bedroom(Colonel Mustard, None, None)",
+            "2": "2. Billiard Room(Mr. Green, None, None)",
+            "3": "3. Study(Professor Plum, None, None)",
+            "4": "4. Parlor(Mrs. Peacock, None, None)",
+            "5": "5. Balcony(Miss Scarlet, None, None)"
         },
         "weaponsDict": {
             "0": [
@@ -232,12 +232,12 @@
             "23": "23. secret, owner is None"
         },
         "roomsDict": {
-            "0": "Kitchen(Mrs. White, player1, None)",
-            "1": "Master Bedroom(Colonel Mustard, None, None)",
-            "2": "Billiard Room(Mr. Green, None, None)",
-            "3": "Study(Professor Plum, None, None)",
-            "4": "Parlor(Mrs. Peacock, None, None)",
-            "5": "Balcony(Miss Scarlet, None, None)"
+            "0": "0. Kitchen(Mrs. White, player1, None)",
+            "1": "1. Master Bedroom(Colonel Mustard, None, None)",
+            "2": "2. Billiard Room(Mr. Green, None, None)",
+            "3": "3. Study(Professor Plum, None, None)",
+            "4": "4. Parlor(Mrs. Peacock, None, None)",
+            "5": "5. Balcony(Miss Scarlet, None, None)"
         },
         "weaponsDict": {
             "0": [
