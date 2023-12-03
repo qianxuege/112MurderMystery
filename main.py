@@ -2436,6 +2436,7 @@ def onStep(app):
         
         if app.resumePrevGame == True and app.gameBoard.boardLoaded == True:
             readJsonFile(app)
+            app.resumePrevGame = False
         
         # checks if player lost
         checkGameStatus(app)
