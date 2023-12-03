@@ -17,7 +17,7 @@
             "0": "0. Go",
             "1": "1. oops",
             "2": "2. weapon",
-            "3": "3. secret, owner is None",
+            "3": "3. secret, owner is player1",
             "4": "4. secret, owner is None",
             "5": "5. weapon",
             "6": "6. oops",
@@ -42,12 +42,8 @@
         "isFirstIteration": false,
         "player1": "player1",
         "AI": "AI",
-        "playerDict": {
-            "player1": "player1",
-            "AI": "AI"
-        },
         "roomsDict": {
-            "0": "Kitchen(Mrs. White, None, None)",
+            "0": "Kitchen(Mrs. White, player1, None)",
             "1": "Master Bedroom(Colonel Mustard, None, None)",
             "2": "Billiard Room(Mr. Green, None, None)",
             "3": "Study(Professor Plum, None, None)",
@@ -58,7 +54,7 @@
             "0": [
                 "Mrs. White",
                 "Candlestick",
-                true
+                false
             ],
             "1": [
                 "Colonel Mustard",
@@ -89,21 +85,22 @@
         "currTurn": "player1",
         "otherPlayer": null,
         "makingAGuess": false,
-        "textboxList": [
-            "Textbox(charTextbox, selected is False, text is )",
-            "Textbox(weaponTextbox, selected is False, text is )",
-            "Textbox(roomTextbox, selected is False, text is )"
-        ],
+        "textboxDict": {
+            "0": "Textbox(charTextbox, selected is False, text is )",
+            "1": "Textbox(weaponTextbox, selected is False, text is )",
+            "2": "Textbox(roomTextbox, selected is False, text is )"
+        },
         "player1Notes": "Player notes of player1",
         "AINotes": "Player notes of AI"
     },
     "player1": {
         "name": "player1",
+        "isCurrPlayer": true,
         "cellDict": {
             "0": "0. Go",
             "1": "1. oops",
             "2": "2. weapon",
-            "3": "3. secret, owner is None",
+            "3": "3. secret, owner is player1",
             "4": "4. secret, owner is None",
             "5": "5. weapon",
             "6": "6. oops",
@@ -126,7 +123,7 @@
             "23": "23. secret, owner is None"
         },
         "roomsDict": {
-            "0": "Kitchen(Mrs. White, None, None)",
+            "0": "Kitchen(Mrs. White, player1, None)",
             "1": "Master Bedroom(Colonel Mustard, None, None)",
             "2": "Billiard Room(Mr. Green, None, None)",
             "3": "Study(Professor Plum, None, None)",
@@ -137,7 +134,7 @@
             "0": [
                 "Mrs. White",
                 "Candlestick",
-                true
+                false
             ],
             "1": [
                 "Colonel Mustard",
@@ -165,74 +162,54 @@
                 false
             ]
         },
-        "currCellNum": 2,
-        "currCell": "2. weapon",
-        "dX": -10,
-        "cx": 425.7142857142857,
-        "cy": 421.42857142857144,
-        "innerLeft": 471.42857142857144,
-        "innerTop": 171.42857142857144,
-        "innerSize": 357.1428571428571,
-        "boardLeft": 400,
-        "boardTop": 100,
-        "boardSize": 500,
+        "currCellNum": 3,
+        "currCell": "3. secret, owner is player1",
         "playerColor": "yellow",
-        "colors": "Colors(dustyBlue, mossGreen, sand)",
         "lives": 3,
-        "money": 1500,
+        "money": 1400,
         "buyingSecret": false,
-        "removeInnerBoard": false,
+        "removeInnerBoard": true,
         "showRooms": false,
         "roomsDrawn": false,
         "rentingSecret": false,
         "processingRent": false,
         "rentOKRect": null,
         "showWeaponSecret": false,
-        "weaponOKRect": [
-            600.0,
-            381.42857142857144,
-            100,
-            40
-        ],
+        "weaponOKRect": null,
         "processingWeaponSecret": false,
-        "shownWeaponSecret": true,
+        "shownWeaponSecret": false,
         "showOopsInstructions": false,
         "oopsInstructionsRect": null,
         "oopsInPlay": false,
         "shownOopsInstructions": false,
-        "charSecretOwned": [],
+        "charSecretOwned": [
+            "To most people, Mrs. White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?"
+        ],
         "roomSecretOwned": [],
-        "weaponSecretOwned": [
-            "Mrs. White's weapon is Candlestick."
-        ],
+        "weaponSecretOwned": [],
         "selectedRoom": null,
-        "secretOKRect": null,
-        "yesBtnLeft": null,
-        "yesBtnTop": null,
-        "noBtnLeft": null,
-        "noBtnTop": null,
-        "btnW": 120,
-        "btnH": 40,
-        "roomBtnCol1Left": null,
-        "roomBtnCol2Left": null,
-        "roomBtnTop": null,
-        "roomBtnH": null,
-        "roomBtnW": null,
-        "textboxList": [
-            "Textbox(charTextbox, selected is False, text is )",
-            "Textbox(weaponTextbox, selected is False, text is )",
-            "Textbox(roomTextbox, selected is False, text is )"
+        "secretOKRect": [
+            600.0,
+            451.42857142857144,
+            100,
+            40
         ],
+        "textboxDict": {
+            "0": "Textbox(charTextbox, selected is False, text is )",
+            "1": "Textbox(weaponTextbox, selected is False, text is )",
+            "2": "Textbox(roomTextbox, selected is False, text is )"
+        },
         "checkGuessRect": null,
         "wrongGuess": false
     },
     "AI": {
         "name": "AI",
+        "isCurrPlayer": false,
         "cellDict": {
             "0": "0. Go",
             "1": "1. oops",
             "2": "2. weapon",
-            "3": "3. secret, owner is None",
+            "3": "3. secret, owner is player1",
             "4": "4. secret, owner is None",
             "5": "5. weapon",
             "6": "6. oops",
@@ -255,7 +232,7 @@
             "23": "23. secret, owner is None"
         },
         "roomsDict": {
-            "0": "Kitchen(Mrs. White, None, None)",
+            "0": "Kitchen(Mrs. White, player1, None)",
             "1": "Master Bedroom(Colonel Mustard, None, None)",
             "2": "Billiard Room(Mr. Green, None, None)",
             "3": "Study(Professor Plum, None, None)",
@@ -266,7 +243,7 @@
             "0": [
                 "Mrs. White",
                 "Candlestick",
-                true
+                false
             ],
             "1": [
                 "Colonel Mustard",
@@ -296,17 +273,7 @@
         },
         "currCellNum": 0,
         "currCell": "0. Go",
-        "dX": 20,
-        "cx": 455.7142857142857,
-        "cy": 564.2857142857142,
-        "innerLeft": 471.42857142857144,
-        "innerTop": 171.42857142857144,
-        "innerSize": 357.1428571428571,
-        "boardLeft": 400,
-        "boardTop": 100,
-        "boardSize": 500,
         "playerColor": "purple",
-        "colors": "Colors(dustyBlue, mossGreen, sand)",
         "lives": 3,
         "money": 1500,
         "buyingSecret": false,
@@ -329,23 +296,382 @@
         "weaponSecretOwned": [],
         "selectedRoom": null,
         "secretOKRect": null,
-        "yesBtnLeft": null,
-        "yesBtnTop": null,
-        "noBtnLeft": null,
-        "noBtnTop": null,
-        "btnW": 120,
-        "btnH": 40,
-        "roomBtnCol1Left": null,
-        "roomBtnCol2Left": null,
-        "roomBtnTop": null,
-        "roomBtnH": null,
-        "roomBtnW": null,
-        "textboxList": [
-            "Textbox(charTextbox, selected is False, text is )",
-            "Textbox(weaponTextbox, selected is False, text is )",
-            "Textbox(roomTextbox, selected is False, text is )"
-        ],
+        "textboxDict": {
+            "0": "Textbox(charTextbox, selected is False, text is )",
+            "1": "Textbox(weaponTextbox, selected is False, text is )",
+            "2": "Textbox(roomTextbox, selected is False, text is )"
+        },
         "checkGuessRect": null,
         "wrongGuess": false
+    },
+    "cellDict": {
+        "0": {
+            "name": "0. Go",
+            "cellType": "Go",
+            "originalCellId": 17,
+            "cellDictId": 0
+        },
+        "1": {
+            "name": "1. oops",
+            "cellType": "oops",
+            "rockPaperScissors": [
+                "rock",
+                "paper",
+                "scissors"
+            ],
+            "currPlayerChoice": null,
+            "murdererChoice": null,
+            "playerWonOops": null,
+            "tied": false
+        },
+        "2": {
+            "name": "2. weapon",
+            "cellType": "weapon",
+            "weapon": null,
+            "weaponChar": null,
+            "cellOccupied": false
+        },
+        "3": {
+            "name": "3. secret, owner is None",
+            "cellType": "secret",
+            "price": 100,
+            "secretOwned": true,
+            "secretOwner": "player1",
+            "secretRoom": "Kitchen",
+            "secretType": "characterSecret",
+            "secret": "To most people, Mrs. White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
+            "yesBuy": false,
+            "yesRent": false
+        },
+        "4": {
+            "name": "4. secret, owner is None",
+            "cellType": "secret",
+            "price": 100,
+            "secretOwned": false,
+            "secretOwner": null,
+            "secretRoom": null,
+            "secretType": null,
+            "secret": null,
+            "yesBuy": false,
+            "yesRent": false
+        },
+        "5": {
+            "name": "5. weapon",
+            "cellType": "weapon",
+            "weapon": null,
+            "weaponChar": null,
+            "cellOccupied": false
+        },
+        "6": {
+            "name": "6. oops",
+            "cellType": "oops",
+            "rockPaperScissors": [
+                "rock",
+                "paper",
+                "scissors"
+            ],
+            "currPlayerChoice": null,
+            "murdererChoice": null,
+            "playerWonOops": null,
+            "tied": false
+        },
+        "7": {
+            "name": "7. secret, owner is None",
+            "cellType": "secret",
+            "price": 100,
+            "secretOwned": false,
+            "secretOwner": null,
+            "secretRoom": null,
+            "secretType": null,
+            "secret": null,
+            "yesBuy": false,
+            "yesRent": false
+        },
+        "8": {
+            "name": "8. secret, owner is None",
+            "cellType": "secret",
+            "price": 100,
+            "secretOwned": false,
+            "secretOwner": null,
+            "secretRoom": null,
+            "secretType": null,
+            "secret": null,
+            "yesBuy": false,
+            "yesRent": false
+        },
+        "9": {
+            "name": "9. weapon",
+            "cellType": "weapon",
+            "weapon": null,
+            "weaponChar": null,
+            "cellOccupied": false
+        },
+        "10": {
+            "name": "10. oops",
+            "cellType": "oops",
+            "rockPaperScissors": [
+                "rock",
+                "paper",
+                "scissors"
+            ],
+            "currPlayerChoice": null,
+            "murdererChoice": null,
+            "playerWonOops": null,
+            "tied": false
+        },
+        "11": {
+            "name": "11. secret, owner is None",
+            "cellType": "secret",
+            "price": 100,
+            "secretOwned": false,
+            "secretOwner": null,
+            "secretRoom": null,
+            "secretType": null,
+            "secret": null,
+            "yesBuy": false,
+            "yesRent": false
+        },
+        "12": {
+            "name": "12. secret, owner is None",
+            "cellType": "secret",
+            "price": 100,
+            "secretOwned": false,
+            "secretOwner": null,
+            "secretRoom": null,
+            "secretType": null,
+            "secret": null,
+            "yesBuy": false,
+            "yesRent": false
+        },
+        "13": {
+            "name": "13. secret, owner is None",
+            "cellType": "secret",
+            "price": 100,
+            "secretOwned": false,
+            "secretOwner": null,
+            "secretRoom": null,
+            "secretType": null,
+            "secret": null,
+            "yesBuy": false,
+            "yesRent": false
+        },
+        "14": {
+            "name": "14. weapon",
+            "cellType": "weapon",
+            "weapon": null,
+            "weaponChar": null,
+            "cellOccupied": false
+        },
+        "15": {
+            "name": "15. oops",
+            "cellType": "oops",
+            "rockPaperScissors": [
+                "rock",
+                "paper",
+                "scissors"
+            ],
+            "currPlayerChoice": null,
+            "murdererChoice": null,
+            "playerWonOops": null,
+            "tied": false
+        },
+        "16": {
+            "name": "16. secret, owner is None",
+            "cellType": "secret",
+            "price": 100,
+            "secretOwned": false,
+            "secretOwner": null,
+            "secretRoom": null,
+            "secretType": null,
+            "secret": null,
+            "yesBuy": false,
+            "yesRent": false
+        },
+        "17": {
+            "name": "17. weapon",
+            "cellType": "weapon",
+            "weapon": null,
+            "weaponChar": null,
+            "cellOccupied": false
+        },
+        "18": {
+            "name": "18. secret, owner is None",
+            "cellType": "secret",
+            "price": 100,
+            "secretOwned": false,
+            "secretOwner": null,
+            "secretRoom": null,
+            "secretType": null,
+            "secret": null,
+            "yesBuy": false,
+            "yesRent": false
+        },
+        "19": {
+            "name": "19. oops",
+            "cellType": "oops",
+            "rockPaperScissors": [
+                "rock",
+                "paper",
+                "scissors"
+            ],
+            "currPlayerChoice": null,
+            "murdererChoice": null,
+            "playerWonOops": null,
+            "tied": false
+        },
+        "20": {
+            "name": "20. secret, owner is None",
+            "cellType": "secret",
+            "price": 100,
+            "secretOwned": false,
+            "secretOwner": null,
+            "secretRoom": null,
+            "secretType": null,
+            "secret": null,
+            "yesBuy": false,
+            "yesRent": false
+        },
+        "21": {
+            "name": "21. weapon",
+            "cellType": "weapon",
+            "weapon": null,
+            "weaponChar": null,
+            "cellOccupied": false
+        },
+        "22": {
+            "name": "22. secret, owner is None",
+            "cellType": "secret",
+            "price": 100,
+            "secretOwned": false,
+            "secretOwner": null,
+            "secretRoom": null,
+            "secretType": null,
+            "secret": null,
+            "yesBuy": false,
+            "yesRent": false
+        },
+        "23": {
+            "name": "23. secret, owner is None",
+            "cellType": "secret",
+            "price": 100,
+            "secretOwned": false,
+            "secretOwner": null,
+            "secretRoom": null,
+            "secretType": null,
+            "secret": null,
+            "yesBuy": false,
+            "yesRent": false
+        }
+    },
+    "roomsDict": {
+        "0": {
+            "name": "Kitchen",
+            "id": 0,
+            "accessible": true,
+            "character": "Mrs. White",
+            "characterSecret": "To most people, Mrs. White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
+            "roomSecret": "Mustard was not in the kitchen at 9pm",
+            "characterSecretOwner": "player1",
+            "roomSecretOwner": null
+        },
+        "1": {
+            "name": "Master Bedroom",
+            "id": 1,
+            "accessible": true,
+            "character": "Colonel Mustard",
+            "characterSecret": "Everyone knows Colonel Mustard is a decorated war \nhero. He is also from a venerated and wealthy family.\nIronically, he wasn\u2019t actually in the battle for which \nhe was awarded his most prestigious medal.",
+            "roomSecret": "Mustard was not in the bedroom at 9pm",
+            "characterSecretOwner": null,
+            "roomSecretOwner": null
+        },
+        "2": {
+            "name": "Billiard Room",
+            "id": 2,
+            "accessible": true,
+            "character": "Mr. Green",
+            "characterSecret": "Mr. Green is a businessman who is a closeted homosexual.\nHe is desperately in love with his partner and wants to \nget married, but Mustard used his influence to make gay \nmarriage illegal in his state. Green now can\u2019t pursue \nhis love \u2013\u2013 he wants revenge\u2026",
+            "roomSecret": "Mustard was not in the billiard room at 9pm",
+            "characterSecretOwner": null,
+            "roomSecretOwner": null
+        },
+        "3": {
+            "name": "Study",
+            "id": 3,
+            "accessible": true,
+            "character": "Professor Plum",
+            "characterSecret": "Plum is a professor of antiquities. He identifies \ncounterfeits and occasionally makes them, including\nhis PhD certificate. Beware, Plum knows that \nMustard knows his secret\u2026",
+            "roomSecret": "Mustard was not in the study room at 9pm",
+            "characterSecretOwner": null,
+            "roomSecretOwner": null
+        },
+        "4": {
+            "name": "Parlor",
+            "id": 4,
+            "accessible": true,
+            "character": "Mrs. Peacock",
+            "characterSecret": "Mrs. Peacock is a lawyer and the mother of a soldier\nunder Mustard. What an honor you might think! \nWell, Mustard killed her son because\nher son attempted to unveil Mustard\u2019s secret.",
+            "roomSecret": "Mustard was in the Parlor at approximately 9pm",
+            "characterSecretOwner": null,
+            "roomSecretOwner": null
+        },
+        "5": {
+            "name": "Balcony",
+            "id": 5,
+            "accessible": true,
+            "character": "Miss Scarlet",
+            "characterSecret": "Miss Scarlet is a movie actress whose career is crumbling.\nShe also lost a lot of money due to gambling.\nHmmm, life must be hard for her right now.",
+            "roomSecret": "Mustard was not in the Balcony at 9pm.",
+            "characterSecretOwner": null,
+            "roomSecretOwner": null
+        }
+    },
+    "textboxDict": {
+        "0": {
+            "name": "charTextbox",
+            "rectLeft": 589.2857142857142,
+            "rectTop": 256.42857142857144,
+            "rectW": 200,
+            "rectH": 30,
+            "fill": "rgb(89, 125, 92)",
+            "dictKey": 0,
+            "selected": false,
+            "label": ""
+        },
+        "1": {
+            "name": "weaponTextbox",
+            "rectLeft": 589.2857142857142,
+            "rectTop": 316.42857142857144,
+            "rectW": 200,
+            "rectH": 30,
+            "fill": "rgb(89, 125, 92)",
+            "dictKey": 1,
+            "selected": false,
+            "label": ""
+        },
+        "2": {
+            "name": "roomTextbox",
+            "rectLeft": 589.2857142857142,
+            "rectTop": 376.42857142857144,
+            "rectW": 200,
+            "rectH": 30,
+            "fill": "rgb(89, 125, 92)",
+            "dictKey": 2,
+            "selected": false,
+            "label": ""
+        }
+    },
+    "appProperties": {
+        "name": "app",
+        "height": 700,
+        "width": 1000,
+        "paused": true,
+        "stepsPerSecond": 1,
+        "playerWon": false,
+        "playerLost": false,
+        "gameboard": "Board(player1, AI)",
+        "instructionScreen": false,
+        "currPlayer": "player1",
+        "otherPlayer": null,
+        "answer": "Mrs Peacock , using Hammer , killed Colonel Mustard in the Parlor ."
     }
 }

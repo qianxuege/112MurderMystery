@@ -12,7 +12,16 @@ https://www.freecodecamp.org/news/loading-a-json-file-in-python-how-to-read-and-
 https://www.w3docs.com/snippets/python/how-to-make-a-class-json-serializable.html#:~:text=In%20order%20to%20make%20a,can%20be%20converted%20to%20JSON.
 https://stackoverflow.com/questions/22281059/set-object-is-not-json-serializable
 https://medium.com/@KaranDahiya2000/modify-json-fields-using-python-1b2d88d16908
+https://stackoverflow.com/questions/10895028/python-append-to-array-in-json-object
 """
+
+'''
+read this on **kwargs
+https://www.geeksforgeeks.org/args-kwargs-python/
+
+read this on using %s
+https://www.javatpoint.com/python-s-string-formatting#:~:text=The%20%25s%20allow%20us%20to,value%20to%20string%20data%20type.
+'''
 
 '''
 convert rgb to hex and hex to rgb: 
@@ -99,11 +108,11 @@ class PlayerNotes:
     def to_json(self):
         return {
             "currPlayer": self.currPlayer,
-            "notesBoardLeft": self.notesBoardLeft,
-            "notesBoardTop": self.notesBoardTop,
-            "notesBoardW": self.notesBoardW,
-            "notesBoardH": self.notesBoardH,
-            "colors": self.colors,
+            # "notesBoardLeft": self.notesBoardLeft,
+            # "notesBoardTop": self.notesBoardTop,
+            # "notesBoardW": self.notesBoardW,
+            # "notesBoardH": self.notesBoardH,
+            # "colors": self.colors,
             "name": self.name
         }
     def __hash__(self):
@@ -171,7 +180,7 @@ class Board:
         # players
         self.player1 = None
         self.AI = None
-        self.playerDict = dict()
+        # self.playerDict = dict()
         # rooms
         self.roomsDict = dict()
         # weapons
@@ -181,7 +190,7 @@ class Board:
         self.otherPlayer = None
         # make a guess
         self.makingAGuess = False
-        self.textboxList = []
+        self.textboxDict = dict()
         # player notes
         self.player1Notes = None
         self.AINotes = None
@@ -208,7 +217,7 @@ class Board:
             # players
             "player1": self.player1,
             "AI": self.AI,
-            "playerDict": self.playerDict,
+            # "playerDict": self.playerDict,
             # rooms
             "roomsDict": self.roomsDict,
             # weapons
@@ -218,7 +227,7 @@ class Board:
             "otherPlayer": self.otherPlayer,
             # make a guess
             "makingAGuess": self.makingAGuess,
-            "textboxList": self.textboxList,
+            "textboxDict": self.textboxDict,
             # player notes
             "player1Notes": self.player1Notes,
             "AINotes": self.AINotes
@@ -258,7 +267,7 @@ class Board:
             self.createRooms()
 
             # initiate makeAGuess textboxes
-            self.textboxList = self.initiateTextboxes()
+            self.textboxDict = self.initiateTextboxes()
 
             # initiates players only after the cellDict is updated
             # -10 is the diff in x position
@@ -271,7 +280,7 @@ class Board:
                 (self.boardLeft, self.boardTop, self.width),
                 "yellow",
                 self.weaponsDict,
-                self.textboxList,
+                self.textboxDict,
             )
             self.AI = Player(
                 "AI",
@@ -282,12 +291,13 @@ class Board:
                 (self.boardLeft, self.boardTop, self.width),
                 "purple",
                 self.weaponsDict,
-                self.textboxList,
+                self.textboxDict,
             )
 
-            self.playerDict["player1"] = self.player1
-            self.playerDict["AI"] = self.AI
+            # self.playerDict["player1"] = self.player1
+            # self.playerDict["AI"] = self.AI
             self.currTurn = self.player1
+            self.player1.isCurrPlayer = True
             # initiates player notes
             self.player1Notes = PlayerNotes(self.player1, self.boardLeft - 350, self.boardTop, 250, self.height, self.colors)
             self.AINotes = PlayerNotes(self.AI, self.boardLeft - 350, self.boardTop, 250, self.height, self.colors)
@@ -312,15 +322,15 @@ class Board:
         textboxH = 30
         color = self.colors.mossGreen
         charTextbox = Textbox(
-            "charTextbox", textboxLeft, textboxTop, textboxW, textboxH, color
+            "charTextbox", textboxLeft, textboxTop, textboxW, textboxH, color, 0
         )
         weaponTextbox = Textbox(
-            "weaponTextbox", textboxLeft, textboxTop + 60, textboxW, textboxH, color
+            "weaponTextbox", textboxLeft, textboxTop + 60, textboxW, textboxH, color, 1
         )
         roomTextbox = Textbox(
-            "roomTextbox", textboxLeft, textboxTop + 120, textboxW, textboxH, color
+            "roomTextbox", textboxLeft, textboxTop + 120, textboxW, textboxH, color, 2
         )
-        return [charTextbox, weaponTextbox, roomTextbox]
+        return {0:charTextbox, 1:weaponTextbox, 2:roomTextbox}
 
     def createRooms(self):  # also add character weapons to the weaponsDict
         # need to change all char secret descriptions according to the linebreaks
@@ -569,11 +579,11 @@ class Cell:
             "cellType": self.cellType,
             "originalCellId": self.originalCellId,
             "cellDictId": self.cellDictId,
-            "cellLeft": self.cellLeft,
-            "cellTop": self.cellTop,
-            "cellSize": self.cellSize,
-            "cx": self.cx,
-            "cy": self.cy
+            # "cellLeft": self.cellLeft,
+            # "cellTop": self.cellTop,
+            # "cellSize": self.cellSize,
+            # "cx": self.cx,
+            # "cy": self.cy
         }
 
     def __repr__(self):
@@ -583,8 +593,7 @@ class Cell:
         return (
             isinstance(other, Cell)
             and (self.cellType == other.cellType)
-            and (self.cellLeft == other.cellLeft)
-            and (self.cellTop == other.cellTop)
+            and (self.name == other.name)
         )
 
     def __hash__(self):
@@ -633,13 +642,13 @@ class Oops(Cell):
         return {
             "name": self.name,
             "cellType": self.cellType,
-            "originalCellId": self.originalCellId,
-            "cellDictId": self.cellDictId,
-            "cellLeft": self.cellLeft,
-            "cellTop": self.cellTop,
-            "cellSize": self.cellSize,
-            "cx": self.cx,
-            "cy": self.cy,
+            # "originalCellId": self.originalCellId,
+            # "cellDictId": self.cellDictId,
+            # "cellLeft": self.cellLeft,
+            # "cellTop": self.cellTop,
+            # "cellSize": self.cellSize,
+            # "cx": self.cx,
+            # "cy": self.cy,
             "rockPaperScissors": self.rockPaperScissors,
             "currPlayerChoice": self.currPlayerChoice,
             "murdererChoice": self.murdererChoice,
@@ -665,13 +674,13 @@ class Weapon(Cell):
         return {
             "name": self.name,
             "cellType": self.cellType,
-            "originalCellId": self.originalCellId,
-            "cellDictId": self.cellDictId,
-            "cellLeft": self.cellLeft,
-            "cellTop": self.cellTop,
-            "cellSize": self.cellSize,
-            "cx": self.cx,
-            "cy": self.cy,
+            # "originalCellId": self.originalCellId,
+            # "cellDictId": self.cellDictId,
+            # "cellLeft": self.cellLeft,
+            # "cellTop": self.cellTop,
+            # "cellSize": self.cellSize,
+            # "cx": self.cx,
+            # "cy": self.cy,
             "weapon": self.weapon,
             "weaponChar": self.weaponChar,
             "cellOccupied": self.cellOccupied
@@ -696,13 +705,13 @@ class Secret(Cell):
         return {
             "name": self.name,
             "cellType": self.cellType,
-            "originalCellId": self.originalCellId,
-            "cellDictId": self.cellDictId,
-            "cellLeft": self.cellLeft,
-            "cellTop": self.cellTop,
-            "cellSize": self.cellSize,
-            "cx": self.cx,
-            "cy": self.cy,
+            # "originalCellId": self.originalCellId,
+            # "cellDictId": self.cellDictId,
+            # "cellLeft": self.cellLeft,
+            # "cellTop": self.cellTop,
+            # "cellSize": self.cellSize,
+            # "cx": self.cx,
+            # "cy": self.cy,
             "price": self.price,
             "secretOwned": self.secretOwned,
             "secretOwner": self.secretOwner,
@@ -771,13 +780,14 @@ class Rooms:
 
 
 class Textbox:
-    def __init__(self, name, rectLeft, rectTop, rectW, rectH, fill):
+    def __init__(self, name, rectLeft, rectTop, rectW, rectH, fill, dictKey):
         self.name = name
         self.rectLeft = rectLeft
         self.rectTop = rectTop
         self.rectW = rectW
         self.rectH = rectH
         self.fill = fill
+        self.dictKey = dictKey
         self.selected = False
         # self.addingKey = False
         self.label = ""
@@ -790,6 +800,7 @@ class Textbox:
             "rectW": self.rectW,
             "rectH": self.rectH,
             "fill": self.fill,
+            "dictKey": self.dictKey,
             "selected": self.selected,
             "label": self.label
         }
@@ -850,9 +861,10 @@ class Player:
         outerBoard,
         playerColor,
         weaponsDict,
-        textboxList,
+        textboxDict,
     ):
         self.name = name
+        self.isCurrPlayer = False
         self.cellDict = cellDict
         self.roomsDict = roomsDict
         self.weaponsDict = weaponsDict
@@ -912,29 +924,30 @@ class Player:
         self.roomBtnH = None
         self.roomBtnW = None
         # check if guessed right
-        self.textboxList = textboxList  # imported from gameboard
+        self.textboxDict = textboxDict  # imported from gameboard
         self.checkGuessRect = None
         self.wrongGuess = False
 
     def to_json(self):
         return {
             "name": self.name,
+            "isCurrPlayer": self.isCurrPlayer,
             "cellDict": self.cellDict,
             "roomsDict": self.roomsDict,
             "weaponsDict": self.weaponsDict,
             "currCellNum": self.currCellNum,
             "currCell": self.currCell,
-            "dX": self.dX,
-            "cx": self.cx,
-            "cy": self.cy,
-            "innerLeft": self.innerLeft,
-            "innerTop": self.innerTop,
-            "innerSize": self.innerSize,
-            "boardLeft": self.boardLeft,
-            "boardTop": self.boardTop,
-            "boardSize": self.boardSize,
+            # "dX": self.dX,
+            # "cx": self.cx,
+            # "cy": self.cy,
+            # "innerLeft": self.innerLeft,
+            # "innerTop": self.innerTop,
+            # "innerSize": self.innerSize,
+            # "boardLeft": self.boardLeft,
+            # "boardTop": self.boardTop,
+            # "boardSize": self.boardSize,
             "playerColor": self.playerColor,
-            "colors": self.colors,
+            # "colors": self.colors,
             # upper labels
             "lives": self.lives,
             "money": self.money,
@@ -964,19 +977,19 @@ class Player:
             "selectedRoom": self.selectedRoom,
             "secretOKRect": self.secretOKRect,
             # buttons on board
-            "yesBtnLeft": self.yesBtnLeft,
-            "yesBtnTop": self.yesBtnTop,
-            "noBtnLeft": self.noBtnLeft,
-            "noBtnTop": self.noBtnTop,
-            "btnW": self.btnW,
-            "btnH": self.btnH,
-            "roomBtnCol1Left": self.roomBtnCol1Left,
-            "roomBtnCol2Left": self.roomBtnCol2Left,
-            "roomBtnTop": self.roomBtnTop,
-            "roomBtnH": self.roomBtnH,
-            "roomBtnW": self.roomBtnW,
+            # "yesBtnLeft": self.yesBtnLeft,
+            # "yesBtnTop": self.yesBtnTop,
+            # "noBtnLeft": self.noBtnLeft,
+            # "noBtnTop": self.noBtnTop,
+            # "btnW": self.btnW,
+            # "btnH": self.btnH,
+            # "roomBtnCol1Left": self.roomBtnCol1Left,
+            # "roomBtnCol2Left": self.roomBtnCol2Left,
+            # "roomBtnTop": self.roomBtnTop,
+            # "roomBtnH": self.roomBtnH,
+            # "roomBtnW": self.roomBtnW,
             # check if guessed right
-            "textboxList": self.textboxList,
+            "textboxDict": self.textboxDict,
             "checkGuessRect": self.checkGuessRect,
             "wrongGuess": self.wrongGuess
         }
@@ -1465,9 +1478,9 @@ class Player:
 
     def drawMakeAGuessScreen(self):
         self.drawWhiteInnerBoard()
-        charTextbox = self.textboxList[0]
-        weaponTextbox = self.textboxList[1]
-        roomTextbox = self.textboxList[2]
+        charTextbox = self.textboxDict[0]
+        weaponTextbox = self.textboxDict[1]
+        roomTextbox = self.textboxDict[2]
 
         drawLabel(
             f"Please enter your guess.",
@@ -1761,10 +1774,10 @@ def saveToJson(app):
         "stepsPerSecond": app.stepsPerSecond,
         "playerWon": app.playerWon,
         "playerLost": app.playerLost,
-        "gameboard": app.gameBoard,
+        "gameboard": app.gameBoard, # restore this
         "instructionScreen": app.instructionScreen,
-        "currPlayer": app.currPlayer,
-        "otherPlayer": app.otherPlayer,
+        "currPlayer": app.currPlayer, # restore this
+        "otherPlayer": app.otherPlayer, # restore this
         "answer": app.answer
     }
 
@@ -1774,12 +1787,35 @@ def saveToJson(app):
         # read JSON data
         data = json.load(openfile)
         
+        # add app properties to json file
+        data["appProperties"] = appPropertiesDict
+        
+        
         py_objects = [app.gameBoard, app.gameBoard.player1, app.gameBoard.AI]
         
         # add field
         for obj in py_objects:
             # data[obj.name] = json.dumps(obj.to_json(), default=set_default)
             data[obj.name] = obj.to_json()
+        
+        
+        # objCollections = [app.gameBoard.cellDict, app.gameBoard.roomsDict, app.gameBoard.weaponsDict, app.gameBoard.textboxDict]
+        
+        # initiate the new json object
+        data["cellDict"] = {}
+        # add to that json object
+        for cell in app.gameBoard.cellDict:
+            data["cellDict"][app.gameBoard.cellDict[cell].cellDictId] = app.gameBoard.cellDict[cell].to_json()
+                
+        # roomsDict
+        data["roomsDict"] = {}
+        for room in app.gameBoard.roomsDict:
+            data["roomsDict"][app.gameBoard.roomsDict[room].id] = app.gameBoard.roomsDict[room].to_json()
+        
+        # textboxDict
+        data["textboxDict"] = {}
+        for textbox in app.gameBoard.textboxDict:
+            data["textboxDict"][textbox] = app.gameBoard.textboxDict[textbox].to_json()
         
         newData = json.dumps(data, indent=4, default=set_default)
         
@@ -1794,7 +1830,18 @@ def readJsonFile(app):
     with open('prevGame.json') as openfile:
         # Reading from json file
         json_object = json.load(openfile)
-    print(json_object["player1"]["currCell"])
+    
+    # update gameBoard
+    '''
+    app.gameBoard,isFirstIteration = json_object["isFirstIteration"]
+    app.gameBoard.cellDict = json_object["cellDict"]
+    app.gameBoard.player1 = json_object["player1"]
+    app.gameBoard.AI = json_object["AI"]
+    app.gameBoard.roomsDict = json_object["roomsDict"]
+    app.gameBoard.textboxDict = json_object["textboxDict"]
+    '''
+    
+    print(json_object["player1"]["buyingSecret"])
 
 # this function was taken from the stackOverflow link above
 def set_default(obj):
@@ -1849,13 +1896,17 @@ def onMousePress(app, mouseX, mouseY):
             if app.gameBoard.currTurn == app.gameBoard.player1:
                 app.gameBoard.currTurn = app.gameBoard.AI
                 app.currPlayer = app.gameBoard.currTurn
+                app.currPlayer.isCurrPlayer = True
                 app.gameBoard.otherPlayer = app.gameBoard.player1
+                app.gameBoard.otherPlayer.isCurrPlayer = False
                 # app.gameBoard.otherPlayer.resetCell = True
                 # in redrawAll, need to check if this is onCell()
             else:
                 app.gameBoard.currTurn = app.gameBoard.player1
                 app.currPlayer = app.gameBoard.currTurn
+                app.currPlayer.isCurrPlayer = True
                 app.gameBoard.otherPlayer = app.gameBoard.AI
+                app.gameBoard.otherPlayer.isCurrPlayer = False
                 # app.gameBoard.otherPlayer.resetCell = True
                 # if type(app.gameBoard.currTurn.currCell)==Oops:
                 #     app.gameBoard.otherPlayer.currCell.reset()
@@ -1869,23 +1920,27 @@ def onMousePress(app, mouseX, mouseY):
             
             # check if makeAGuess textbox is being clicked on --> change selected to True --> allow keyPress
             if app.gameBoard.makingAGuess == True:
-                for i in range(len(app.gameBoard.textboxList)):
-                    currTextbox = app.gameBoard.textboxList[i]
-                    rest = (
-                        app.gameBoard.textboxList[0:i] + app.gameBoard.textboxList[i + 1 :]
-                    )
-                    rectLeft = currTextbox.rectLeft
-                    rectTop = currTextbox.rectTop
-                    rectW = currTextbox.rectW
-                    rectH = currTextbox.rectH
-                    if (
-                        rectLeft <= mouseX <= rectLeft + rectW
-                        and rectTop <= mouseY <= rectTop + rectH
-                    ):
-                        currTextbox.selected = not currTextbox.selected
-                        # resets all other textbox's selected state
-                        for textbox in rest:
-                            textbox.selected = False
+                if len(app.gameBoard.textboxDict) == 3:
+                    textboxList = [app.gameBoard.textboxDict[0]] + [app.gameBoard.textboxDict[1]] + [app.gameBoard.textboxDict[2]]
+                    for i in range(len(textboxList)):
+                        currTextbox = textboxList[i]
+                        rest = (
+                            textboxList[0:i] + textboxList[i + 1 :]
+                        )
+                        rectLeft = currTextbox.rectLeft
+                        rectTop = currTextbox.rectTop
+                        rectW = currTextbox.rectW
+                        rectH = currTextbox.rectH
+                        if (
+                            rectLeft <= mouseX <= rectLeft + rectW
+                            and rectTop <= mouseY <= rectTop + rectH
+                        ):
+                            app.gameBoard.textboxDict[i].selected = not app.gameBoard.textboxDict[i].selected
+
+                            # resets all other textbox's selected state
+                            for textboxInstance in rest:
+                                app.gameBoard.textboxDict[textboxInstance.dictKey].selected = False
+
             
                 # checks if checkGuess btn is being clicked on
                 if app.currPlayer.checkGuessRect != None:
@@ -1898,13 +1953,13 @@ def onMousePress(app, mouseX, mouseY):
                         and rectTop <= mouseY <= rectTop + rectH
                     ):
                         if app.currPlayer.wrongGuess==False:
-                            playerGuess = Guess(app.gameBoard.textboxList[0].label, app.gameBoard.textboxList[1].label, app.gameBoard.textboxList[2].label)
+                            playerGuess = Guess(app.gameBoard.textboxDict[0].label, app.gameBoard.textboxDict[1].label, app.gameBoard.textboxDict[2].label)
                             if playerGuess == app.answer:
                                 # reset
                                 currTextbox.selected = False
                                 app.playerWon = True
-                                for textbox in app.gameBoard.textboxList:
-                                    textbox.reset()
+                                for textbox in app.gameBoard.textboxDict:
+                                    app.gameBoard.textboxDict[textbox].reset()
                                 app.gameBoard.makingAGuess = False
                                 app.currPlayer.checkGuessRect = None
                             else:
@@ -1913,8 +1968,8 @@ def onMousePress(app, mouseX, mouseY):
                             app.currPlayer.lives -= 1
                             currTextbox.selected = False
                             app.playerWon = False
-                            for textbox in app.gameBoard.textboxList:
-                                textbox.reset()
+                            for textbox in app.gameBoard.textboxDict:
+                                app.gameBoard.textboxDict[textbox].reset()
                             app.gameBoard.makingAGuess = False
                             app.currPlayer.checkGuessRect = None
                             app.currPlayer.wrongGuess=False
@@ -2162,8 +2217,8 @@ def onKeyPress(app, key):
             print(key)
             app.currPlayer.updatePlayerCell(int(key))
 
-        for i in range(len(app.gameBoard.textboxList)):
-            currTextbox = app.gameBoard.textboxList[i]
+        for i in range(len(app.gameBoard.textboxDict)):
+            currTextbox = app.gameBoard.textboxDict[i]
             if currTextbox.selected == True:
                 if key in string.ascii_letters:
                     currTextbox.addLabel(key)
