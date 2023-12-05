@@ -40,6 +40,7 @@ class Colors:
         self.dustyBlue = rgb(116, 136, 168)
         self.mossGreen = rgb(89, 125, 92)
         self.sand = rgb(247, 246, 228)
+        self.moonLight = rgb(255, 249, 199)
     
     def to_json(self):
         return {
@@ -159,8 +160,9 @@ class PlayerNotes:
         
 
 class Board:
-    def __init__(self, width, height, rows, cols):
+    def __init__(self, width, height, rows, cols, imageDict):
         self.boardLoaded = False # will not be stored in json file
+        self.imageDict = imageDict
         
         self.name = 'gameBoard'
         self.width = width  # 500
@@ -169,6 +171,7 @@ class Board:
         self.cols = cols  # 7
         self.cellBorderWidth = 1
         self.cellSize = self.width / self.cols
+        print(self.cellSize)
         self.boardLeft = 400 # was 150
         self.boardTop = 100
         self.colors = Colors('colors')
@@ -181,7 +184,7 @@ class Board:
         self.isFirstIteration = True
         # players
         self.player1 = None
-        self.AI = None
+        self.player2 = None
         # self.playerDict = dict()
         # rooms
         self.roomsDict = dict()
@@ -195,7 +198,7 @@ class Board:
         self.textboxDict = dict()
         # player notes
         self.player1Notes = None
-        self.AINotes = None
+        self.player2Notes = None
     
     def to_json(self):
         return {
@@ -218,7 +221,7 @@ class Board:
             "isFirstIteration": self.isFirstIteration,
             # players
             "player1": self.player1,
-            "AI": self.AI,
+            "player2": self.player2,
             # "playerDict": self.playerDict,
             # rooms
             "roomsDict": self.roomsDict,
@@ -232,17 +235,17 @@ class Board:
             "textboxDict": self.textboxDict,
             # player notes
             "player1Notes": self.player1Notes,
-            "AINotes": self.AINotes
+            "player2Notes": self.player2Notes
         }
         
     def __repr__(self):
-        return f"Board({self.player1}, {self.AI})"
+        return f"Board({self.player1}, {self.player2})"
     
     def __hash__(self):
         return hash(str(self))
 
     def __eq__(self, other):
-        return isinstance(other, Board) and self.player1 == other.player1 and self.AI == other.AI
+        return isinstance(other, Board) and self.player1 == other.player1 and self.player2 == other.player2
 
     def readJsonFile(self):
         # resume previous game
@@ -296,7 +299,7 @@ class Board:
         self.makingAGuess = json_object["gameBoard"]["makingAGuess"]
         
         # reassign properties to player
-        for playerName in [self.player1, self.AI]:
+        for playerName in [self.player1, self.player2]:
             # playerName is app object, jsonPlayer is json file object
             jsonPlayer = json_object[playerName.name]
             playerName.isCurrPlayer = jsonPlayer["isCurrPlayer"]
@@ -339,7 +342,7 @@ class Board:
             
         # create new instances of playerNOtes
         self.player1Notes = PlayerNotes(self.player1, self.boardLeft - 350, self.boardTop, 250, self.height, self.colors)
-        self.AINotes = PlayerNotes(self.AI, self.boardLeft - 350, self.boardTop, 250, self.height, self.colors)
+        self.player2Notes = PlayerNotes(self.player2, self.boardLeft - 350, self.boardTop, 250, self.height, self.colors)
 
     
     def drawBoard(self):
@@ -381,9 +384,10 @@ class Board:
                 "yellow",
                 self.weaponsDict,
                 self.textboxDict,
+                self.imageDict
             )
-            self.AI = Player(
-                "AI",
+            self.player2 = Player(
+                "player2",
                 self.cellDict,
                 self.roomsDict,
                 20,
@@ -392,15 +396,15 @@ class Board:
                 "purple",
                 self.weaponsDict,
                 self.textboxDict,
+                self.imageDict
             )
 
-            # self.playerDict["player1"] = self.player1
-            # self.playerDict["AI"] = self.AI
+
             self.currTurn = self.player1
             self.player1.isCurrPlayer = True
             # initiates player notes
             self.player1Notes = PlayerNotes(self.player1, self.boardLeft - 350, self.boardTop, 250, self.height, self.colors)
-            self.AINotes = PlayerNotes(self.AI, self.boardLeft - 350, self.boardTop, 250, self.height, self.colors)
+            self.player2Notes = PlayerNotes(self.player2, self.boardLeft - 350, self.boardTop, 250, self.height, self.colors)
             
             self.boardLoaded = True
 
@@ -413,8 +417,8 @@ class Board:
                 self.cellDict[cellNum].drawCellType()
             # draw Player1
             self.player1.drawPlayer()
-            # draw AI
-            self.AI.drawPlayer()
+            # draw player2
+            self.player2.drawPlayer()
             self.drawLowerBtns()
             self.player1Notes.drawNotes()
 
@@ -501,18 +505,18 @@ class Board:
         parlor = Rooms("Parlor", 4, "Mrs. Peacock", parlorCharSecret, parlorRoomSecret)
         self.weaponsDict[4] = ["Mrs. Peacock", "Hammer", False]
         self.roomsDict[4] = parlor
-        # Balcony
-        balconyCharSecret = (
+        # Ballroom
+        ballroomCharSecret = (
             "Miss Scarlet is a movie actress whose career is crumbling.\n"
             + "She also lost a lot of money due to gambling.\n"
             + "Hmmm, life must be hard for her right now."
         )
-        balconyRoomSecret = "Mustard was not in the Balcony at 9pm."
-        balcony = Rooms(
-            "Balcony", 5, "Miss Scarlet", balconyCharSecret, balconyRoomSecret
+        ballroomRoomSecret = "Mustard was not in the Ballroom at 9pm."
+        ballroom = Rooms(
+            "Ballroom", 5, "Miss Scarlet", ballroomCharSecret, ballroomRoomSecret
         )
         self.weaponsDict[5] = ["Miss Scarlet", "Poison", False]
-        self.roomsDict[5] = balcony
+        self.roomsDict[5] = ballroom
 
     def drawBoardBorder(self):
         drawRect(
@@ -643,6 +647,7 @@ class Board:
             self.boardLeft + 60 + 180,
             self.boardTop + self.height + 40,
             size=16,
+            fill='white'
         )
         drawRect(
             self.boardLeft + 60 + 400 - 100,
@@ -944,6 +949,7 @@ class Textbox:
             self.label,
             self.rectLeft + (0.5 * self.rectW),
             self.rectTop + (0.5 * self.rectH),
+            fill='white'
         )
 
     def addLabel(self, key):
@@ -965,12 +971,14 @@ class Player:
         playerColor,
         weaponsDict,
         textboxDict,
+        imageDict
     ):
         self.name = name
         self.isCurrPlayer = False
         self.cellDict = cellDict
         self.roomsDict = roomsDict
         self.weaponsDict = weaponsDict
+        self.imageDict = imageDict
         self.currCellNum = 0
         self.currCell = cellDict[self.currCellNum]
         self.dX = xPos
@@ -1131,25 +1139,29 @@ class Player:
                 self.boardLeft + 35,
                 self.boardTop - 70,
                 size=20,
+                fill='white'
             )
             drawLabel(
                 f"{self.name} money: ${self.money}",
                 self.boardLeft + 35,
                 self.boardTop - 40,
                 size=20,
+                fill='white'
             )
-        elif self.name == "AI":
+        elif self.name == "player2":
             drawLabel(
                 f"{self.name} lives: {self.lives}",
                 self.boardLeft + self.boardSize - 35,
                 self.boardTop - 70,
                 size=20,
+                fill='white'
             )
             drawLabel(
                 f"{self.name} money: ${self.money}",
                 self.boardLeft + self.boardSize - 35,
                 self.boardTop - 40,
                 size=20,
+                fill='white'
             )
 
     def drawInnerBoard(self):
@@ -1189,6 +1201,7 @@ class Player:
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + (self.innerSize / 2) - 100,
             size=20,
+            fill='white'
         )
         # yes label
         drawRect(self.yesBtnLeft, self.yesBtnTop, self.btnW, self.btnH, fill="yellow")
@@ -1202,11 +1215,12 @@ class Player:
         self.roomBtnTop = self.innerTop + 60
         self.roomBtnCol2Left = self.noBtnLeft
         # draws a white inner board over the sand inner board
-        self.drawWhiteInnerBoard()
+        # self.drawWhiteInnerBoard()
         drawLabel(
             "Please select a room to investigate",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + (self.innerSize / 2) - 100,
+            fill='white'
         )
 
         dustyBlue = rgb(116, 136, 168)
@@ -1228,12 +1242,14 @@ class Player:
                 drawLabel(f"{self.roomsDict[i].id}. {self.roomsDict[i].name}", cx, cy)
 
     def drawSelectedRoom(self):
-        self.drawWhiteInnerBoard()
+        # self.drawWhiteInnerBoard()
+        drawImage(self.imageDict[self.selectedRoom.name], 650, 350, align="center", width=self.innerSize, height=self.innerSize)
         drawLabel(
             f"You have entered the {self.selectedRoom.name}",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 50,
             size=20,
+            fill='white'
         )
         if self.selectedRoom.characterSecretOwner == None:
             secretDisplayed = "characterSecret"
@@ -1265,11 +1281,13 @@ class Player:
 
     def drawSecret(self, secretType, secretString):
         centerX = self.innerLeft + (self.innerSize / 2)
-        drawLabel(f"The {secretType} is:", centerX, self.innerTop + 110)
+        drawRect(centerX - 100, self.innerTop + 95, 200, 30, fill='black', opacity= 80)
+        drawLabel(f"The {secretType} is:", centerX, self.innerTop + 110, fill='white')
         currY = self.innerTop + 130
         for line in secretString.splitlines():
             currY += 20
-            drawLabel(line, centerX, currY)
+            drawRect(centerX - 170, currY-15, 340, 30, fill='black', opacity= 80)
+            drawLabel(line, centerX, currY, fill='white')
 
         # OK button
         dustyBlue = rgb(116, 136, 168)
@@ -1279,16 +1297,25 @@ class Player:
 
     def drawRoomNotAvailable(self):
         drawLabel(
-            f"Sorry, the secrets in {self.selectedRoom.name} have been owned.",
+            f"Sorry, the secrets in {self.selectedRoom.name}",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 50,
             size=16,
+            fill='white'
+        )
+        drawLabel(
+            f"have been owned.",
+            self.innerLeft + (self.innerSize / 2),
+            self.innerTop + 70,
+            size=16,
+            fill='white'
         )
         drawLabel(
             f"Please select a different room.",
             self.innerLeft + (self.innerSize / 2),
-            self.innerTop + 75,
+            self.innerTop + 95,
             size=16,
+            fill='white'
         )
 
         drawRect(
@@ -1317,12 +1344,14 @@ class Player:
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + (self.innerSize / 2) - 130,
             size=16,
+            fill='white'
         )
         drawLabel(
             "You'll need to pay a rent.",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + (self.innerSize / 2) - 100,
             size=16,
+            fill='white'
         )
         # OK label
         drawRect(
@@ -1336,12 +1365,13 @@ class Player:
         self.rentOKRect = (self.yesBtnLeft, self.yesBtnTop, self.btnW, self.btnH)
 
     def drawRentSecret(self):
-        self.drawWhiteInnerBoard()
+        # self.drawWhiteInnerBoard()
         drawLabel(
             f"You have entered the {self.currCell.secretRoom}",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 50,
             size=20,
+            fill='white'
         )
         self.drawSecret(self.currCell.secretType, self.currCell.secret)
 
@@ -1383,13 +1413,14 @@ class Player:
                 break
 
     def drawWeaponSecret(self):
-        self.drawInnerBoard()
+        # self.drawInnerBoard()
         centerX = self.innerLeft + (self.innerSize / 2)
         drawLabel(
             f"{self.currCell.weaponChar}'s weapon is {self.currCell.weapon}.",
             centerX,
             self.innerTop + 110,
             size=20,
+            fill='white'
         )
         btnX = centerX - 50
         btnY = self.innerTop + 110 + 100
@@ -1408,31 +1439,34 @@ class Player:
         self.shownWeaponSecret = True
 
     def drawOopsInstructions(self):
-        self.drawWhiteInnerBoard()
+        # self.drawWhiteInnerBoard()
         drawLabel(
             f"The murderer has noticed you:",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 50,
             size=20,
+            fill='white'
         )
         drawLabel(
             f"Beat him in a game of rock, paper, ",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 80,
             size=16,
+            fill='white'
         )
         drawLabel(
             f"and scissors to win investigation funds!",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 100,
             size=16,
+            fill='white'
         )
         drawLabel(
             f"Click on 'rock', 'paper', or 'scissors'",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 130,
             size=16,
-            fill=self.colors.mossGreen,
+            fill=self.colors.moonLight
         )
 
         centerX = self.innerLeft + (self.innerSize / 2)
@@ -1450,7 +1484,7 @@ class Player:
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 50,
             size=30,
-            fill=self.colors.mossGreen,
+            fill=self.colors.moonLight
         )
         if self.currCell.currPlayerChoice == None:
             drawLabel(
@@ -1459,6 +1493,7 @@ class Player:
                 self.innerTop + 100,
                 size=18,
                 align="left",
+                fill='white'
             )
             # draw the rock, paper, scissors btn
             for i in range(len(self.currCell.rockPaperScissors)):
@@ -1473,6 +1508,7 @@ class Player:
                 self.innerTop + 200,
                 size=18,
                 align="left",
+                fill='white'
             )
 
             if self.currCell.tied == True:
@@ -1481,14 +1517,14 @@ class Player:
                     self.innerLeft + (self.innerSize / 2),
                     self.innerTop + 260,
                     size=16,
-                    fill=self.colors.mossGreen,
+                    fill=self.colors.moonLight,
                 )
                 drawLabel(
                     f"round of rock, paper, and scissors.",
                     self.innerLeft + (self.innerSize / 2),
                     self.innerTop + 280,
                     size=16,
-                    fill=self.colors.mossGreen,
+                    fill=self.colors.moonLight,
                 )
         else:  # after the player makes a choice
             drawLabel(
@@ -1497,6 +1533,7 @@ class Player:
                 self.innerTop + 100,
                 size=18,
                 align="left",
+                fill='white'
             )
 
             drawLabel(
@@ -1505,6 +1542,7 @@ class Player:
                 self.innerTop + 130,
                 size=18,
                 align="left",
+                fill='white'
             )
 
             # checks the results for rock, paper, scissors
@@ -1521,14 +1559,14 @@ class Player:
                     self.innerLeft + (self.innerSize / 2),
                     self.innerTop + 210,
                     size=16,
-                    fill=self.colors.mossGreen,
+                    fill=self.colors.moonLight,
                 )
                 drawLabel(
                     f"You'll get $100 investigation fund.",
                     self.innerLeft + (self.innerSize / 2),
                     self.innerTop + 230,
                     size=16,
-                    fill=self.colors.mossGreen,
+                    fill=self.colors.moonLight,
                 )
             else:
                 print(f"{self.name} lost.")
@@ -1539,14 +1577,14 @@ class Player:
                     self.innerLeft + (self.innerSize / 2),
                     self.innerTop + 210,
                     size=16,
-                    fill=self.colors.mossGreen,
+                    fill=self.colors.moonLight,
                 )
                 drawLabel(
                     f"You'll be deducted $200 investigation fund.",
                     self.innerLeft + (self.innerSize / 2),
                     self.innerTop + 230,
                     size=16,
-                    fill=self.colors.mossGreen,
+                    fill=self.colors.moonLight,
                 )
             if result == True or result == False:
                 centerX = self.innerLeft + (self.innerSize / 2)
@@ -1580,7 +1618,7 @@ class Player:
             return False
 
     def drawMakeAGuessScreen(self):
-        self.drawWhiteInnerBoard()
+        # self.drawWhiteInnerBoard()
         charTextbox = self.textboxDict[0]
         weaponTextbox = self.textboxDict[1]
         roomTextbox = self.textboxDict[2]
@@ -1590,6 +1628,7 @@ class Player:
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 50,
             size=20,
+            fill='white'
         )
         drawLabel(
             f"Character: ",
@@ -1597,6 +1636,7 @@ class Player:
             self.innerTop + 100,
             size=20,
             align="left",
+            fill='white'
         )
         charTextbox.drawTextbox()
 
@@ -1606,6 +1646,7 @@ class Player:
             self.innerTop + 160,
             size=20,
             align="left",
+            fill='white'
         )
         weaponTextbox.drawTextbox()
 
@@ -1615,6 +1656,7 @@ class Player:
             self.innerTop + 220,
             size=20,
             align="left",
+            fill='white'
         )
         roomTextbox.drawTextbox()
 
@@ -1640,38 +1682,41 @@ class Player:
         )
         
     def drawMadeAWrongGuess(self):
-        self.drawWhiteInnerBoard()
+        # self.drawWhiteInnerBoard()
         drawLabel(
             f"Sorry this is not the correct answer.",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 50,
             size=20,
+            fill='white'
         )
         drawLabel(
             f"The murderer has fooled you.",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 100,
             size=18,
+            fill='white'
         )
         drawLabel(
             f"You are going to lose a life.",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 130,
             size=18,
+            fill='white'
         )
         drawLabel(
             f"Reminder: having 0 lives or 0 money",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 160,
             size=16,
-            fill=self.colors.mossGreen
+            fill=self.colors.moonLight
         )
         drawLabel(
             f"will result in you losing the game.",
             self.innerLeft + (self.innerSize / 2),
             self.innerTop + 180,
             size=16,
-            fill=self.colors.mossGreen
+            fill=self.colors.moonLight
         )
         drawRect(
             self.innerLeft + (self.innerSize / 2) - 50,
@@ -1702,7 +1747,7 @@ class Player:
                 if self.removeInnerBoard == False:
                     # change state
                     self.buyingSecret = True  # state
-                    self.drawInnerBoard()
+                    # self.drawInnerBoard()
                     self.buySecretPopup()
                 # draws the room options if clicked on 'yes'
                 if self.showRooms == True:
@@ -1726,7 +1771,7 @@ class Player:
             if self.currCell.secretOwned == True:
                 if self.currCell.secretOwner != self.name:
                     if self.removeInnerBoard == False:
-                        self.drawInnerBoard()
+                        # self.drawInnerBoard()
                         self.rentSecretPopup()  # would create the rentOKRect
                     if (
                         self.rentingSecret == True
@@ -1779,7 +1824,7 @@ def onAppStart(app):
     app.paused = True
     app.stepsPerSecond = 1
     app.imageDict = loadImages() # this returns the imageDict
-    app.instructions = "You are invited to a wedding banquet on a lonely island,\n but on the day of the wedding, the groom \n died at 9PM. Everyone is grieving. \nYou are a detective that vows to find out \nwhat has happened prior to the wedding day."
+    app.instructions = "You are invited to a wedding banquet on a lonely island,\n but on the day of the wedding, the groom \n died at 9PM. Everyone is grieving. \nYou are a detective that vows to find out \nwho, using what weapon, at which room, \nkilled the groom."
     app.colors = Colors('colors')
     app.instructionScreen = True
     app.resumePrevGame = False # not included in json file
@@ -1790,14 +1835,14 @@ def onAppStart(app):
 def drawInstructionScreen(app):
     # draw instructions screen
     drawRect(0, 0, app.width, app.height, fill="black")
-    drawImage(app.imageDict["mansion"], app.width/2, app.height/2, align="center", width=app.width, height=app.height)
-    drawLabel("112 Murder Mystery", app.width/2, 150, fill='white', size=36)
+    drawImage(app.imageDict["beachWedding"], app.width/2, app.height/2, align="center", width=app.width, height=app.height)
+    drawLabel("Wedding Mystery", app.width/2, 150, fill='white', size=36)
     
     centerX = app.width/2
     currY = 180
     for line in app.instructions.splitlines():
-        currY += 20
-        drawLabel(line, centerX, currY, fill='white')
+        currY += 30
+        drawLabel(line, centerX, currY, fill='white', size = 16)
     
     drawRect(app.width/10 * 2.5 - 150, app.height/2 + 150 - 30, 300, 60, fill=app.colors.dustyBlue)
     drawLabel("Start New Game", app.width/10 * 2.5, app.height/2 + 150, fill='white', size=18)
@@ -1809,10 +1854,10 @@ def drawInstructionScreen(app):
 def restart(app):
     app.playerWon = False
     app.playerLost = False
-    app.gameBoard = Board(500, 500, 7, 7)
+    app.gameBoard = Board(500, 500, 7, 7, app.imageDict)
     # app.instructionScreen = False
     app.currPlayer = app.gameBoard.player1
-    app.otherPlayer = app.gameBoard.AI
+    app.otherPlayer = app.gameBoard.player2
     app.answer = Guess("Mrs Peacock", "Hammer", "Parlor", "answer")
 
 
@@ -1822,10 +1867,11 @@ def redrawAll(app):
     if app.instructionScreen == True:
         drawInstructionScreen(app)
     else:
+        drawImage(app.imageDict["oceanMoon"], app.width/2, app.height/2, align="center", width=app.width, height=app.height)
         app.gameBoard.drawBoard()
         
         # draws the make a guess screen
-        if app.gameBoard.makingAGuess == True:
+        if app.gameBoard.makingAGuess == True and app.currPlayer.wrongGuess != True:
             app.currPlayer.drawMakeAGuessScreen()
             
         # winning page
@@ -1894,7 +1940,7 @@ def saveToJson(app):
         data["appProperties"] = appPropertiesDict
         
         
-        py_objects = [app.gameBoard, app.gameBoard.player1, app.gameBoard.AI]
+        py_objects = [app.gameBoard, app.gameBoard.player1, app.gameBoard.player2]
         
         # add field
         for obj in py_objects:
@@ -1979,7 +2025,7 @@ def readJsonFile(app):
     app.gameBoard.makingAGuess = json_object["gameBoard"]["makingAGuess"]
     
     # reassign properties to player
-    for playerName in [app.gameBoard.player1, app.gameBoard.AI]:
+    for playerName in [app.gameBoard.player1, app.gameBoard.player2]:
         # playerName is app object, jsonPlayer is json file object
         jsonPlayer = json_object[playerName.name]
         playerName.isCurrPlayer = jsonPlayer["isCurrPlayer"]
@@ -2022,7 +2068,7 @@ def readJsonFile(app):
         
     # create new instances of playerNOtes
     app.gameBoard.player1Notes = PlayerNotes(app.gameBoard.player1, app.gameBoard.boardLeft - 350, app.gameBoard.boardTop, 250, app.gameBoard.height, app.gameBoard.colors)
-    app.gameBoard.AINotes = PlayerNotes(app.gameBoard.AI, app.gameBoard.boardLeft - 350, app.gameBoard.boardTop, 250, app.gameBoard.height, app.gameBoard.colors)
+    app.gameBoard.player2Notes = PlayerNotes(app.gameBoard.player2, app.gameBoard.boardLeft - 350, app.gameBoard.boardTop, 250, app.gameBoard.height, app.gameBoard.colors)
 
 
 
@@ -2087,7 +2133,7 @@ def onMousePress(app, mouseX, mouseY):
             and changePlayerRectTop <= mouseY <= changePlayerRectTop + changePlayerRectH
         ):
             if app.gameBoard.currTurn == app.gameBoard.player1:
-                app.gameBoard.currTurn = app.gameBoard.AI
+                app.gameBoard.currTurn = app.gameBoard.player2
                 app.currPlayer = app.gameBoard.currTurn
                 app.currPlayer.isCurrPlayer = True
                 app.gameBoard.otherPlayer = app.gameBoard.player1
@@ -2098,7 +2144,7 @@ def onMousePress(app, mouseX, mouseY):
                 app.gameBoard.currTurn = app.gameBoard.player1
                 app.currPlayer = app.gameBoard.currTurn
                 app.currPlayer.isCurrPlayer = True
-                app.gameBoard.otherPlayer = app.gameBoard.AI
+                app.gameBoard.otherPlayer = app.gameBoard.player2
                 app.gameBoard.otherPlayer.isCurrPlayer = False
                 # app.gameBoard.otherPlayer.resetCell = True
                 # if type(app.gameBoard.currTurn.currCell)==Oops:
@@ -2266,6 +2312,7 @@ def onMousePress(app, mouseX, mouseY):
                 ):
                     print("mousePressed. ok, display the secret")
                     app.currPlayer.rentingSecret = True
+                    app.currPlayer.removeInnerBoard = True
 
             # checks if the OK btn is clicked on the rent secret screen
             if (
@@ -2429,7 +2476,7 @@ def onStep(app):
     # declares the player that is making the moves
         if app.gameBoard.currTurn == None:
             app.currPlayer = app.gameBoard.player1
-            app.otherPlayer = app.gameBoard.AI
+            app.otherPlayer = app.gameBoard.player2
         else:
             app.currPlayer = app.gameBoard.currTurn
             app.otherPlayer = app.gameBoard.otherPlayer
