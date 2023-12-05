@@ -18,11 +18,11 @@
             "1": "1. oops",
             "2": "2. weapon",
             "3": "3. secret, owner is player1",
-            "4": "4. secret, owner is AI",
+            "4": "4. secret, owner is player1",
             "5": "5. weapon",
             "6": "6. oops",
-            "7": "7. secret, owner is None",
-            "8": "8. secret, owner is player1",
+            "7": "7. secret, owner is player1",
+            "8": "8. secret, owner is None",
             "9": "9. weapon",
             "10": "10. oops",
             "11": "11. secret, owner is None",
@@ -43,10 +43,10 @@
         "player1": "player1",
         "AI": "AI",
         "roomsDict": {
-            "0": "0. Kitchen(Mrs. White, player1, AI)",
-            "1": "1. Master Bedroom(Colonel Mustard, None, None)",
+            "0": "0. Kitchen(Mrs. White, player1, player1)",
+            "1": "1. Master Bedroom(Colonel Mustard, player1, None)",
             "2": "2. Billiard Room(Mr. Green, None, None)",
-            "3": "3. Study(Professor Plum, player1, None)",
+            "3": "3. Study(Professor Plum, None, None)",
             "4": "4. Parlor(Mrs. Peacock, None, None)",
             "5": "5. Balcony(Miss Scarlet, None, None)"
         },
@@ -54,7 +54,7 @@
             "0": [
                 "Mrs. White",
                 "Candlestick",
-                true
+                false
             ],
             "1": [
                 "Colonel Mustard",
@@ -101,11 +101,11 @@
             "1": "1. oops",
             "2": "2. weapon",
             "3": "3. secret, owner is player1",
-            "4": "4. secret, owner is AI",
+            "4": "4. secret, owner is player1",
             "5": "5. weapon",
             "6": "6. oops",
-            "7": "7. secret, owner is None",
-            "8": "8. secret, owner is player1",
+            "7": "7. secret, owner is player1",
+            "8": "8. secret, owner is None",
             "9": "9. weapon",
             "10": "10. oops",
             "11": "11. secret, owner is None",
@@ -123,10 +123,10 @@
             "23": "23. secret, owner is None"
         },
         "roomsDict": {
-            "0": "0. Kitchen(Mrs. White, player1, AI)",
-            "1": "1. Master Bedroom(Colonel Mustard, None, None)",
+            "0": "0. Kitchen(Mrs. White, player1, player1)",
+            "1": "1. Master Bedroom(Colonel Mustard, player1, None)",
             "2": "2. Billiard Room(Mr. Green, None, None)",
-            "3": "3. Study(Professor Plum, player1, None)",
+            "3": "3. Study(Professor Plum, None, None)",
             "4": "4. Parlor(Mrs. Peacock, None, None)",
             "5": "5. Balcony(Miss Scarlet, None, None)"
         },
@@ -134,7 +134,7 @@
             "0": [
                 "Mrs. White",
                 "Candlestick",
-                true
+                false
             ],
             "1": [
                 "Colonel Mustard",
@@ -162,30 +162,20 @@
                 false
             ]
         },
-        "currCellNum": 8,
-        "currCell": "8. secret, owner is player1",
+        "currCellNum": 7,
+        "currCell": "7. secret, owner is player1",
         "playerColor": "yellow",
         "lives": 3,
-        "money": 1300,
+        "money": 1200,
         "buyingSecret": false,
         "removeInnerBoard": true,
         "showRooms": false,
         "roomsDrawn": false,
         "rentingSecret": false,
         "processingRent": false,
-        "rentOKRect": [
-            590.0,
-            330.0,
-            120,
-            40
-        ],
+        "rentOKRect": null,
         "showWeaponSecret": false,
-        "weaponOKRect": [
-            600.0,
-            381.42857142857144,
-            100,
-            40
-        ],
+        "weaponOKRect": null,
         "processingWeaponSecret": false,
         "shownWeaponSecret": false,
         "showOopsInstructions": false,
@@ -193,13 +183,13 @@
         "oopsInPlay": false,
         "shownOopsInstructions": false,
         "charSecretOwned": [
-            "Plum is a professor of antiquities. He identifies \ncounterfeits and occasionally makes them, including\nhis PhD certificate. Beware, Plum knows that \nMustard knows his secret\u2026",
-            "To most people, Mrs. White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?"
+            "Mrs. White",
+            "Colonel Mustard"
         ],
-        "roomSecretOwned": [],
-        "weaponSecretOwned": [
-            "Mrs. White's weapon is Candlestick."
+        "roomSecretOwned": [
+            "Mustard was not in the kitchen at 9pm"
         ],
+        "weaponSecretOwned": [],
         "selectedRoom": null,
         "secretOKRect": [
             600.0,
@@ -223,11 +213,11 @@
             "1": "1. oops",
             "2": "2. weapon",
             "3": "3. secret, owner is player1",
-            "4": "4. secret, owner is AI",
+            "4": "4. secret, owner is player1",
             "5": "5. weapon",
             "6": "6. oops",
-            "7": "7. secret, owner is None",
-            "8": "8. secret, owner is player1",
+            "7": "7. secret, owner is player1",
+            "8": "8. secret, owner is None",
             "9": "9. weapon",
             "10": "10. oops",
             "11": "11. secret, owner is None",
@@ -245,10 +235,10 @@
             "23": "23. secret, owner is None"
         },
         "roomsDict": {
-            "0": "0. Kitchen(Mrs. White, player1, AI)",
-            "1": "1. Master Bedroom(Colonel Mustard, None, None)",
+            "0": "0. Kitchen(Mrs. White, player1, player1)",
+            "1": "1. Master Bedroom(Colonel Mustard, player1, None)",
             "2": "2. Billiard Room(Mr. Green, None, None)",
-            "3": "3. Study(Professor Plum, player1, None)",
+            "3": "3. Study(Professor Plum, None, None)",
             "4": "4. Parlor(Mrs. Peacock, None, None)",
             "5": "5. Balcony(Miss Scarlet, None, None)"
         },
@@ -256,7 +246,7 @@
             "0": [
                 "Mrs. White",
                 "Candlestick",
-                true
+                false
             ],
             "1": [
                 "Colonel Mustard",
@@ -284,11 +274,11 @@
                 false
             ]
         },
-        "currCellNum": 4,
-        "currCell": "4. secret, owner is AI",
+        "currCellNum": 0,
+        "currCell": "0. Go",
         "playerColor": "purple",
         "lives": 3,
-        "money": 1400,
+        "money": 1500,
         "buyingSecret": false,
         "removeInnerBoard": true,
         "showRooms": false,
@@ -305,17 +295,10 @@
         "oopsInPlay": false,
         "shownOopsInstructions": false,
         "charSecretOwned": [],
-        "roomSecretOwned": [
-            "Mustard was not in the kitchen at 9pm"
-        ],
+        "roomSecretOwned": [],
         "weaponSecretOwned": [],
         "selectedRoom": null,
-        "secretOKRect": [
-            600.0,
-            371.42857142857144,
-            100,
-            40
-        ],
+        "secretOKRect": null,
         "textboxDict": {
             "0": "Textbox(charTextbox, selected is False, text is )",
             "1": "Textbox(weaponTextbox, selected is False, text is )",
@@ -368,7 +351,7 @@
             "cellType": "secret",
             "price": 100,
             "secretOwned": true,
-            "secretOwner": "AI",
+            "secretOwner": "player1",
             "secretRoom": null,
             "secretType": "roomSecret",
             "secret": "Mustard was not in the kitchen at 9pm",
@@ -378,9 +361,9 @@
         "5": {
             "name": "5. weapon",
             "cellType": "weapon",
-            "weapon": "Candlestick",
-            "weaponChar": "Mrs. White",
-            "cellOccupied": true
+            "weapon": null,
+            "weaponChar": null,
+            "cellOccupied": false
         },
         "6": {
             "name": "6. oops",
@@ -399,11 +382,11 @@
             "name": "7. secret, owner is None",
             "cellType": "secret",
             "price": 100,
-            "secretOwned": false,
-            "secretOwner": null,
-            "secretRoom": null,
-            "secretType": null,
-            "secret": null,
+            "secretOwned": true,
+            "secretOwner": "player1",
+            "secretRoom": "Master Bedroom",
+            "secretType": "characterSecret",
+            "secret": "Everyone knows Colonel Mustard is a decorated war \nhero. He is also from a venerated and wealthy family.\nIronically, he wasn\u2019t actually in the battle for which \nhe was awarded his most prestigious medal.",
             "yesBuy": false,
             "yesRent": false
         },
@@ -411,11 +394,11 @@
             "name": "8. secret, owner is None",
             "cellType": "secret",
             "price": 100,
-            "secretOwned": true,
-            "secretOwner": "player1",
-            "secretRoom": "Study",
-            "secretType": "characterSecret",
-            "secret": "Plum is a professor of antiquities. He identifies \ncounterfeits and occasionally makes them, including\nhis PhD certificate. Beware, Plum knows that \nMustard knows his secret\u2026",
+            "secretOwned": false,
+            "secretOwner": null,
+            "secretRoom": null,
+            "secretType": null,
+            "secret": null,
             "yesBuy": false,
             "yesRent": false
         },
@@ -592,7 +575,7 @@
             "characterSecret": "To most people, Mrs. White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
             "roomSecret": "Mustard was not in the kitchen at 9pm",
             "characterSecretOwner": "player1",
-            "roomSecretOwner": "AI"
+            "roomSecretOwner": "player1"
         },
         "1": {
             "name": "Master Bedroom",
@@ -601,7 +584,7 @@
             "character": "Colonel Mustard",
             "characterSecret": "Everyone knows Colonel Mustard is a decorated war \nhero. He is also from a venerated and wealthy family.\nIronically, he wasn\u2019t actually in the battle for which \nhe was awarded his most prestigious medal.",
             "roomSecret": "Mustard was not in the bedroom at 9pm",
-            "characterSecretOwner": null,
+            "characterSecretOwner": "player1",
             "roomSecretOwner": null
         },
         "2": {
@@ -621,7 +604,7 @@
             "character": "Professor Plum",
             "characterSecret": "Plum is a professor of antiquities. He identifies \ncounterfeits and occasionally makes them, including\nhis PhD certificate. Beware, Plum knows that \nMustard knows his secret\u2026",
             "roomSecret": "Mustard was not in the study room at 9pm",
-            "characterSecretOwner": "player1",
+            "characterSecretOwner": null,
             "roomSecretOwner": null
         },
         "4": {

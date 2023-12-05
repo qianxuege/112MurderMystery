@@ -1249,7 +1249,7 @@ class Player:
         if self.buyingSecret == False:
             if secretDisplayed == "characterSecret":
                 self.charSecretOwned.add(
-                    self.selectedRoom.characterSecret
+                    self.selectedRoom.character
                 )  # updates list of player secrets
                 self.selectedRoom.characterSecretOwner = self.name
                 self.currCell.secretRoom = self.selectedRoom.name
