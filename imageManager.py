@@ -16,7 +16,8 @@ def loadImages():
         
         # https://playgroundai.com/post/stylized-sunset-skybox-unity-unreal-engine-clouds-4k-hq-clp4hq71o0558s601ilvl8ds8
         # https://playgroundai.com/post/clmef9sb0060us6018fq1ypct
-        "mansion": "img/lonelyMansionOnSea.png",
+        # https://playgroundai.com/post/clo91s44d0l0ss601hrdhqc18
+        "lonelyMansionOnSea": "img/lonelyMansionOnSea.png",
         "sunsetSea": "img/sunsetSea.png", 
         "oceanMoon": "img/oceanMoon.png",
         "mansionFloorPlan": "img/mansionFloorPlan.png",
@@ -26,7 +27,13 @@ def loadImages():
         "Master Bedroom": "img/masterBedroom.png",
         "Parlor": "img/parlor.png",
         "Study": "img/study.png",
-        "beachWedding": "img/beachWedding.png"
+        "beachWedding": "img/beachWedding.png",
+        "dice1": "img/dice1.png",
+        "dice2": "img/dice2.png",
+        "dice3": "img/dice3.png",
+        "dice4": "img/dice4.png",
+        "dice5": "img/dice5.png",
+        "dice6": "img/dice6.png",
     }
     
     for imgName in imageDict:
