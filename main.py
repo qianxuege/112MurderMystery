@@ -665,8 +665,6 @@ class Board:
             size=16,
         )
 
-        # self.boardLeft + self.width - 60, self.boardTop + self.height + 40
-
 
 class Cell:
     cellDict = dict()
@@ -688,11 +686,6 @@ class Cell:
             "cellType": self.cellType,
             "originalCellId": self.originalCellId,
             "cellDictId": self.cellDictId,
-            # "cellLeft": self.cellLeft,
-            # "cellTop": self.cellTop,
-            # "cellSize": self.cellSize,
-            # "cx": self.cx,
-            # "cy": self.cy
         }
 
     def __repr__(self):
@@ -751,13 +744,6 @@ class Oops(Cell):
         return {
             "name": self.name,
             "cellType": self.cellType,
-            # "originalCellId": self.originalCellId,
-            # "cellDictId": self.cellDictId,
-            # "cellLeft": self.cellLeft,
-            # "cellTop": self.cellTop,
-            # "cellSize": self.cellSize,
-            # "cx": self.cx,
-            # "cy": self.cy,
             "rockPaperScissors": self.rockPaperScissors,
             "currPlayerChoice": self.currPlayerChoice,
             "murdererChoice": self.murdererChoice,
@@ -783,13 +769,6 @@ class Weapon(Cell):
         return {
             "name": self.name,
             "cellType": self.cellType,
-            # "originalCellId": self.originalCellId,
-            # "cellDictId": self.cellDictId,
-            # "cellLeft": self.cellLeft,
-            # "cellTop": self.cellTop,
-            # "cellSize": self.cellSize,
-            # "cx": self.cx,
-            # "cy": self.cy,
             "weapon": self.weapon,
             "weaponChar": self.weaponChar,
             "cellOccupied": self.cellOccupied
@@ -816,13 +795,6 @@ class Secret(Cell):
             "name": self.name,
             "cellType": self.cellType,
             "secretChar": self.secretChar,
-            # "originalCellId": self.originalCellId,
-            # "cellDictId": self.cellDictId,
-            # "cellLeft": self.cellLeft,
-            # "cellTop": self.cellTop,
-            # "cellSize": self.cellSize,
-            # "cx": self.cx,
-            # "cy": self.cy,
             "price": self.price,
             "secretOwned": self.secretOwned,
             "secretOwner": self.secretOwner,
@@ -834,7 +806,7 @@ class Secret(Cell):
         }
 
     def __repr__(self):
-        return f"{self.cellDictId}. {self.cellType}, owner is {self.secretOwner}"
+        return f"{self.cellDictId}. {self.cellType}, owner is {self.secretOwner}, secretRoom is {self.secretRoom}, secret is {self.secret}"
 
     def drawCellType(self):
         # print the labels (cellType) on the cell
@@ -1278,10 +1250,12 @@ class Player:
             elif secretDisplayed == "roomSecret":
                 self.roomSecretOwned.add(self.selectedRoom.roomSecret)
                 self.selectedRoom.roomSecretOwner = self.name
+                self.currCell.secretRoom = self.selectedRoom.name
                 self.currCell.secretType = "roomSecret"
+                self.currCell.secretChar = self.selectedRoom.character
                 self.currCell.secret = self.selectedRoom.roomSecret
             self.yesBuySecret()
-            print(self.currCell)
+            # print(self.currCell)
 
     def drawSecret(self, secretType, secretString):
         centerX = self.innerLeft + (self.innerSize / 2)
@@ -1369,7 +1343,6 @@ class Player:
         self.rentOKRect = (self.yesBtnLeft, self.yesBtnTop, self.btnW, self.btnH)
 
     def drawRentSecret(self):
-        print(self.currCell.secretRoom)
         drawImage(self.imageDict[self.currCell.secretRoom], 650, 350, align="center", width=self.innerSize, height=self.innerSize)
         drawLabel(
             f"You have entered the {self.currCell.secretRoom}",

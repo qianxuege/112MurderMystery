@@ -21,8 +21,8 @@
             "4": "4. secret, owner is None",
             "5": "5. weapon",
             "6": "6. oops",
-            "7": "7. secret, owner is player1",
-            "8": "8. secret, owner is None",
+            "7": "7. secret, owner is player2",
+            "8": "8. secret, owner is player2",
             "9": "9. weapon",
             "10": "10. oops",
             "11": "11. secret, owner is None",
@@ -43,18 +43,18 @@
         "player1": "player1",
         "player2": "player2",
         "roomsDict": {
-            "0": "0. Kitchen(Mrs. White, None, None)",
+            "0": "0. Kitchen(Mrs. White, player2, player2)",
             "1": "1. Master Bedroom(Colonel Mustard, None, None)",
             "2": "2. Billiard Room(Mr. Green, None, None)",
             "3": "3. Study(Professor Plum, None, None)",
             "4": "4. Parlor(Mrs. Peacock, None, None)",
-            "5": "5. Ballroom(Miss Scarlet, player1, None)"
+            "5": "5. Ballroom(Miss Scarlet, None, None)"
         },
         "weaponsDict": {
             "0": [
                 "Mrs. White",
                 "Candlestick",
-                false
+                true
             ],
             "1": [
                 "Colonel Mustard",
@@ -83,11 +83,11 @@
             ]
         },
         "currTurn": "player1",
-        "otherPlayer": null,
-        "makingAGuess": true,
+        "otherPlayer": "player2",
+        "makingAGuess": false,
         "textboxDict": {
-            "0": "Textbox(charTextbox, selected is False, text is mrs peacock)",
-            "1": "Textbox(weaponTextbox, selected is True, text is hammer)",
+            "0": "Textbox(charTextbox, selected is False, text is )",
+            "1": "Textbox(weaponTextbox, selected is False, text is )",
             "2": "Textbox(roomTextbox, selected is False, text is )"
         },
         "player1Notes": "Player notes of player1",
@@ -104,8 +104,8 @@
             "4": "4. secret, owner is None",
             "5": "5. weapon",
             "6": "6. oops",
-            "7": "7. secret, owner is player1",
-            "8": "8. secret, owner is None",
+            "7": "7. secret, owner is player2",
+            "8": "8. secret, owner is player2",
             "9": "9. weapon",
             "10": "10. oops",
             "11": "11. secret, owner is None",
@@ -123,18 +123,18 @@
             "23": "23. secret, owner is None"
         },
         "roomsDict": {
-            "0": "0. Kitchen(Mrs. White, None, None)",
+            "0": "0. Kitchen(Mrs. White, player2, player2)",
             "1": "1. Master Bedroom(Colonel Mustard, None, None)",
             "2": "2. Billiard Room(Mr. Green, None, None)",
             "3": "3. Study(Professor Plum, None, None)",
             "4": "4. Parlor(Mrs. Peacock, None, None)",
-            "5": "5. Ballroom(Miss Scarlet, player1, None)"
+            "5": "5. Ballroom(Miss Scarlet, None, None)"
         },
         "weaponsDict": {
             "0": [
                 "Mrs. White",
                 "Candlestick",
-                false
+                true
             ],
             "1": [
                 "Colonel Mustard",
@@ -162,49 +162,49 @@
                 false
             ]
         },
-        "currCellNum": 7,
-        "currCell": "7. secret, owner is player1",
+        "currCellNum": 12,
+        "currCell": "12. secret, owner is None",
         "playerColor": "yellow",
         "lives": 3,
         "money": 1500,
-        "buyingSecret": false,
-        "removeInnerBoard": true,
+        "buyingSecret": true,
+        "removeInnerBoard": false,
         "showRooms": true,
         "roomsDrawn": false,
         "rentingSecret": false,
         "processingRent": false,
-        "rentOKRect": null,
+        "rentOKRect": [
+            590.0,
+            330.0,
+            120,
+            40
+        ],
         "showWeaponSecret": false,
-        "weaponOKRect": null,
+        "weaponOKRect": [
+            600.0,
+            381.42857142857144,
+            100,
+            40
+        ],
         "processingWeaponSecret": false,
         "shownWeaponSecret": false,
         "showOopsInstructions": false,
         "oopsInstructionsRect": null,
         "oopsInPlay": false,
         "shownOopsInstructions": false,
-        "charSecretOwned": [
-            "Miss Scarlet"
-        ],
+        "charSecretOwned": [],
         "roomSecretOwned": [],
-        "weaponSecretOwned": [],
-        "selectedRoom": null,
-        "secretOKRect": [
-            600.0,
-            411.42857142857144,
-            100,
-            40
+        "weaponSecretOwned": [
+            "Mrs. White's weapon is Candlestick."
         ],
+        "selectedRoom": null,
+        "secretOKRect": null,
         "textboxDict": {
-            "0": "Textbox(charTextbox, selected is False, text is mrs peacock)",
-            "1": "Textbox(weaponTextbox, selected is True, text is hammer)",
+            "0": "Textbox(charTextbox, selected is False, text is )",
+            "1": "Textbox(weaponTextbox, selected is False, text is )",
             "2": "Textbox(roomTextbox, selected is False, text is )"
         },
-        "checkGuessRect": [
-            600.0,
-            431.42857142857144,
-            100,
-            40
-        ],
+        "checkGuessRect": null,
         "wrongGuess": false
     },
     "AI": {
@@ -365,9 +365,9 @@
         "5": {
             "name": "5. weapon",
             "cellType": "weapon",
-            "weapon": null,
-            "weaponChar": null,
-            "cellOccupied": false
+            "weapon": "Candlestick",
+            "weaponChar": "Mrs. White",
+            "cellOccupied": true
         },
         "6": {
             "name": "6. oops",
@@ -385,13 +385,13 @@
         "7": {
             "name": "7. secret, owner is None",
             "cellType": "secret",
-            "secretChar": "Miss Scarlet",
+            "secretChar": "Mrs. White",
             "price": 100,
             "secretOwned": true,
-            "secretOwner": "player1",
-            "secretRoom": "Ballroom",
+            "secretOwner": "player2",
+            "secretRoom": "Kitchen",
             "secretType": "characterSecret",
-            "secret": "Miss Scarlet is a movie actress whose career is crumbling.\nShe also lost a lot of money due to gambling.\nHmmm, life must be hard for her right now.",
+            "secret": "To most people, Mrs. White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
             "yesBuy": false,
             "yesRent": false
         },
@@ -400,11 +400,11 @@
             "cellType": "secret",
             "secretChar": null,
             "price": 100,
-            "secretOwned": false,
-            "secretOwner": null,
+            "secretOwned": true,
+            "secretOwner": "player2",
             "secretRoom": null,
-            "secretType": null,
-            "secret": null,
+            "secretType": "roomSecret",
+            "secret": "Mustard was not in the kitchen at 9pm",
             "yesBuy": false,
             "yesRent": false
         },
@@ -588,8 +588,8 @@
             "character": "Mrs. White",
             "characterSecret": "To most people, Mrs. White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
             "roomSecret": "Mustard was not in the kitchen at 9pm",
-            "characterSecretOwner": null,
-            "roomSecretOwner": null
+            "characterSecretOwner": "player2",
+            "roomSecretOwner": "player2"
         },
         "1": {
             "name": "Master Bedroom",
@@ -638,7 +638,7 @@
             "character": "Miss Scarlet",
             "characterSecret": "Miss Scarlet is a movie actress whose career is crumbling.\nShe also lost a lot of money due to gambling.\nHmmm, life must be hard for her right now.",
             "roomSecret": "Mustard was not in the Ballroom at 9pm.",
-            "characterSecretOwner": "player1",
+            "characterSecretOwner": null,
             "roomSecretOwner": null
         }
     },
@@ -652,7 +652,7 @@
             "fill": "rgb(89, 125, 92)",
             "dictKey": 0,
             "selected": false,
-            "label": "mrs peacock"
+            "label": ""
         },
         "1": {
             "name": "weaponTextbox",
@@ -662,8 +662,8 @@
             "rectH": 30,
             "fill": "rgb(89, 125, 92)",
             "dictKey": 1,
-            "selected": true,
-            "label": "hammer"
+            "selected": false,
+            "label": ""
         },
         "2": {
             "name": "roomTextbox",
@@ -688,7 +688,7 @@
         "gameboard": "Board(player1, player2)",
         "instructionScreen": false,
         "currPlayer": "player1",
-        "otherPlayer": null,
+        "otherPlayer": "player2",
         "answer": "Mrs Peacock , using Hammer , killed Colonel Mustard in the Parlor ."
     },
     "player2": {
@@ -702,8 +702,8 @@
             "4": "4. secret, owner is None",
             "5": "5. weapon",
             "6": "6. oops",
-            "7": "7. secret, owner is player1",
-            "8": "8. secret, owner is None",
+            "7": "7. secret, owner is player2",
+            "8": "8. secret, owner is player2",
             "9": "9. weapon",
             "10": "10. oops",
             "11": "11. secret, owner is None",
@@ -721,18 +721,18 @@
             "23": "23. secret, owner is None"
         },
         "roomsDict": {
-            "0": "0. Kitchen(Mrs. White, None, None)",
+            "0": "0. Kitchen(Mrs. White, player2, player2)",
             "1": "1. Master Bedroom(Colonel Mustard, None, None)",
             "2": "2. Billiard Room(Mr. Green, None, None)",
             "3": "3. Study(Professor Plum, None, None)",
             "4": "4. Parlor(Mrs. Peacock, None, None)",
-            "5": "5. Ballroom(Miss Scarlet, player1, None)"
+            "5": "5. Ballroom(Miss Scarlet, None, None)"
         },
         "weaponsDict": {
             "0": [
                 "Mrs. White",
                 "Candlestick",
-                false
+                true
             ],
             "1": [
                 "Colonel Mustard",
@@ -760,34 +760,50 @@
                 false
             ]
         },
-        "currCellNum": 1,
-        "currCell": "1. oops",
+        "currCellNum": 8,
+        "currCell": "8. secret, owner is player2",
         "playerColor": "purple",
         "lives": 3,
         "money": 1300,
         "buyingSecret": false,
-        "removeInnerBoard": false,
+        "removeInnerBoard": true,
         "showRooms": false,
         "roomsDrawn": false,
         "rentingSecret": false,
         "processingRent": false,
         "rentOKRect": null,
         "showWeaponSecret": false,
-        "weaponOKRect": null,
+        "weaponOKRect": [
+            600.0,
+            381.42857142857144,
+            100,
+            40
+        ],
         "processingWeaponSecret": false,
         "shownWeaponSecret": false,
         "showOopsInstructions": false,
         "oopsInstructionsRect": null,
         "oopsInPlay": false,
-        "shownOopsInstructions": true,
-        "charSecretOwned": [],
-        "roomSecretOwned": [],
-        "weaponSecretOwned": [],
+        "shownOopsInstructions": false,
+        "charSecretOwned": [
+            "Mrs. White"
+        ],
+        "roomSecretOwned": [
+            "Mustard was not in the kitchen at 9pm"
+        ],
+        "weaponSecretOwned": [
+            "Mrs. White's weapon is Candlestick."
+        ],
         "selectedRoom": null,
-        "secretOKRect": null,
+        "secretOKRect": [
+            600.0,
+            371.42857142857144,
+            100,
+            40
+        ],
         "textboxDict": {
-            "0": "Textbox(charTextbox, selected is False, text is mrs peacock)",
-            "1": "Textbox(weaponTextbox, selected is True, text is hammer)",
+            "0": "Textbox(charTextbox, selected is False, text is )",
+            "1": "Textbox(weaponTextbox, selected is False, text is )",
             "2": "Textbox(roomTextbox, selected is False, text is )"
         },
         "checkGuessRect": null,
