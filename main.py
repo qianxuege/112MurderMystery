@@ -103,11 +103,6 @@ class PlayerNotes:
     def to_json(self):
         return {
             "currPlayer": self.currPlayer,
-            # "notesBoardLeft": self.notesBoardLeft,
-            # "notesBoardTop": self.notesBoardTop,
-            # "notesBoardW": self.notesBoardW,
-            # "notesBoardH": self.notesBoardH,
-            # "colors": self.colors,
             "name": self.name
         }
     def __hash__(self):
@@ -188,7 +183,6 @@ class Board:
         # players
         self.player1 = None
         self.player2 = None
-        # self.playerDict = dict()
         # rooms
         self.roomsDict = dict()
         # weapons
@@ -225,7 +219,6 @@ class Board:
             # players
             "player1": self.player1,
             "player2": self.player2,
-            # "playerDict": self.playerDict,
             # rooms
             "roomsDict": self.roomsDict,
             # weapons
@@ -259,7 +252,7 @@ class Board:
     
         # update cellDict
         for cellNum in json_object["cellDict"]:
-            # for propertyName in json_object["cellDict"][cellNum]:
+            # pseudo code: for propertyName in json_object["cellDict"][cellNum]:
                 # propertyNameStr = propertyName
             gameBoardCell = self.cellDict[int(cellNum)]
             jsonCell = json_object["cellDict"][cellNum]
@@ -568,7 +561,6 @@ class Board:
                 originalCellId, "secret", cellLeft, cellTop, cellSize, 100
             )
             self.cellDict[originalCellId] = cellName
-            # self.originalCellId.append(cellName)
         cellName.drawCell()
         cellName.drawCellType()
 
@@ -603,7 +595,6 @@ class Board:
             cellDict[i].cellDictId = i
 
         self.cellDict = cellDict
-        # print(self.cellDict)
 
     def getCellLeftTop(self, row, col):
         cellSize = self.getCellSize()
@@ -901,7 +892,6 @@ class Textbox:
 
     def reset(self):
         self.selected = False
-        # self.addingKey = False
         self.label = ""
 
     def drawTextbox(self):
@@ -1023,17 +1013,7 @@ class Player:
             "weaponsDict": self.weaponsDict,
             "currCellNum": self.currCellNum,
             "currCell": self.currCell,
-            # "dX": self.dX,
-            # "cx": self.cx,
-            # "cy": self.cy,
-            # "innerLeft": self.innerLeft,
-            # "innerTop": self.innerTop,
-            # "innerSize": self.innerSize,
-            # "boardLeft": self.boardLeft,
-            # "boardTop": self.boardTop,
-            # "boardSize": self.boardSize,
             "playerColor": self.playerColor,
-            # "colors": self.colors,
             # upper labels
             "lives": self.lives,
             "money": self.money,
@@ -1062,18 +1042,6 @@ class Player:
             "weaponSecretOwned": self.weaponSecretOwned,
             "selectedRoom": self.selectedRoom,
             "secretOKRect": self.secretOKRect,
-            # buttons on board
-            # "yesBtnLeft": self.yesBtnLeft,
-            # "yesBtnTop": self.yesBtnTop,
-            # "noBtnLeft": self.noBtnLeft,
-            # "noBtnTop": self.noBtnTop,
-            # "btnW": self.btnW,
-            # "btnH": self.btnH,
-            # "roomBtnCol1Left": self.roomBtnCol1Left,
-            # "roomBtnCol2Left": self.roomBtnCol2Left,
-            # "roomBtnTop": self.roomBtnTop,
-            # "roomBtnH": self.roomBtnH,
-            # "roomBtnW": self.roomBtnW,
             # check if guessed right
             "textboxDict": self.textboxDict,
             "checkGuessRect": self.checkGuessRect,
@@ -1190,7 +1158,6 @@ class Player:
         self.roomBtnTop = self.innerTop + 60
         self.roomBtnCol2Left = self.noBtnLeft
         # draws a white inner board over the sand inner board
-        # self.drawWhiteInnerBoard()
         drawLabel(
             "Please select a room to investigate",
             self.innerLeft + (self.innerSize / 2),
@@ -1217,7 +1184,6 @@ class Player:
                 drawLabel(f"{self.roomsDict[i].id}. {self.roomsDict[i].name}", cx, cy)
 
     def drawSelectedRoom(self):
-        # self.drawWhiteInnerBoard()
         drawImage(self.imageDict[self.selectedRoom.name], 650, 350, align="center", width=self.innerSize, height=self.innerSize)
         drawLabel(
             f"You have entered the {self.selectedRoom.name}",
@@ -1255,7 +1221,6 @@ class Player:
                 self.currCell.secretChar = self.selectedRoom.character
                 self.currCell.secret = self.selectedRoom.roomSecret
             self.yesBuySecret()
-            # print(self.currCell)
 
     def drawSecret(self, secretType, secretString):
         centerX = self.innerLeft + (self.innerSize / 2)
@@ -1355,7 +1320,6 @@ class Player:
 
         if self.rentingSecret == False:
             self.processRentMethod()
-        # drawSecret(self, secretType, secretString)
 
     def processRentMethod(self):
         # the + - money is done in the onclick of APP
@@ -1391,7 +1355,6 @@ class Player:
                 break
 
     def drawWeaponSecret(self):
-        # self.drawInnerBoard()
         centerX = self.innerLeft + (self.innerSize / 2)
         drawLabel(
             f"{self.currCell.weaponChar}'s weapon is {self.currCell.weapon}.",
@@ -1417,7 +1380,6 @@ class Player:
         self.shownWeaponSecret = True
 
     def drawOopsInstructions(self):
-        # self.drawWhiteInnerBoard()
         drawLabel(
             f"The murderer has noticed you:",
             self.innerLeft + (self.innerSize / 2),
@@ -1596,7 +1558,6 @@ class Player:
             return False
 
     def drawMakeAGuessScreen(self):
-        # self.drawWhiteInnerBoard()
         charTextbox = self.textboxDict[0]
         weaponTextbox = self.textboxDict[1]
         roomTextbox = self.textboxDict[2]
@@ -1660,7 +1621,6 @@ class Player:
         )
         
     def drawMadeAWrongGuess(self):
-        # self.drawWhiteInnerBoard()
         drawLabel(
             f"Sorry this is not the correct answer.",
             self.innerLeft + (self.innerSize / 2),
@@ -1749,7 +1709,6 @@ class Player:
             if self.currCell.secretOwned == True:
                 if self.currCell.secretOwner != self.name:
                     if self.removeInnerBoard == False:
-                        # self.drawInnerBoard()
                         self.rentSecretPopup()  # would create the rentOKRect
                     if (
                         self.rentingSecret == True
@@ -1760,7 +1719,7 @@ class Player:
                         self.processRentMethod()
 
                 else:
-                    # display you are the owner of the cell, pass
+                    # since you are the owner of the cell, don't need to pay rent
                     pass
         elif isinstance(self.currCell, Weapon):
             if self.currCell.cellOccupied == False:
@@ -1779,9 +1738,7 @@ class Player:
             if self.oopsInPlay == True and self.removeInnerBoard == False:
                 self.drawOopsPlayingScreen()
         else:
-            # print('not on any special cell')
             self.removeInnerBoard = True
-            # print(f'remove inner board = {self.removeInnerBoard}')
 
     def drawPlayer(self):
         self.updatePlayerCoordinates()
@@ -1802,14 +1759,12 @@ def onAppStart(app):
     app.pause = True
     # for dice animation
     app.stepsPerSecond = 5
-    app.stepsCounter = 0
-    
+    app.stepsCounter = 0   
     app.imageDict = loadImages() # this returns the imageDict
     app.instructions = "You are invited to a wedding banquet on a lonely island,\n but on the day of the wedding, the groom \n died at 9PM. Everyone is grieving. \nYou are a detective that vows to find out \nwho, using what weapon, at which room, \nkilled the groom."
     app.colors = Colors('colors')
     app.instructionScreen = True
     app.resumePrevGame = False # not included in json file
-    # restart(app)
     
 
     
@@ -1835,7 +1790,6 @@ def setupGame(app):
     app.playerWon = False
     app.playerLost = False
     app.gameBoard = Board(500, 500, 7, 7, app.imageDict)
-    # app.instructionScreen = True
     app.currPlayer = app.gameBoard.player1
     app.otherPlayer = app.gameBoard.player2
     app.answer = Guess("Mrs Peacock", "Hammer", "Parlor", "answer")
@@ -1847,7 +1801,6 @@ def restart(app):
 
 
 def redrawAll(app):
-    # drawLabel(app.pause, 200, 250)
     if app.instructionScreen == True:
         drawInstructionScreen(app)
     else:
@@ -1860,7 +1813,7 @@ def redrawAll(app):
             
         # draw the dice animation
         if app.gameBoard.rollDiceState == True and app.playerSteps != None and app.pause == False:
-            # draw the animation with the number of player steps
+            # draw the animation with the ramdom number of player steps from onMousePress
             app.gameBoard.dice.drawDice()
             
         # winning page
@@ -1881,7 +1834,6 @@ def drawPlayerLostScreen(app):
     
 def drawWinningScreen(app):
     drawImage(app.imageDict["sunsetSea"], app.width/2, app.height/2, align="center", width=app.width, height=app.height)
-    # drawRect(app.gameBoard.boardLeft+ 50, app.gameBoard.boardTop + 50, app.gameBoard.width - 100, app.gameBoard.height - 100, fill='pink')
     drawLabel(f"{app.currPlayer.name} Won!", app.width/2, app.height/2, align="center", size=40, fill='black')
     drawLabel(f"Press 'r' to restart game.", app.width/2, app.height/2 + 40, align="center", fill='black')
 
@@ -1892,7 +1844,6 @@ def checkMakeAGuess(app, x, y):
     rectH = 40
     if rectLeft <= x <= rectLeft + rectW and rectTop <= y <= rectTop + rectH:
         app.gameBoard.makingAGuess = True
-        # start here --> implement make a guess feature
 
 def checkSaveProgress(app, mouseX, mouseY):
     rectLeft = app.gameBoard.boardLeft - 350
@@ -1915,10 +1866,10 @@ def saveToJson(app):
         "stepsPerSecond": app.stepsPerSecond,
         "playerWon": app.playerWon,
         "playerLost": app.playerLost,
-        "gameboard": app.gameBoard, # restore this
+        "gameboard": app.gameBoard, 
         "instructionScreen": app.instructionScreen,
-        "currPlayer": app.currPlayer, # restore this
-        "otherPlayer": app.otherPlayer, # restore this
+        "currPlayer": app.currPlayer,
+        "otherPlayer": app.otherPlayer, 
         "answer": app.answer
     }
 
@@ -1939,7 +1890,8 @@ def saveToJson(app):
             data[obj.name] = obj.to_json()
         
         
-        # objCollections = [app.gameBoard.cellDict, app.gameBoard.roomsDict, app.gameBoard.weaponsDict, app.gameBoard.textboxDict]
+        # objects with instances of classes: app.gameBoard.cellDict, app.gameBoard.roomsDict, 
+        # app.gameBoard.weaponsDict, app.gameBoard.textboxDict
         
         # initiate the new json object
         data["cellDict"] = {}
@@ -1969,14 +1921,11 @@ def readJsonFile(app):
         # Reading from json file
         json_object = json.load(openfile)
     
-    
     # update gameBoard
     # use a for loop and reassign the properties of each object
     
     # update cellDict
     for cellNum in json_object["cellDict"]:
-        # for propertyName in json_object["cellDict"][cellNum]:
-            # propertyNameStr = propertyName
         gameBoardCell = app.gameBoard.cellDict[int(cellNum)]
         jsonCell = json_object["cellDict"][cellNum]
         if gameBoardCell.cellType == "secret":
@@ -2135,17 +2084,12 @@ def onMousePress(app, mouseX, mouseY):
                 app.currPlayer.isCurrPlayer = True
                 app.gameBoard.otherPlayer = app.gameBoard.player1
                 app.gameBoard.otherPlayer.isCurrPlayer = False
-                # app.gameBoard.otherPlayer.resetCell = True
-                # in redrawAll, need to check if this is onCell()
             else:
                 app.gameBoard.currTurn = app.gameBoard.player1
                 app.currPlayer = app.gameBoard.currTurn
                 app.currPlayer.isCurrPlayer = True
                 app.gameBoard.otherPlayer = app.gameBoard.player2
                 app.gameBoard.otherPlayer.isCurrPlayer = False
-                # app.gameBoard.otherPlayer.resetCell = True
-                # if type(app.gameBoard.currTurn.currCell)==Oops:
-                #     app.gameBoard.otherPlayer.currCell.reset()
 
         if (
             app.currPlayer != None and app.instructionScreen == False
@@ -2222,7 +2166,6 @@ def onMousePress(app, mouseX, mouseY):
                 ) and app.currPlayer.yesBtnTop <= mouseY <= (
                     app.currPlayer.yesBtnTop + app.currPlayer.btnH
                 ):
-                    print("yes")
 
                     app.currPlayer.showRooms = (
                         True  # change this state would trigger draw options for rooms
@@ -2237,7 +2180,6 @@ def onMousePress(app, mouseX, mouseY):
                 ) and app.currPlayer.noBtnTop <= mouseY <= (
                     app.currPlayer.noBtnTop + app.currPlayer.btnH
                 ):
-                    print("no")
                     app.currPlayer.buyingSecret = False
                     app.currPlayer.removeInnerBoard = True
 
@@ -2306,7 +2248,6 @@ def onMousePress(app, mouseX, mouseY):
                     rectLeft <= mouseX <= rectLeft + rectW
                     and rectTop <= mouseY <= rectTop + rectH
                 ):
-                    print("mousePressed. ok, display the secret")
                     app.currPlayer.rentingSecret = True
                     app.currPlayer.removeInnerBoard = True
 
@@ -2451,7 +2392,11 @@ def onKeyPress(app, key):
             restart(app)
         if key.isdigit():
             print(key)
-            app.currPlayer.updatePlayerCell(int(key))
+            app.gameBoard.rollDiceState = True
+            app.playerSteps = int(key)
+            app.pause = False
+            
+            # app.currPlayer.updatePlayerCell(int(key))
 
         for i in range(len(app.gameBoard.textboxDict)):
             currTextbox = app.gameBoard.textboxDict[i]
@@ -2494,7 +2439,6 @@ def onStep(app):
             elif app.stepsCounter < totalSteps:
                 app.gameBoard.dice.currFrame = (1 + app.gameBoard.dice.currFrame) % len(app.gameBoard.dice.diceList)
 
-        
         # checks if player lost
         checkGameStatus(app)
         
