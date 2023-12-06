@@ -1831,15 +1831,19 @@ def drawInstructionScreen(app):
     drawRect(app.width/10 * 7.5 - 150, app.height/2 + 150 - 30, 300, 60, fill=app.colors.dustyBlue)
     drawLabel("Resume Previous Game", app.width/10 * 7.5, app.height/2 + 150, fill='white', size=18)
     
-        
-def restart(app):
+def setupGame(app):
     app.playerWon = False
     app.playerLost = False
     app.gameBoard = Board(500, 500, 7, 7, app.imageDict)
-    # app.instructionScreen = False
+    # app.instructionScreen = True
     app.currPlayer = app.gameBoard.player1
     app.otherPlayer = app.gameBoard.player2
     app.answer = Guess("Mrs Peacock", "Hammer", "Parlor", "answer")
+        
+def restart(app):
+    app.instructionScreen = True
+    setupGame(app)
+    
 
 
 def redrawAll(app):
@@ -1964,6 +1968,7 @@ def readJsonFile(app):
     with open('prevGame.json') as openfile:
         # Reading from json file
         json_object = json.load(openfile)
+    
     
     # update gameBoard
     # use a for loop and reassign the properties of each object
@@ -2091,11 +2096,11 @@ def onMousePress(app, mouseX, mouseY):
         resumeGameRectH = resumeGameRect[3]
         if startNewGameRectLeft <= mouseX <= startNewGameRectLeft + startNewGameRectW and startNewGameRectTop <= mouseY <= startNewGameRectTop + startNewGameRectH:
             app.instructionScreen = False
-            restart(app)
+            setupGame(app)
         elif resumeGameRectLeft <= mouseX <= resumeGameRectLeft + resumeGameRectW and resumeGameRectTop <= mouseY <= resumeGameRectTop + resumeGameRectH:
             app.instructionScreen = False
             app.resumePrevGame = True
-            restart(app)
+            setupGame(app)
             
     else:
         # check if need to save progress and write to json file
