@@ -167,7 +167,6 @@ class Board:
         self.cols = cols  # 7
         self.cellBorderWidth = 1
         self.cellSize = self.width / self.cols
-        print(self.cellSize)
         self.boardLeft = 400 # was 150
         self.boardTop = 100
         self.colors = Colors('colors')
@@ -359,7 +358,6 @@ class Board:
         if self.isFirstIteration == True:
             # creates a dictionary of the cells in the correct order after board is drawn
             self.updateCellDict()
-            print(self.cellDict)
             for cellNum in self.cellDict:
                 self.cellDict[cellNum].drawCell()
                 self.cellDict[cellNum].name = str(self.cellDict[cellNum])
@@ -442,7 +440,7 @@ class Board:
         # need to change all char secret descriptions according to the linebreaks
         # Kitchen
         kitchenCharSecret = (
-            "To most people, Mrs. White seems like an honest \n"
+            "To most people, Mrs White seems like an honest \n"
             + "and optimistic woman who runs Colonel Mustard’s kitchen \n"
             + "efficiently on a daily basis. Would anyone suspect that \n"
             + "she has covertly taken money from Mustard and stolen \n"
@@ -450,9 +448,9 @@ class Board:
         )
         kitchenRoomSecret = "Mustard was not in the kitchen at 9pm"
         kitchen = Rooms(
-            "Kitchen", 0, "Mrs. White", kitchenCharSecret, kitchenRoomSecret
+            "Kitchen", 0, "Mrs White", kitchenCharSecret, kitchenRoomSecret
         )
-        self.weaponsDict[0] = ["Mrs. White", "Candlestick", False]
+        self.weaponsDict[0] = ["Mrs White", "Candlestick", False]
         self.roomsDict[0] = kitchen
 
         # Master Bedroom
@@ -470,7 +468,7 @@ class Board:
         self.roomsDict[1] = bedroom
         # Billiard Room
         billiardCharSecret = (
-            "Mr. Green is a businessman who is a closeted homosexual.\n"
+            "Mr Green is a businessman who is a closeted homosexual.\n"
             + "He is desperately in love with his partner and wants to \n"
             + "get married, but Mustard used his influence to make gay \n"
             + "marriage illegal in his state. Green now can’t pursue \n"
@@ -478,9 +476,9 @@ class Board:
         )
         billiardRoomSecret = "Mustard was not in the billiard room at 9pm"
         billiard = Rooms(
-            "Billiard Room", 2, "Mr. Green", billiardCharSecret, billiardRoomSecret
+            "Billiard Room", 2, "Mr Green", billiardCharSecret, billiardRoomSecret
         )
-        self.weaponsDict[2] = ["Mr. Green", "Dagger", False]
+        self.weaponsDict[2] = ["Mr Green", "Dagger", False]
         self.roomsDict[2] = billiard
         # Study
         studyCharSecret = (
@@ -495,14 +493,14 @@ class Board:
         self.roomsDict[3] = study
         # Parlor
         parlorCharSecret = (
-            "Mrs. Peacock is a lawyer and the mother of a soldier\n"
+            "Mrs Peacock is a lawyer and the mother of a soldier\n"
             + "under Mustard. What an honor you might think! \n"
             + "Well, Mustard killed her son because\n"
             + "her son attempted to unveil Mustard’s secret."
         )
         parlorRoomSecret = "Mustard was in the Parlor at approximately 9pm"
-        parlor = Rooms("Parlor", 4, "Mrs. Peacock", parlorCharSecret, parlorRoomSecret)
-        self.weaponsDict[4] = ["Mrs. Peacock", "Hammer", False]
+        parlor = Rooms("Parlor", 4, "Mrs Peacock", parlorCharSecret, parlorRoomSecret)
+        self.weaponsDict[4] = ["Mrs Peacock", "Hammer", False]
         self.roomsDict[4] = parlor
         # Ballroom
         ballroomCharSecret = (
@@ -1000,6 +998,7 @@ class Player:
         self.roomBtnH = None
         self.roomBtnW = None
         # check if guessed right
+        self.makingAGuess = False # not loaded into JSON
         self.textboxDict = textboxDict  # imported from gameboard
         self.checkGuessRect = None
         self.wrongGuess = False
@@ -1509,7 +1508,6 @@ class Player:
                     fill=self.colors.moonLight,
                 )
             else:
-                print(f"{self.name} lost.")
                 self.currCell.tied = False
                 self.currCell.playerWonOops = False
                 drawLabel(
@@ -1679,7 +1677,7 @@ class Player:
         
 
     def checkOnCell(self):
-        if isinstance(self.currCell, Secret):
+        if isinstance(self.currCell, Secret) and self.makingAGuess == False:
             # checks the secretOwned status of the cell, not the room
             if self.currCell.secretOwned == False:
                 if self.removeInnerBoard == False:
@@ -1689,7 +1687,6 @@ class Player:
                     self.buySecretPopup()
                 # draws the room options if clicked on 'yes'
                 if self.showRooms == True:
-                    print("show rooms")
                     self.drawRoomSelection()
                     self.roomsDrawn = True
                 if self.selectedRoom != None:
@@ -1713,7 +1710,6 @@ class Player:
                     if (
                         self.rentingSecret == True
                     ):  # this state is changed when clicked 'ok' on popup
-                        print("renting secret: should display secret of the cell")
                         self.drawRentSecret()
                     if self.processingRent == True:
                         self.processRentMethod()
@@ -1844,6 +1840,7 @@ def checkMakeAGuess(app, x, y):
     rectH = 40
     if rectLeft <= x <= rectLeft + rectW and rectTop <= y <= rectTop + rectH:
         app.gameBoard.makingAGuess = True
+        app.currPlayer.makingAGuess = True
 
 def checkSaveProgress(app, mouseX, mouseY):
     rectLeft = app.gameBoard.boardLeft - 350
@@ -1851,7 +1848,6 @@ def checkSaveProgress(app, mouseX, mouseY):
     rectW = 250
     rectH = 40
     if (rectLeft <= mouseX <= rectLeft + rectW and rectTop <= mouseY <= rectTop + rectH):
-        print('save progress')
         saveToJson(app)
         
         
@@ -2123,7 +2119,7 @@ def onMousePress(app, mouseX, mouseY):
 
             
                 # checks if checkGuess btn is being clicked on
-                if app.currPlayer.checkGuessRect != None:
+                if app.currPlayer.checkGuessRect != None and app.gameBoard.makingAGuess == True:
                     rectLeft = app.currPlayer.checkGuessRect[0]
                     rectTop = app.currPlayer.checkGuessRect[1]
                     rectW = app.currPlayer.checkGuessRect[2]
@@ -2141,6 +2137,7 @@ def onMousePress(app, mouseX, mouseY):
                                 for textbox in app.gameBoard.textboxDict:
                                     app.gameBoard.textboxDict[textbox].reset()
                                 app.gameBoard.makingAGuess = False
+                                app.currPlayer.makingAGuess = False
                                 app.currPlayer.checkGuessRect = None
                             else:
                                 app.currPlayer.wrongGuess = True
@@ -2151,6 +2148,7 @@ def onMousePress(app, mouseX, mouseY):
                             for textbox in app.gameBoard.textboxDict:
                                 app.gameBoard.textboxDict[textbox].reset()
                             app.gameBoard.makingAGuess = False
+                            app.currPlayer.makingAGuess = False
                             app.currPlayer.checkGuessRect = None
                             app.currPlayer.wrongGuess=False
 
@@ -2158,7 +2156,7 @@ def onMousePress(app, mouseX, mouseY):
 
             # check if clicked on yes or no buttons for buying
             if (app.currPlayer.buyingSecret == True) and (
-                app.currPlayer.showRooms == False
+                app.currPlayer.showRooms == False and app.gameBoard.makingAGuess == False
             ):
                 # check if mouseX and mouseY is within bounds of Yes or No box
                 if app.currPlayer.yesBtnLeft <= mouseX <= (
@@ -2184,7 +2182,7 @@ def onMousePress(app, mouseX, mouseY):
                     app.currPlayer.removeInnerBoard = True
 
             # check which room the player selected
-            if app.currPlayer.roomsDrawn == True:  # need to set this state back to False
+            if app.currPlayer.roomsDrawn == True and app.gameBoard.makingAGuess == False:  # need to set this state back to False
                 for i in range(len(app.currPlayer.roomsDict) // 2):  # 3
                     rectTop = (
                         app.currPlayer.roomBtnTop + i * (app.currPlayer.btnH + 20) + 50
@@ -2205,7 +2203,8 @@ def onMousePress(app, mouseX, mouseY):
 
             # checks if the OK btn is clicked at the buy secret screen. If so, resets.
             if (
-                app.currPlayer.secretOKRect != None and app.currPlayer.buyingSecret == True
+                app.currPlayer.secretOKRect != None and app.currPlayer.buyingSecret == True and 
+                app.gameBoard.makingAGuess == False
             ):  # secretOKRect is the coordinates for OK btn
                 rectLeft = app.currPlayer.secretOKRect[0]
                 rectTop = app.currPlayer.secretOKRect[1]
@@ -2219,7 +2218,7 @@ def onMousePress(app, mouseX, mouseY):
                     app.currPlayer.secretOKRect = None
 
             # checks if the OK btn is clicked on the roomsNotAvailable screen
-            if app.currPlayer.roomsDrawn == False:
+            if app.currPlayer.roomsDrawn == False and app.gameBoard.makingAGuess == False:
                 rectLeft = app.currPlayer.innerLeft + (app.currPlayer.innerSize / 2) - 50
                 rectTop = app.currPlayer.innerTop + 150
                 rectW = 100
@@ -2236,7 +2235,7 @@ def onMousePress(app, mouseX, mouseY):
 
             # check if ok btn clicked on rentPopup screen
             if (app.currPlayer.removeInnerBoard == False) and (
-                app.currPlayer.rentOKRect != None
+                app.currPlayer.rentOKRect != None and app.gameBoard.makingAGuess == False
             ):
                 # check if mouseX and mouseY is within bounds of OK Btn
                 rectLeft = app.currPlayer.rentOKRect[0]
@@ -2254,6 +2253,7 @@ def onMousePress(app, mouseX, mouseY):
             # checks if the OK btn is clicked on the rent secret screen
             if (
                 app.currPlayer.secretOKRect != None and app.currPlayer.rentingSecret == True
+                and app.gameBoard.makingAGuess == False
             ):  # secretOKRect is the coordinates for OK btn
                 rectLeft = app.currPlayer.secretOKRect[0]
                 rectTop = app.currPlayer.secretOKRect[1]
@@ -2271,6 +2271,7 @@ def onMousePress(app, mouseX, mouseY):
             if (
                 app.currPlayer.showWeaponSecret == True
                 and app.currPlayer.weaponOKRect != None
+                and app.gameBoard.makingAGuess == False
             ):
                 rectLeft = app.currPlayer.weaponOKRect[0]
                 rectTop = app.currPlayer.weaponOKRect[1]
@@ -2290,6 +2291,7 @@ def onMousePress(app, mouseX, mouseY):
                 isinstance(app.currPlayer.currCell, Oops)
                 and app.currPlayer.shownOopsInstructions == False
                 and app.currPlayer.oopsInstructionsRect != None
+                and app.gameBoard.makingAGuess == False
             ):
                 rectLeft = app.currPlayer.oopsInstructionsRect[0]
                 rectTop = app.currPlayer.oopsInstructionsRect[1]
@@ -2309,6 +2311,7 @@ def onMousePress(app, mouseX, mouseY):
                 isinstance(app.currPlayer.currCell, Oops)
                 and app.currPlayer.oopsInPlay == True
                 and app.currPlayer.currCell.currPlayerChoice == None
+                and app.gameBoard.makingAGuess == False
             ):
                 for i in range(len(app.currPlayer.currCell.rockPaperScissors)):
                     rectLeft = (
@@ -2337,6 +2340,7 @@ def onMousePress(app, mouseX, mouseY):
                 isinstance(app.currPlayer.currCell, Oops)
                 and app.currPlayer.currCell.currPlayerChoice != None
                 and app.currPlayer.oopsInstructionsRect != None
+                and app.gameBoard.makingAGuess == False
             ):
                 rectLeft = app.currPlayer.oopsInstructionsRect[0]
                 rectTop = app.currPlayer.oopsInstructionsRect[1]
@@ -2395,9 +2399,8 @@ def onKeyPress(app, key):
             app.gameBoard.rollDiceState = True
             app.playerSteps = int(key)
             app.pause = False
-            
-            # app.currPlayer.updatePlayerCell(int(key))
 
+        # adding labels to textboxes
         for i in range(len(app.gameBoard.textboxDict)):
             currTextbox = app.gameBoard.textboxDict[i]
             if currTextbox.selected == True:
@@ -2422,11 +2425,12 @@ def onStep(app):
             app.currPlayer = app.gameBoard.currTurn
             app.otherPlayer = app.gameBoard.otherPlayer
         
+        # for resuming previous game
         if app.resumePrevGame == True and app.gameBoard.boardLoaded == True:
             readJsonFile(app)
             app.resumePrevGame = False
         
-        
+        # dice animation
         if app.gameBoard.rollDiceState == True and app.playerSteps != None:
             app.stepsCounter += 1
             totalSteps = app.playerSteps + len(app.gameBoard.dice.diceList)
