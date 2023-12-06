@@ -3,6 +3,12 @@ import mediapipe as mp
 from functools import cache 
 
 # used some code from https://www.section.io/engineering-education/creating-a-hand-tracking-module/
+'''
+articles I've read on OpenCV:
+https://www.tutorialspoint.com/how-to-flip-an-image-in-opencv-python#:~:text=In%20OpenCV%2C%20an%20image%20can,the%20image%20across%20the%20axis.
+https://www.geeksforgeeks.org/python-opencv-cv2-circle-method/
+https://developers.google.com/mediapipe/solutions/vision/gesture_recognizer/python
+'''
 
 @cache
 class handTracker:

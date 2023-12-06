@@ -17,8 +17,8 @@
             "0": "0. Go",
             "1": "1. oops",
             "2": "2. weapon",
-            "3": "3. secret, owner is player1, secretRoom is Kitchen, secret is To most people, Mrs. White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
-            "4": "4. secret, owner is None, secretRoom is None, secret is None",
+            "3": "3. secret, owner is player1, secretRoom is Kitchen, secret is To most people, Mrs White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
+            "4": "4. secret, owner is player2, secretRoom is Kitchen, secret is Mustard was not in the kitchen at 9pm",
             "5": "5. weapon",
             "6": "6. oops",
             "7": "7. secret, owner is None, secretRoom is None, secret is None",
@@ -43,18 +43,18 @@
         "player1": "player1",
         "player2": "player2",
         "roomsDict": {
-            "0": "0. Kitchen(Mrs. White, player1, None)",
+            "0": "0. Kitchen(Mrs White, player1, player2)",
             "1": "1. Master Bedroom(Colonel Mustard, None, None)",
-            "2": "2. Billiard Room(Mr. Green, None, None)",
+            "2": "2. Billiard Room(Mr Green, None, None)",
             "3": "3. Study(Professor Plum, None, None)",
-            "4": "4. Parlor(Mrs. Peacock, None, None)",
+            "4": "4. Parlor(Mrs Peacock, None, None)",
             "5": "5. Ballroom(Miss Scarlet, None, None)"
         },
         "weaponsDict": {
             "0": [
-                "Mrs. White",
+                "Mrs White",
                 "Candlestick",
-                false
+                true
             ],
             "1": [
                 "Colonel Mustard",
@@ -62,7 +62,7 @@
                 false
             ],
             "2": [
-                "Mr. Green",
+                "Mr Green",
                 "Dagger",
                 false
             ],
@@ -72,7 +72,7 @@
                 false
             ],
             "4": [
-                "Mrs. Peacock",
+                "Mrs Peacock",
                 "Hammer",
                 false
             ],
@@ -82,8 +82,8 @@
                 false
             ]
         },
-        "currTurn": "player1",
-        "otherPlayer": null,
+        "currTurn": "player2",
+        "otherPlayer": "player1",
         "makingAGuess": false,
         "textboxDict": {
             "0": "Textbox(charTextbox, selected is False, text is )",
@@ -95,13 +95,13 @@
     },
     "player1": {
         "name": "player1",
-        "isCurrPlayer": true,
+        "isCurrPlayer": false,
         "cellDict": {
             "0": "0. Go",
             "1": "1. oops",
             "2": "2. weapon",
-            "3": "3. secret, owner is player1, secretRoom is Kitchen, secret is To most people, Mrs. White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
-            "4": "4. secret, owner is None, secretRoom is None, secret is None",
+            "3": "3. secret, owner is player1, secretRoom is Kitchen, secret is To most people, Mrs White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
+            "4": "4. secret, owner is player2, secretRoom is Kitchen, secret is Mustard was not in the kitchen at 9pm",
             "5": "5. weapon",
             "6": "6. oops",
             "7": "7. secret, owner is None, secretRoom is None, secret is None",
@@ -123,18 +123,18 @@
             "23": "23. secret, owner is None, secretRoom is None, secret is None"
         },
         "roomsDict": {
-            "0": "0. Kitchen(Mrs. White, player1, None)",
+            "0": "0. Kitchen(Mrs White, player1, player2)",
             "1": "1. Master Bedroom(Colonel Mustard, None, None)",
-            "2": "2. Billiard Room(Mr. Green, None, None)",
+            "2": "2. Billiard Room(Mr Green, None, None)",
             "3": "3. Study(Professor Plum, None, None)",
-            "4": "4. Parlor(Mrs. Peacock, None, None)",
+            "4": "4. Parlor(Mrs Peacock, None, None)",
             "5": "5. Ballroom(Miss Scarlet, None, None)"
         },
         "weaponsDict": {
             "0": [
-                "Mrs. White",
+                "Mrs White",
                 "Candlestick",
-                false
+                true
             ],
             "1": [
                 "Colonel Mustard",
@@ -142,7 +142,7 @@
                 false
             ],
             "2": [
-                "Mr. Green",
+                "Mr Green",
                 "Dagger",
                 false
             ],
@@ -152,7 +152,7 @@
                 false
             ],
             "4": [
-                "Mrs. Peacock",
+                "Mrs Peacock",
                 "Hammer",
                 false
             ],
@@ -162,35 +162,49 @@
                 false
             ]
         },
-        "currCellNum": 3,
-        "currCell": "3. secret, owner is player1, secretRoom is Kitchen, secret is To most people, Mrs. White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
+        "currCellNum": 9,
+        "currCell": "9. weapon",
         "playerColor": "yellow",
         "lives": 3,
-        "money": 1400,
+        "money": 1325,
         "buyingSecret": false,
-        "removeInnerBoard": true,
-        "showRooms": false,
+        "removeInnerBoard": false,
+        "showRooms": true,
         "roomsDrawn": false,
         "rentingSecret": false,
         "processingRent": false,
-        "rentOKRect": null,
+        "rentOKRect": [
+            590.0,
+            330.0,
+            120,
+            40
+        ],
         "showWeaponSecret": false,
-        "weaponOKRect": null,
+        "weaponOKRect": [
+            600.0,
+            381.42857142857144,
+            100,
+            40
+        ],
         "processingWeaponSecret": false,
-        "shownWeaponSecret": false,
+        "shownWeaponSecret": true,
         "showOopsInstructions": false,
         "oopsInstructionsRect": null,
         "oopsInPlay": false,
         "shownOopsInstructions": false,
         "charSecretOwned": [
-            "Mrs. White"
+            "Mrs White"
         ],
-        "roomSecretOwned": [],
-        "weaponSecretOwned": [],
+        "roomSecretOwned": [
+            "Mustard was not in the kitchen at 9pm"
+        ],
+        "weaponSecretOwned": [
+            "Mrs White's weapon is Candlestick."
+        ],
         "selectedRoom": null,
         "secretOKRect": [
             600.0,
-            451.42857142857144,
+            371.42857142857144,
             100,
             40
         ],
@@ -334,26 +348,26 @@
         "3": {
             "name": "3. secret, owner is None, secretRoom is None, secret is None",
             "cellType": "secret",
-            "secretChar": "Mrs. White",
+            "secretChar": "Mrs White",
             "price": 100,
             "secretOwned": true,
             "secretOwner": "player1",
             "secretRoom": "Kitchen",
             "secretType": "characterSecret",
-            "secret": "To most people, Mrs. White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
+            "secret": "To most people, Mrs White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
             "yesBuy": false,
             "yesRent": false
         },
         "4": {
             "name": "4. secret, owner is None, secretRoom is None, secret is None",
             "cellType": "secret",
-            "secretChar": null,
+            "secretChar": "Mrs White",
             "price": 100,
-            "secretOwned": false,
-            "secretOwner": null,
-            "secretRoom": null,
-            "secretType": null,
-            "secret": null,
+            "secretOwned": true,
+            "secretOwner": "player2",
+            "secretRoom": "Kitchen",
+            "secretType": "roomSecret",
+            "secret": "Mustard was not in the kitchen at 9pm",
             "yesBuy": false,
             "yesRent": false
         },
@@ -406,9 +420,9 @@
         "9": {
             "name": "9. weapon",
             "cellType": "weapon",
-            "weapon": null,
-            "weaponChar": null,
-            "cellOccupied": false
+            "weapon": "Candlestick",
+            "weaponChar": "Mrs White",
+            "cellOccupied": true
         },
         "10": {
             "name": "10. oops",
@@ -580,11 +594,11 @@
             "name": "Kitchen",
             "id": 0,
             "accessible": true,
-            "character": "Mrs. White",
-            "characterSecret": "To most people, Mrs. White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
+            "character": "Mrs White",
+            "characterSecret": "To most people, Mrs White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
             "roomSecret": "Mustard was not in the kitchen at 9pm",
             "characterSecretOwner": "player1",
-            "roomSecretOwner": null
+            "roomSecretOwner": "player2"
         },
         "1": {
             "name": "Master Bedroom",
@@ -600,8 +614,8 @@
             "name": "Billiard Room",
             "id": 2,
             "accessible": true,
-            "character": "Mr. Green",
-            "characterSecret": "Mr. Green is a businessman who is a closeted homosexual.\nHe is desperately in love with his partner and wants to \nget married, but Mustard used his influence to make gay \nmarriage illegal in his state. Green now can\u2019t pursue \nhis love \u2013\u2013 he wants revenge\u2026",
+            "character": "Mr Green",
+            "characterSecret": "Mr Green is a businessman who is a closeted homosexual.\nHe is desperately in love with his partner and wants to \nget married, but Mustard used his influence to make gay \nmarriage illegal in his state. Green now can\u2019t pursue \nhis love \u2013\u2013 he wants revenge\u2026",
             "roomSecret": "Mustard was not in the billiard room at 9pm",
             "characterSecretOwner": null,
             "roomSecretOwner": null
@@ -620,8 +634,8 @@
             "name": "Parlor",
             "id": 4,
             "accessible": true,
-            "character": "Mrs. Peacock",
-            "characterSecret": "Mrs. Peacock is a lawyer and the mother of a soldier\nunder Mustard. What an honor you might think! \nWell, Mustard killed her son because\nher son attempted to unveil Mustard\u2019s secret.",
+            "character": "Mrs Peacock",
+            "characterSecret": "Mrs Peacock is a lawyer and the mother of a soldier\nunder Mustard. What an honor you might think! \nWell, Mustard killed her son because\nher son attempted to unveil Mustard\u2019s secret.",
             "roomSecret": "Mustard was in the Parlor at approximately 9pm",
             "characterSecretOwner": null,
             "roomSecretOwner": null
@@ -682,19 +696,19 @@
         "playerLost": false,
         "gameboard": "Board(player1, player2)",
         "instructionScreen": false,
-        "currPlayer": "player1",
-        "otherPlayer": null,
+        "currPlayer": "player2",
+        "otherPlayer": "player1",
         "answer": "Mrs Peacock , using Hammer , killed Colonel Mustard in the Parlor ."
     },
     "player2": {
         "name": "player2",
-        "isCurrPlayer": false,
+        "isCurrPlayer": true,
         "cellDict": {
             "0": "0. Go",
             "1": "1. oops",
             "2": "2. weapon",
-            "3": "3. secret, owner is player1, secretRoom is Kitchen, secret is To most people, Mrs. White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
-            "4": "4. secret, owner is None, secretRoom is None, secret is None",
+            "3": "3. secret, owner is player1, secretRoom is Kitchen, secret is To most people, Mrs White seems like an honest \nand optimistic woman who runs Colonel Mustard\u2019s kitchen \nefficiently on a daily basis. Would anyone suspect that \nshe has covertly taken money from Mustard and stolen \nvaluable antiques to sell on the black market?",
+            "4": "4. secret, owner is player2, secretRoom is Kitchen, secret is Mustard was not in the kitchen at 9pm",
             "5": "5. weapon",
             "6": "6. oops",
             "7": "7. secret, owner is None, secretRoom is None, secret is None",
@@ -716,18 +730,18 @@
             "23": "23. secret, owner is None, secretRoom is None, secret is None"
         },
         "roomsDict": {
-            "0": "0. Kitchen(Mrs. White, player1, None)",
+            "0": "0. Kitchen(Mrs White, player1, player2)",
             "1": "1. Master Bedroom(Colonel Mustard, None, None)",
-            "2": "2. Billiard Room(Mr. Green, None, None)",
+            "2": "2. Billiard Room(Mr Green, None, None)",
             "3": "3. Study(Professor Plum, None, None)",
-            "4": "4. Parlor(Mrs. Peacock, None, None)",
+            "4": "4. Parlor(Mrs Peacock, None, None)",
             "5": "5. Ballroom(Miss Scarlet, None, None)"
         },
         "weaponsDict": {
             "0": [
-                "Mrs. White",
+                "Mrs White",
                 "Candlestick",
-                false
+                true
             ],
             "1": [
                 "Colonel Mustard",
@@ -735,7 +749,7 @@
                 false
             ],
             "2": [
-                "Mr. Green",
+                "Mr Green",
                 "Dagger",
                 false
             ],
@@ -745,7 +759,7 @@
                 false
             ],
             "4": [
-                "Mrs. Peacock",
+                "Mrs Peacock",
                 "Hammer",
                 false
             ],
@@ -755,13 +769,13 @@
                 false
             ]
         },
-        "currCellNum": 0,
-        "currCell": "0. Go",
+        "currCellNum": 6,
+        "currCell": "6. oops",
         "playerColor": "purple",
-        "lives": 3,
-        "money": 1500,
+        "lives": 2,
+        "money": 1575,
         "buyingSecret": false,
-        "removeInnerBoard": true,
+        "removeInnerBoard": false,
         "showRooms": false,
         "roomsDrawn": false,
         "rentingSecret": false,
@@ -774,12 +788,19 @@
         "showOopsInstructions": false,
         "oopsInstructionsRect": null,
         "oopsInPlay": false,
-        "shownOopsInstructions": false,
+        "shownOopsInstructions": true,
         "charSecretOwned": [],
-        "roomSecretOwned": [],
+        "roomSecretOwned": [
+            "Mustard was not in the kitchen at 9pm"
+        ],
         "weaponSecretOwned": [],
         "selectedRoom": null,
-        "secretOKRect": null,
+        "secretOKRect": [
+            600.0,
+            371.42857142857144,
+            100,
+            40
+        ],
         "textboxDict": {
             "0": "Textbox(charTextbox, selected is False, text is )",
             "1": "Textbox(weaponTextbox, selected is False, text is )",
