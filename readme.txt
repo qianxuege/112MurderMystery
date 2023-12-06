@@ -1,6 +1,7 @@
 # WeddingMystery
 
-Wedding Mystery is my term project for the CMU course 15-112. Players essentially play Clue on a Monopoly board. 
+Wedding Mystery is my term project for the CMU course 15-112. 
+It is similar to playing Clue on a Monopoly board. 
 
 The backstory is: You are invited to a wedding banquet on a lonely island,
 but on the day of the wedding, the groom died at 9PM. Everyone is grieving. 
