@@ -2,6 +2,8 @@
 
 Wedding Mystery is my term project for the CMU course 15-112. Players essentially play Clue on a Monopoly board. 
 
+Here is a 2-minute demo video: https://youtu.be/F1SlQotHosM 
+
 The backstory is: You are invited to a wedding banquet on a lonely island,
 but on the day of the wedding, the groom died at 9PM. Everyone is grieving. 
 You are a detective that vows to find out who, using what weapon, at which room, killed the groom.
